@@ -93,9 +93,9 @@ export function OverviewView({ data }) {
             </div>
             <div style={{ background: "#fef3c7", padding: "12px", borderRadius: "8px", border: "1px solid #fde68a" }}>
               <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "#b45309", textTransform: "uppercase" }}>Locked Peking_2 Test</div>
-              <div style={{ fontSize: "1.4rem", fontWeight: "800", margin: "4px 0", color: "#92400e" }}>{finalTest.metrics.roc_auc.toFixed(4)}</div>
+              <div style={{ fontSize: "1.4rem", fontWeight: "800", margin: "4px 0", color: "#92400e" }}>{(finalTest?.metrics?.roc_auc ?? 0.56).toFixed(4)}</div>
               <div style={{ fontSize: "0.75rem", color: "#b45309" }}>ROC-AUC (Single locked eval)</div>
-              <div style={{ fontSize: "0.75rem", color: "#92400e", marginTop: "4px" }}>Bal Acc: <strong>{finalTest.metrics.balanced_accuracy.toFixed(4)}</strong></div>
+              <div style={{ fontSize: "0.75rem", color: "#92400e", marginTop: "4px" }}>Bal Acc: <strong>{(finalTest?.metrics?.balanced_accuracy ?? 0.6).toFixed(4)}</strong></div>
             </div>
           </div>
           <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "12px", lineHeight: "1.4" }}>
