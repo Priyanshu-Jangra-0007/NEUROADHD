@@ -1,0 +1,15 @@
+{
+  "pipeline_steps": [
+    "SimpleImputer(strategy='median')",
+    "VarianceThreshold(threshold=0.0)",
+    "StandardScaler()",
+    "SelectKBest(score_func=f_classif)"
+  ],
+  "k_values_tested": [
+    50,
+    100,
+    200,
+    500
+  ],
+  "fitting_policy": "Fit strictly on training data / training CV folds. Never fit on Validation or Test."
+}

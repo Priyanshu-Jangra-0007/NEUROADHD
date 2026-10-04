@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NeuroADHD — Model Explainability Report</title>
+  <style>
+    :root { --bg: #0b0f19; --card-bg: #111827; --card-border: #1f2937; --text: #f9fafb; --text-muted: #9ca3af; --cyan: #38bdf8; --green: #4ade80; --purple: #c084fc; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 32px 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; background: #064e3b; color: var(--green); }
+    .badge-locked { background: #451a03; color: #fbbf24; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin: 16px 0 24px 0; overflow: hidden; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--card-border); font-size: 0.9rem; }
+    th { background: #1a2234; color: var(--cyan); }
+    .img-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; }
+    .img-card img { max-width: 100%; height: auto; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="badge">Explainability Phase Complete</span>
+    <span class="badge badge-locked">Peking_2 Test Locked</span>
+    <h1 style="margin: 12px 0 6px 0;">NeuroADHD — Model Explainability &amp; Feature Interpretation</h1>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">Run ID: <code>run_20261004_184605_explainability</code> | Model: Frozen Balanced Random Forest (K=100, n_est=50, depth=3)</p>
+
+    <h2 style="color: var(--cyan);">Top 10 Predictive Functional Connectivity Edges</h2>
+    <table>
+      <thead><tr><th>Rank</th><th>Connectivity Edge</th><th>ROI Pair</th><th>Mean |SHAP|</th><th>Model Association Direction</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1</strong></td><td><code>ROI_023__ROI_189</code></td><td>ROI_023 — ROI_189</td><td>0.0168</td><td>Higher connectivity increases ADHD probability</td></tr>
+        <tr><td><strong>2</strong></td><td><code>ROI_100__ROI_153</code></td><td>ROI_100 — ROI_153</td><td>0.0162</td><td>Higher connectivity increases ADHD probability</td></tr>
+        <tr><td><strong>3</strong></td><td><code>ROI_034__ROI_041</code></td><td>ROI_034 — ROI_041</td><td>0.0155</td><td>Higher connectivity increases ADHD probability</td></tr>
+        <tr><td><strong>4</strong></td><td><code>ROI_143__ROI_153</code></td><td>ROI_143 — ROI_153</td><td>0.0143</td><td>Higher connectivity increases ADHD probability</td></tr>
+        <tr><td><strong>5</strong></td><td><code>ROI_023__ROI_103</code></td><td>ROI_023 — ROI_103</td><td>0.0141</td><td>Higher connectivity increases ADHD probability</td></tr>
+        <tr><td><strong>6</strong></td><td><code>ROI_003__ROI_006</code></td><td>ROI_003 — ROI_006</td><td>0.0139</td><td>Higher connectivity increases ADHD probability</td></tr>
+        <tr><td><strong>7</strong></td><td><code>ROI_056__ROI_138</code></td><td>ROI_056 — ROI_138</td><td>0.0132</td><td>Higher connectivity increases ADHD probability</td></tr>
+        <tr><td><strong>8</strong></td><td><code>ROI_026__ROI_153</code></td><td>ROI_026 — ROI_153</td><td>0.0127</td><td>Higher connectivity increases ADHD probability</td></tr>
+        <tr><td><strong>9</strong></td><td><code>ROI_034__ROI_103</code></td><td>ROI_034 — ROI_103</td><td>0.0126</td><td>Higher connectivity increases ADHD probability</td></tr>
+        <tr><td><strong>10</strong></td><td><code>ROI_006__ROI_127</code></td><td>ROI_006 — ROI_127</td><td>0.0122</td><td>Higher connectivity increases ADHD probability</td></tr>
+      </tbody>
+    </table>
+
+    <div class="img-card">
+      <h3 style="color: var(--cyan); margin-bottom: 12px;">SHAP Beeswarm Feature Impact (Top 20 Edges)</h3>
+      <img src="plots/shap_beeswarm.png" alt="SHAP Beeswarm Plot">
+    </div>
+
+    <div class="img-card">
+      <h3 style="color: var(--cyan); margin-bottom: 12px;">Permutation Feature Importance</h3>
+      <img src="plots/permutation_importance.png" alt="Permutation Importance">
+    </div>
+
+    <div class="img-card">
+      <h3 style="color: var(--purple); margin-bottom: 12px;">Most Frequent CC200 Hub ROIs</h3>
+      <img src="plots/roi_frequency.png" alt="ROI Frequency Analysis">
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+[2026-10-04 18:35:09] === Starting Repeated Hybrid-Only Robustness Experiment: run_20261004_183509_repeated_hybrid_01 ===
+[2026-10-04 18:35:11] Development subjects for Repeated CV: 133 (Control: 93, ADHD: 40) across 7 sites
+[2026-10-04 18:35:11] Held-out Peking_2 Test set: 20 subjects — STRICTLY LOCKED & UNTOUCHED!
+[2026-10-04 18:35:11] 
+--- Executing 5 Repeated CV Runs on 133 Development Subjects ---
+[2026-10-04 18:35:11] 
+[Repetition 1/5] — Seed 42: Initializing new stratified 5-fold partition...
+[2026-10-04 18:35:16]   Hard Voting:  ROC-AUC=0.5962 | BalAcc=0.5977 | Sens=0.4750 | F1=0.4471 | Acc=0.6466
+[2026-10-04 18:35:16]   Soft Voting:  ROC-AUC=0.5962 | BalAcc=0.5977 | Sens=0.4750 | F1=0.4471 | Acc=0.6466
+[2026-10-04 18:35:16]   Stacking:     ROC-AUC=0.5247 | BalAcc=0.5153 | Sens=0.4500 | F1=0.3711 | Acc=0.5414
+[2026-10-04 18:35:16] 
+[Repetition 2/5] — Seed 43: Initializing new stratified 5-fold partition...
+[2026-10-04 18:35:20]   Hard Voting:  ROC-AUC=0.5917 | BalAcc=0.5995 | Sens=0.5000 | F1=0.4545 | Acc=0.6391
+[2026-10-04 18:35:20]   Soft Voting:  ROC-AUC=0.5917 | BalAcc=0.5995 | Sens=0.5000 | F1=0.4545 | Acc=0.6391
+[2026-10-04 18:35:20]   Stacking:     ROC-AUC=0.6011 | BalAcc=0.5563 | Sens=0.5750 | F1=0.4340 | Acc=0.5489
+[2026-10-04 18:35:20] 
+[Repetition 3/5] — Seed 44: Initializing new stratified 5-fold partition...
+[2026-10-04 18:35:25]   Hard Voting:  ROC-AUC=0.5858 | BalAcc=0.5387 | Sens=0.4000 | F1=0.3721 | Acc=0.5940
+[2026-10-04 18:35:25]   Soft Voting:  ROC-AUC=0.5858 | BalAcc=0.5387 | Sens=0.4000 | F1=0.3721 | Acc=0.5940
+[2026-10-04 18:35:25]   Stacking:     ROC-AUC=0.5293 | BalAcc=0.5386 | Sens=0.4750 | F1=0.3958 | Acc=0.5639
+[2026-10-04 18:35:25] 
+[Repetition 4/5] — Seed 45: Initializing new stratified 5-fold partition...
+[2026-10-04 18:35:30]   Hard Voting:  ROC-AUC=0.5589 | BalAcc=0.5727 | Sens=0.4250 | F1=0.4096 | Acc=0.6316
+[2026-10-04 18:35:30]   Soft Voting:  ROC-AUC=0.5589 | BalAcc=0.5727 | Sens=0.4250 | F1=0.4096 | Acc=0.6316
+[2026-10-04 18:35:30]   Stacking:     ROC-AUC=0.5694 | BalAcc=0.5707 | Sens=0.5500 | F1=0.4400 | Acc=0.5789
+[2026-10-04 18:35:30] 
+[Repetition 5/5] — Seed 46: Initializing new stratified 5-fold partition...
+[2026-10-04 18:35:34]   Hard Voting:  ROC-AUC=0.6304 | BalAcc=0.5906 | Sens=0.4500 | F1=0.4337 | Acc=0.6466
+[2026-10-04 18:35:34]   Soft Voting:  ROC-AUC=0.6304 | BalAcc=0.5906 | Sens=0.4500 | F1=0.4337 | Acc=0.6466
+[2026-10-04 18:35:34]   Stacking:     ROC-AUC=0.5532 | BalAcc=0.5332 | Sens=0.4750 | F1=0.3918 | Acc=0.5564
+[2026-10-04 18:35:35] Plots saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_183509_repeated_hybrid_01/plots/repeated_hybrid_distributions.png

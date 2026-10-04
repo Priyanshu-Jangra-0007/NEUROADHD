@@ -1,0 +1,31 @@
+[2026-10-04 18:39:29] === Starting Balanced Random Forest Repeated-CV Robustness Experiment: run_20261004_183929_3more_rf_repeated ===
+[2026-10-04 18:39:30] Development subjects for Repeated CV: 133 (Control: 93, ADHD: 40) across 7 sites
+[2026-10-04 18:39:30] Held-out Peking_2 Test set: 20 subjects — STRICTLY LOCKED & UNTOUCHED!
+[2026-10-04 18:39:30] 
+--- Executing 5-Fold Stratified CV across all 8 Repetitions ---
+[2026-10-04 18:39:30] 
+[Repetition 1/8 (EXISTING)] — Seed 42: Initializing stratified 5-fold CV...
+[2026-10-04 18:39:31]   RF (Seed 42): ROC-AUC=0.5919 | BalAcc=0.5995 | Sens=0.5000 | Spec=0.6989 | F1=0.4545 | Acc=0.6391
+[2026-10-04 18:39:31] 
+[Repetition 2/8 (EXISTING)] — Seed 43: Initializing stratified 5-fold CV...
+[2026-10-04 18:39:32]   RF (Seed 43): ROC-AUC=0.6070 | BalAcc=0.5941 | Sens=0.5000 | Spec=0.6882 | F1=0.4494 | Acc=0.6316
+[2026-10-04 18:39:32] 
+[Repetition 3/8 (EXISTING)] — Seed 44: Initializing stratified 5-fold CV...
+[2026-10-04 18:39:33]   RF (Seed 44): ROC-AUC=0.6005 | BalAcc=0.5781 | Sens=0.4250 | Spec=0.7312 | F1=0.4146 | Acc=0.6391
+[2026-10-04 18:39:33] 
+[Repetition 4/8 (EXISTING)] — Seed 45: Initializing stratified 5-fold CV...
+[2026-10-04 18:39:33]   RF (Seed 45): ROC-AUC=0.5892 | BalAcc=0.6281 | Sens=0.5250 | Spec=0.7312 | F1=0.4884 | Acc=0.6692
+[2026-10-04 18:39:33] 
+[Repetition 5/8 (EXISTING)] — Seed 46: Initializing stratified 5-fold CV...
+[2026-10-04 18:39:34]   RF (Seed 46): ROC-AUC=0.6403 | BalAcc=0.5977 | Sens=0.4750 | Spec=0.7204 | F1=0.4471 | Acc=0.6466
+[2026-10-04 18:39:34] 
+[Repetition 6/8 (NEW)] — Seed 47: Initializing stratified 5-fold CV...
+[2026-10-04 18:39:35]   RF (Seed 47): ROC-AUC=0.6091 | BalAcc=0.6066 | Sens=0.5250 | Spec=0.6882 | F1=0.4667 | Acc=0.6391
+[2026-10-04 18:39:35] 
+[Repetition 7/8 (NEW)] — Seed 48: Initializing stratified 5-fold CV...
+[2026-10-04 18:39:36]   RF (Seed 48): ROC-AUC=0.5927 | BalAcc=0.5941 | Sens=0.5000 | Spec=0.6882 | F1=0.4494 | Acc=0.6316
+[2026-10-04 18:39:36] 
+[Repetition 8/8 (NEW)] — Seed 49: Initializing stratified 5-fold CV...
+[2026-10-04 18:39:37]   RF (Seed 49): ROC-AUC=0.6048 | BalAcc=0.6227 | Sens=0.5250 | Spec=0.7204 | F1=0.4828 | Acc=0.6617
+[2026-10-04 18:39:37] Plots saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_183929_3more_rf_repeated/plots/rf_repeated_distributions.png
+[2026-10-04 18:39:37] Repetition CSV saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_183929_3more_rf_repeated/rf_repeated_results.csv

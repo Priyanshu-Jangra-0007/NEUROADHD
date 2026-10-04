@@ -1,0 +1,7 @@
+model,protocol,roc_auc,balanced_accuracy,sensitivity,specificity,f1_score,accuracy
+Balanced Random Forest (8-Rep CV Mean),5-Fold Repeated CV (8 Seeds),0.6045 ± 0.0163,0.6026 ± 0.0163,0.4969 ± 0.0339,0.7083 ± 0.0194,0.4566 ± 0.0232,0.6447 ± 0.0138
+"Balanced Random Forest (New 3 Reps Mean: 47,48,49)",5-Fold Repeated CV (3 Seeds),0.6022 ± 0.0085,0.6078 ± 0.0144,0.5167 ± 0.0144,0.6989 ± 0.0186,0.4663 ± 0.0167,0.6441 ± 0.0157
+Soft Voting (0.6 RF / 0.4 XGB),5-Fold Repeated CV (5 Seeds),0.5926 ± 0.0229,0.5798 ± 0.0226,0.4500 ± 0.0354,—,0.4234 ± 0.0299,0.6316 ± 0.0196
+Hard Voting (RF + XGBoost),5-Fold Repeated CV (5 Seeds),0.5926 ± 0.0229,0.5798 ± 0.0226,0.4500 ± 0.0354,—,0.4234 ± 0.0299,0.6316 ± 0.0196
+Stacking (Balanced LogReg),5-Fold Repeated CV (5 Seeds),0.5555 ± 0.0280,0.5428 ± 0.0191,0.5050 ± 0.0485,—,0.4065 ± 0.0263,0.5579 ± 0.0129
+Balanced Random Forest (Historical Ref),Single Partition (NeuroIMAGE Val),0.7000,0.6833,0.7000,0.6667,0.7000,0.6842

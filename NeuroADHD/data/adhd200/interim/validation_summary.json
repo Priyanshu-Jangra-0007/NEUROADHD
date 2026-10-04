@@ -1,0 +1,185 @@
+{
+  "inspection_date_utc": "2026-09-29",
+  "raw_files_modified": false,
+  "cc200": {
+    "subjects": 161,
+    "data_rows_per_file": [
+      200
+    ],
+    "roi_count_per_file": [
+      200
+    ],
+    "roi_ids_identical_across_subjects": true,
+    "roi_ids_first_and_last": [
+      "1",
+      "200"
+    ],
+    "timepoint_counts_distribution": {
+      "77": 13,
+      "78": 1,
+      "123": 2,
+      "124": 16,
+      "132": 1,
+      "152": 8,
+      "176": 6,
+      "196": 19,
+      "235": 11,
+      "236": 58,
+      "251": 7,
+      "260": 2,
+      "261": 17
+    },
+    "timepoints_min": 77,
+    "timepoints_max": 261,
+    "uniform_row_width_within_each_file": true,
+    "missing_cells_total": 0,
+    "nonnumeric_data_cells_total": 0
+  },
+  "phenotypes": {
+    "files_inspected": 19,
+    "records_with_identifier": 1779,
+    "identifier_fields_by_file": {
+      "data/adhd200/raw/phenotypes/Brown/participants.tsv": "participant_id",
+      "data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv": "ScanDir ID",
+      "data/adhd200/raw/phenotypes/KKI/participants.tsv": "participant_id",
+      "data/adhd200/raw/phenotypes/KKI_phenotypic.csv": "ScanDir ID",
+      "data/adhd200/raw/phenotypes/NYU/participants.tsv": "participant_id",
+      "data/adhd200/raw/phenotypes/NYU_phenotypic.csv": "ScanDir ID",
+      "data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv": "participant_id",
+      "data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv": "ScanDir ID",
+      "data/adhd200/raw/phenotypes/OHSU/participants.tsv": "participant_id",
+      "data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv": "ScanDir ID",
+      "data/adhd200/raw/phenotypes/OHSU_phenotypic.csv": "ScanDir ID",
+      "data/adhd200/raw/phenotypes/Peking_1/participants.tsv": "participant_id",
+      "data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv": "ID",
+      "data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv": "ScanDir ID",
+      "data/adhd200/raw/phenotypes/Peking_2/participants.tsv": "participant_id",
+      "data/adhd200/raw/phenotypes/Peking_3/participants.tsv": "participant_id",
+      "data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv": "participant_id",
+      "data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv": "ScanDir ID",
+      "data/adhd200/raw/phenotypes/WashU/participants.tsv": "participant_id"
+    },
+    "diagnosis_fields_by_file": {
+      "data/adhd200/raw/phenotypes/Brown/participants.tsv": "",
+      "data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv": "DX",
+      "data/adhd200/raw/phenotypes/KKI/participants.tsv": "dx",
+      "data/adhd200/raw/phenotypes/KKI_phenotypic.csv": "DX",
+      "data/adhd200/raw/phenotypes/NYU/participants.tsv": "dx",
+      "data/adhd200/raw/phenotypes/NYU_phenotypic.csv": "DX",
+      "data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv": "dx",
+      "data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv": "DX",
+      "data/adhd200/raw/phenotypes/OHSU/participants.tsv": "dx",
+      "data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv": "DX",
+      "data/adhd200/raw/phenotypes/OHSU_phenotypic.csv": "DX",
+      "data/adhd200/raw/phenotypes/Peking_1/participants.tsv": "dx",
+      "data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv": "DX",
+      "data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv": "DX",
+      "data/adhd200/raw/phenotypes/Peking_2/participants.tsv": "dx",
+      "data/adhd200/raw/phenotypes/Peking_3/participants.tsv": "dx",
+      "data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv": "dx",
+      "data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv": "DX",
+      "data/adhd200/raw/phenotypes/WashU/participants.tsv": "dx"
+    },
+    "raw_dx_value_row_counts_including_duplicate_sources": {
+      "": 26,
+      "0": 430,
+      "1": 154,
+      "2": 13,
+      "3": 94,
+      "ADHD-Combined": 240,
+      "ADHD-Hyperactive/Impulsive": 14,
+      "ADHD-Inattentive": 162,
+      "Typically Developing Children": 620,
+      "pending": 26
+    },
+    "code_mapping_used": {
+      "0": "Control",
+      "1": "ADHD",
+      "2": "ADHD",
+      "3": "ADHD"
+    },
+    "text_mapping_used": {
+      "Typically Developing Children": "Control",
+      "ADHD-Combined": "ADHD",
+      "ADHD-Hyperactive/Impulsive": "ADHD",
+      "ADHD-Inattentive": "ADHD"
+    }
+  },
+  "cc200_label_validation": {
+    "cc200_subjects": 161,
+    "matched_to_any_phenotype_record": 161,
+    "unmatched": 0,
+    "unmatched_subject_ids": [],
+    "missing_or_pending_diagnosis": 7,
+    "missing_or_pending_subjects": [
+      {
+        "subject_id": "0026022",
+        "raw_values": [
+          "",
+          "pending"
+        ]
+      },
+      {
+        "subject_id": "0026024",
+        "raw_values": [
+          "",
+          "pending"
+        ]
+      },
+      {
+        "subject_id": "0026052",
+        "raw_values": [
+          "",
+          "pending"
+        ]
+      },
+      {
+        "subject_id": "0026053",
+        "raw_values": [
+          "",
+          "pending"
+        ]
+      },
+      {
+        "subject_id": "0026054",
+        "raw_values": [
+          "",
+          "pending"
+        ]
+      },
+      {
+        "subject_id": "0026055",
+        "raw_values": [
+          "",
+          "pending"
+        ]
+      },
+      {
+        "subject_id": "0026057",
+        "raw_values": [
+          "",
+          "pending"
+        ]
+      }
+    ],
+    "conflicting_binary_diagnosis": 0,
+    "conflicts": [],
+    "site_available": 161,
+    "subjects_without_site": [],
+    "usable_labeled_subjects": 154,
+    "usable_adhd": 50,
+    "usable_control": 104,
+    "site_counts_all_matched": {
+      "Brown": 7,
+      "KKI": 24,
+      "NYU": 6,
+      "NeuroIMAGE": 19,
+      "OHSU": 14,
+      "Peking_1": 38,
+      "Peking_2": 20,
+      "Peking_3": 11,
+      "Pittsburgh": 21,
+      "WashU": 1
+    }
+  }
+}

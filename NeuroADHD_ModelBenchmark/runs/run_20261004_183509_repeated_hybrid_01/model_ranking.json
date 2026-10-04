@@ -1,0 +1,32 @@
+[
+  {
+    "rank": 1,
+    "hybrid_type": "hard_voting",
+    "display_name": "Hard Voting (RF + XGBoost)",
+    "mean_roc_auc": 0.5925806451612903,
+    "std_roc_auc": 0.022915842857201132,
+    "mean_balanced_acc": 0.5798387096774194,
+    "mean_sensitivity": 0.45,
+    "mean_f1": 0.42341415906131674
+  },
+  {
+    "rank": 2,
+    "hybrid_type": "soft_voting",
+    "display_name": "Soft Voting (0.6 RF / 0.4 XGBoost)",
+    "mean_roc_auc": 0.5925806451612903,
+    "std_roc_auc": 0.022915842857201132,
+    "mean_balanced_acc": 0.5798387096774194,
+    "mean_sensitivity": 0.45,
+    "mean_f1": 0.42341415906131674
+  },
+  {
+    "rank": 3,
+    "hybrid_type": "stacking",
+    "display_name": "Stacking (Balanced LogReg Meta)",
+    "mean_roc_auc": 0.5555376344086022,
+    "std_roc_auc": 0.0279547145476589,
+    "mean_balanced_acc": 0.5428225806451613,
+    "mean_sensitivity": 0.505,
+    "mean_f1": 0.4065364390844842
+  }
+]

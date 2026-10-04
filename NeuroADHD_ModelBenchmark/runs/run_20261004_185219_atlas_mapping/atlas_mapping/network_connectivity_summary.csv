@@ -1,0 +1,2 @@
+network_group,total_selected_edges,unique_rois_represented,within_cluster_edges,inter_cluster_edges,top_hub_roi_1,top_hub_roi_2,top_hub_roi_3,mapping_status
+CC200 Data-Driven Parcellation Subnetwork,100,66,0,100,ROI_003 (8 top-50 edges),ROI_034 (6 top-50 edges),ROI_174 (6 top-50 edges),Verified data-driven CC200 node indices (Anatomical labels unavailable locally)

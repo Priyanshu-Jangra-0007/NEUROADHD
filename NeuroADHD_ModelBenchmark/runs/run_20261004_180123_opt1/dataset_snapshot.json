@@ -1,0 +1,8 @@
+{
+  "total_subjects": 153,
+  "train_subjects": 114,
+  "validation_subjects": 19,
+  "test_subjects": 20,
+  "total_features": 19900,
+  "feature_table": "/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD/data/adhd200/features/cc200/cc200_connectivity_features.csv"
+}

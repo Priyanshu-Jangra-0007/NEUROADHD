@@ -1,0 +1,33 @@
+{
+  "name": "cc200_site_holdout_v1",
+  "strategy": "fixed_group_holdout_by_site",
+  "feature_table": "data/adhd200/features/cc200/cc200_connectivity_features.csv",
+  "split_manifest": "data/adhd200/processed/splits/subject_split_manifest.csv",
+  "subject_column": "subject_id",
+  "site_column": "site",
+  "label_column": "diagnosis",
+  "label_encoding": {"Control": 0, "ADHD": 1},
+  "partitions": {
+    "train": ["KKI", "NYU", "OHSU", "Peking_1", "Peking_3", "Pittsburgh"],
+    "validation": ["NeuroIMAGE"],
+    "test": ["Peking_2"]
+  },
+  "rationale": "Hold out entire acquisition sites. NeuroIMAGE is validation and Peking_2 is final test; each contains both labels and roughly balanced classes. Keep all subjects from a site in one partition. OHSU and Pittsburgh are control-only in this extracted cohort and remain in train.",
+  "preprocessing": {
+    "api": "src.preprocessing.cc200_ml_preprocessing.fit_transform_splits",
+    "fit_scope": "training partition or training fold only",
+    "steps": [
+      {"name": "median_imputation", "class": "sklearn.impute.SimpleImputer", "strategy": "median", "note": "No missing values were observed in the current feature matrix; step is retained for fold-local robustness."},
+      {"name": "remove_zero_variance", "class": "sklearn.feature_selection.VarianceThreshold", "threshold": 0.0},
+      {"name": "standardize", "class": "sklearn.preprocessing.StandardScaler"},
+      {"name": "univariate_selection", "class": "sklearn.feature_selection.SelectKBest", "score_func": "f_classif", "k": 100, "note": "Initial conservative setting only; fit within each training fold. Consider tuning k in nested CV later."}
+    ],
+    "future_cv_candidate_k": [50, 100, 200, 500],
+    "selection_reason": "k=100 is retained as an initial conservative reduction for p=19,900 and n_train=114; evaluate alternatives and stability only within training-only CV.",
+    "classifier_training_performed": false
+  },
+  "model_training_performed": false,
+  "random_seed": null,
+  "expected_subjects": 153,
+  "expected_label_counts": {"Control_0": 103, "ADHD_1": 50}
+}

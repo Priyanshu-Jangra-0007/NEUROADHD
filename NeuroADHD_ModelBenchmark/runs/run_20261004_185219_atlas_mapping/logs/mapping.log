@@ -1,0 +1,9 @@
+[2026-10-04 18:52:19] === Starting CC200 Atlas Mapping Phase: run_20261004_185219_atlas_mapping ===
+[2026-10-04 18:52:19] Reading explainability artifacts from: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_184658_explainability/explainability
+[2026-10-04 18:52:19] Loaded 100 global features and 20 top edges.
+[2026-10-04 18:52:19] CC200 ROI Mapping Table saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_185219_atlas_mapping/atlas_mapping/cc200_roi_mapping.csv
+[2026-10-04 18:52:19] Mapped Connectivity Edges saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_185219_atlas_mapping/atlas_mapping/mapped_connectivity_edges.csv
+[2026-10-04 18:52:19] Mapped Hub ROIs saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_185219_atlas_mapping/atlas_mapping/mapped_hub_rois.csv
+[2026-10-04 18:52:19] Network Connectivity Summary saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_185219_atlas_mapping/atlas_mapping/network_connectivity_summary.csv
+[2026-10-04 18:52:19] 
+Generating Atlas Mapping Visualizations...

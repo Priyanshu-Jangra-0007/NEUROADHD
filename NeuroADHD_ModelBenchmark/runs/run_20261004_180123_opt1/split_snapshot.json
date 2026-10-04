@@ -1,0 +1,20 @@
+{
+  "manifest_path": "/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD/data/adhd200/processed/splits/subject_split_manifest.csv",
+  "train_count": 114,
+  "train_diagnosis": {
+    "0": 84,
+    "1": 30
+  },
+  "validation_count": 19,
+  "validation_diagnosis": {
+    "0": 9,
+    "1": 10
+  },
+  "validation_site": "NeuroIMAGE",
+  "test_count": 20,
+  "test_diagnosis": {
+    "0": 10,
+    "1": 10
+  },
+  "test_site": "Peking_2"
+}

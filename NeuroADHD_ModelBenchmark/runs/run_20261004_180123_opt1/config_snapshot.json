@@ -1,0 +1,23 @@
+{
+  "run_id": "run_20261004_180123_opt1",
+  "models_evaluated": [
+    "logistic_regression",
+    "linear_svm",
+    "rbf_svm",
+    "random_forest",
+    "extra_trees",
+    "xgboost"
+  ],
+  "k_values": [
+    50,
+    100,
+    200,
+    500
+  ],
+  "class_weight_modes": [
+    "unweighted",
+    "balanced"
+  ],
+  "random_seed": 42,
+  "test_set_status": "LOCKED_AND_UNTOUCHED"
+}

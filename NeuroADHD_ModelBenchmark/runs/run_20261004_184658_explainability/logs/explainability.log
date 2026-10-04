@@ -1,0 +1,24 @@
+[2026-10-04 18:46:58] === Starting NeuroADHD Model Explainability Phase: run_20261004_184658_explainability ===
+[2026-10-04 18:47:00] Development cohort (fitted for explainability): 133 subjects (Control: 93, ADHD: 40)
+[2026-10-04 18:47:00] Peking_2 Test cohort (interpretation only): 20 subjects — STRICTLY LOCKED!
+[2026-10-04 18:47:00] 
+Fitting leakage-safe Preprocessing Pipeline on 133 Development Subjects (K=100)...
+[2026-10-04 18:47:00] Successfully selected top 100 connectivity features.
+[2026-10-04 18:47:00] 
+Fitting Frozen Balanced Random Forest (K=100, n_estimators=50, max_depth=3, class_weight='balanced')...
+[2026-10-04 18:47:00] 
+Computing TreeSHAP Explanations on Development & Test Cohorts...
+[2026-10-04 18:47:00] Computing Permutation Feature Importance (n_repeats=10, metric=ROC-AUC)...
+[2026-10-04 18:47:02] SHAP Global Importance saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_184658_explainability/explainability/shap_global_importance.csv
+[2026-10-04 18:47:02] Permutation Importance saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_184658_explainability/explainability/permutation_importance.csv
+[2026-10-04 18:47:02] Top 20 Connectivity Edges saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_184658_explainability/explainability/top_connectivity_edges.csv
+[2026-10-04 18:47:02] 
+Feature Ranking Concordance (SHAP vs Permutation):
+[2026-10-04 18:47:02]   Top 10 Overlap: 7/10 (70%)
+[2026-10-04 18:47:02]   Top 20 Overlap: 14/20 (70%)
+[2026-10-04 18:47:02]   Top 50 Overlap: 40/50 (80%)
+[2026-10-04 18:47:02] ROI Frequency Summary saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_184658_explainability/explainability/roi_importance_summary.csv
+[2026-10-04 18:47:03] Subject-level SHAP values saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_184658_explainability/explainability/shap_subject_values.csv
+[2026-10-04 18:47:03] Subject Explanations saved to: /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/run_20261004_184658_explainability/explainability/subject_explanations.csv
+[2026-10-04 18:47:03] 
+Generating Explainability Visualizations...

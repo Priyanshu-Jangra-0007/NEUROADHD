@@ -1,0 +1,24 @@
+{
+  "model_name": "Random Forest",
+  "test_site": "Peking_2",
+  "test_subject_count": 20,
+  "metrics": {
+    "accuracy": 0.55,
+    "balanced_accuracy": 0.55,
+    "precision": 0.6,
+    "recall_sensitivity": 0.3,
+    "specificity": 0.8,
+    "f1_score": 0.4,
+    "roc_auc": 0.63,
+    "pr_auc": 0.7052,
+    "confusion_matrix": {
+      "tp": 3,
+      "tn": 8,
+      "fp": 2,
+      "fn": 7
+    }
+  },
+  "timing_seconds": {
+    "prediction_time": 0.0043
+  }
+}

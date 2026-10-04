@@ -1,0 +1,10 @@
+{
+  "model_name": "random_forest",
+  "display_name": "Random Forest",
+  "param_grid": {
+    "n_estimators": [50, 100, 200],
+    "max_depth": [3, 5, null],
+    "max_features": ["sqrt", "log2"],
+    "random_state": [42]
+  }
+}

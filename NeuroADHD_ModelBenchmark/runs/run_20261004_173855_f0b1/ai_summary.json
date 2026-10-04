@@ -1,0 +1,137 @@
+{
+  "run_id": "run_20261004_173855_f0b1",
+  "status": "completed",
+  "dataset_summary": {
+    "subjects": 153,
+    "adhd": 50,
+    "control": 103,
+    "raw_features": 19900,
+    "selected_features": 100,
+    "dataset_sha256": "4750beb6523ce534012b26c1020782731eae0a05ca8658f57bad577649733b65"
+  },
+  "split_summary": {
+    "train": 114,
+    "validation": 19,
+    "test": 20,
+    "test_locked": true
+  },
+  "preprocessing_summary": "SimpleImputer(median) -> VarianceThreshold -> StandardScaler -> SelectKBest(f_classif, k=100) fit on TRAIN only",
+  "best_model": {
+    "name": "Random Forest",
+    "val_roc_auc": 0.7333,
+    "val_accuracy": 0.4211,
+    "val_f1": 0.1538
+  },
+  "model_results": [
+    {
+      "name": "Logistic Regression (L1 & L2)",
+      "val_roc_auc": 0.6889,
+      "val_accuracy": 0.4211
+    },
+    {
+      "name": "Linear SVM",
+      "val_roc_auc": 0.6889,
+      "val_accuracy": 0.3684
+    },
+    {
+      "name": "RBF SVM",
+      "val_roc_auc": 0.6889,
+      "val_accuracy": 0.4737
+    },
+    {
+      "name": "Random Forest",
+      "val_roc_auc": 0.7333,
+      "val_accuracy": 0.4211
+    },
+    {
+      "name": "Extra Trees",
+      "val_roc_auc": 0.6889,
+      "val_accuracy": 0.4737
+    },
+    {
+      "name": "XGBoost Classifier",
+      "val_roc_auc": 0.7111,
+      "val_accuracy": 0.4737
+    }
+  ],
+  "ensemble_results": {
+    "soft_voting_ensemble": {
+      "accuracy": 0.4737,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.7111,
+      "pr_auc": 0.6755,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    },
+    "hard_voting_ensemble": {
+      "accuracy": 0.4737,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.5,
+      "pr_auc": 0.5,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    },
+    "stacking_ensemble": {
+      "accuracy": 0.4737,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.6889,
+      "pr_auc": 0.5972,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  "final_test": {
+    "accuracy": 0.55,
+    "balanced_accuracy": 0.55,
+    "precision": 0.6,
+    "recall_sensitivity": 0.3,
+    "specificity": 0.8,
+    "f1_score": 0.4,
+    "roc_auc": 0.63,
+    "pr_auc": 0.7052,
+    "confusion_matrix": {
+      "tp": 3,
+      "tn": 8,
+      "fp": 2,
+      "fn": 7
+    }
+  },
+  "important_findings": [
+    "Best validation model identified: Random Forest.",
+    "Preprocessing strictly isolated to training partition with 0% data leakage.",
+    "Final test ROC-AUC: 0.63."
+  ],
+  "warnings": [],
+  "artifacts": {
+    "run_folder": "NeuroADHD_ModelBenchmark/runs/run_20261004_173855_f0b1",
+    "master_json": "NeuroADHD_ModelBenchmark/runs/run_20261004_173855_f0b1/run_report.json",
+    "master_md": "NeuroADHD_ModelBenchmark/runs/run_20261004_173855_f0b1/run_report.md",
+    "master_html": "NeuroADHD_ModelBenchmark/runs/run_20261004_173855_f0b1/run_report.html",
+    "ai_summary_json": "NeuroADHD_ModelBenchmark/runs/run_20261004_173855_f0b1/ai_summary.json",
+    "ai_summary_md": "NeuroADHD_ModelBenchmark/runs/run_20261004_173855_f0b1/ai_summary.md"
+  }
+}

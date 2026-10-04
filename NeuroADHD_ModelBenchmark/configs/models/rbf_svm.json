@@ -1,0 +1,11 @@
+{
+  "model_name": "rbf_svm",
+  "display_name": "RBF SVM",
+  "param_grid": {
+    "C": [0.1, 1.0, 10.0, 100.0],
+    "gamma": ["scale", "auto", 0.001, 0.01],
+    "kernel": ["rbf"],
+    "probability": [true],
+    "random_state": [42]
+  }
+}

@@ -1,0 +1,70 @@
+[2026-10-04 18:01:23] === Starting Optimization Experiment Run: run_20261004_180123_opt1 ===
+[2026-10-04 18:01:24] Total merged subjects: 153, Total CC200 ROI features: 19900
+[2026-10-04 18:01:25] Train split: 114 subjects (Control: 84, ADHD: 30)
+[2026-10-04 18:01:25] Validation split: 19 subjects (Control: 9, ADHD: 10) [NeuroIMAGE]
+[2026-10-04 18:01:25] Test split: 20 subjects [Peking_2] — LOCKED & UNTOUCHED!
+[2026-10-04 18:01:25] Starting grid evaluation over 48 combinations (6 models x 4 k-values x 2 class-weight modes)...
+[2026-10-04 18:01:31] [1/48] logistic_regression  | k= 50 | CW=unweighted | Train CV ROC: 0.6324 | Val ROC: 0.6333 | Val Acc: 0.4211 | Val F1: 0.1538 | Val Sens: 0.1000
+[2026-10-04 18:01:36] [2/48] logistic_regression  | k=100 | CW=unweighted | Train CV ROC: 0.6321 | Val ROC: 0.6667 | Val Acc: 0.4211 | Val F1: 0.1538 | Val Sens: 0.1000
+[2026-10-04 18:01:43] [3/48] logistic_regression  | k=200 | CW=unweighted | Train CV ROC: 0.6377 | Val ROC: 0.7000 | Val Acc: 0.4211 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:01:51] [4/48] logistic_regression  | k=500 | CW=unweighted | Train CV ROC: 0.6697 | Val ROC: 0.6333 | Val Acc: 0.5263 | Val F1: 0.4706 | Val Sens: 0.4000
+[2026-10-04 18:01:56] [5/48] logistic_regression  | k= 50 | CW=balanced   | Train CV ROC: 0.6283 | Val ROC: 0.6333 | Val Acc: 0.6316 | Val F1: 0.6316 | Val Sens: 0.6000
+[2026-10-04 18:02:02] [6/48] logistic_regression  | k=100 | CW=balanced   | Train CV ROC: 0.6452 | Val ROC: 0.6778 | Val Acc: 0.4737 | Val F1: 0.2857 | Val Sens: 0.2000
+[2026-10-04 18:02:07] [7/48] logistic_regression  | k=200 | CW=balanced   | Train CV ROC: 0.6331 | Val ROC: 0.6667 | Val Acc: 0.5263 | Val F1: 0.4000 | Val Sens: 0.3000
+[2026-10-04 18:02:15] [8/48] logistic_regression  | k=500 | CW=balanced   | Train CV ROC: 0.6998 | Val ROC: 0.6444 | Val Acc: 0.4737 | Val F1: 0.2857 | Val Sens: 0.2000
+[2026-10-04 18:02:18] [9/48] linear_svm           | k= 50 | CW=unweighted | Train CV ROC: 0.6219 | Val ROC: 0.6222 | Val Acc: 0.4211 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:02:21] [10/48] linear_svm           | k=100 | CW=unweighted | Train CV ROC: 0.6072 | Val ROC: 0.6889 | Val Acc: 0.4211 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:02:23] [11/48] linear_svm           | k=200 | CW=unweighted | Train CV ROC: 0.6020 | Val ROC: 0.6667 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:02:25] [12/48] linear_svm           | k=500 | CW=unweighted | Train CV ROC: 0.5500 | Val ROC: 0.3000 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:02:28] [13/48] linear_svm           | k= 50 | CW=balanced   | Train CV ROC: 0.6397 | Val ROC: 0.6111 | Val Acc: 0.4211 | Val F1: 0.1538 | Val Sens: 0.1000
+[2026-10-04 18:02:30] [14/48] linear_svm           | k=100 | CW=balanced   | Train CV ROC: 0.6174 | Val ROC: 0.6778 | Val Acc: 0.4737 | Val F1: 0.1667 | Val Sens: 0.1000
+[2026-10-04 18:02:33] [15/48] linear_svm           | k=200 | CW=balanced   | Train CV ROC: 0.5782 | Val ROC: 0.5889 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:02:35] [16/48] linear_svm           | k=500 | CW=balanced   | Train CV ROC: 0.5483 | Val ROC: 0.2889 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:02:40] [17/48] rbf_svm              | k= 50 | CW=unweighted | Train CV ROC: 0.5781 | Val ROC: 0.6222 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:02:44] [18/48] rbf_svm              | k=100 | CW=unweighted | Train CV ROC: 0.5852 | Val ROC: 0.5778 | Val Acc: 0.5263 | Val F1: 0.1818 | Val Sens: 0.1000
+[2026-10-04 18:02:49] [19/48] rbf_svm              | k=200 | CW=unweighted | Train CV ROC: 0.6039 | Val ROC: 0.5222 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:02:54] [20/48] rbf_svm              | k=500 | CW=unweighted | Train CV ROC: 0.5725 | Val ROC: 0.6222 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:02:58] [21/48] rbf_svm              | k= 50 | CW=balanced   | Train CV ROC: 0.6324 | Val ROC: 0.6333 | Val Acc: 0.5263 | Val F1: 0.3077 | Val Sens: 0.2000
+[2026-10-04 18:03:02] [22/48] rbf_svm              | k=100 | CW=balanced   | Train CV ROC: 0.6176 | Val ROC: 0.6111 | Val Acc: 0.5263 | Val F1: 0.3077 | Val Sens: 0.2000
+[2026-10-04 18:03:06] [23/48] rbf_svm              | k=200 | CW=balanced   | Train CV ROC: 0.6291 | Val ROC: 0.6444 | Val Acc: 0.5263 | Val F1: 0.1818 | Val Sens: 0.1000
+[2026-10-04 18:03:11] [24/48] rbf_svm              | k=500 | CW=balanced   | Train CV ROC: 0.6259 | Val ROC: 0.6556 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:03:15] [25/48] random_forest        | k= 50 | CW=unweighted | Train CV ROC: 0.5848 | Val ROC: 0.6556 | Val Acc: 0.4211 | Val F1: 0.1538 | Val Sens: 0.1000
+[2026-10-04 18:03:20] [26/48] random_forest        | k=100 | CW=unweighted | Train CV ROC: 0.6675 | Val ROC: 0.7222 | Val Acc: 0.4211 | Val F1: 0.1538 | Val Sens: 0.1000
+[2026-10-04 18:03:24] [27/48] random_forest        | k=200 | CW=unweighted | Train CV ROC: 0.5928 | Val ROC: 0.6778 | Val Acc: 0.4737 | Val F1: 0.2857 | Val Sens: 0.2000
+[2026-10-04 18:03:28] [28/48] random_forest        | k=500 | CW=unweighted | Train CV ROC: 0.6001 | Val ROC: 0.6333 | Val Acc: 0.5263 | Val F1: 0.4000 | Val Sens: 0.3000
+[2026-10-04 18:03:33] [29/48] random_forest        | k= 50 | CW=balanced   | Train CV ROC: 0.6026 | Val ROC: 0.6333 | Val Acc: 0.6316 | Val F1: 0.6316 | Val Sens: 0.6000
+[2026-10-04 18:03:37] [30/48] random_forest        | k=100 | CW=balanced   | Train CV ROC: 0.6599 | Val ROC: 0.7000 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:03:41] [31/48] random_forest        | k=200 | CW=balanced   | Train CV ROC: 0.6483 | Val ROC: 0.6222 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:03:45] [32/48] random_forest        | k=500 | CW=balanced   | Train CV ROC: 0.6107 | Val ROC: 0.6222 | Val Acc: 0.6316 | Val F1: 0.6316 | Val Sens: 0.6000
+[2026-10-04 18:03:49] [33/48] extra_trees          | k= 50 | CW=unweighted | Train CV ROC: 0.6559 | Val ROC: 0.6556 | Val Acc: 0.5263 | Val F1: 0.1818 | Val Sens: 0.1000
+[2026-10-04 18:03:53] [34/48] extra_trees          | k=100 | CW=unweighted | Train CV ROC: 0.6500 | Val ROC: 0.6667 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:03:56] [35/48] extra_trees          | k=200 | CW=unweighted | Train CV ROC: 0.6105 | Val ROC: 0.6556 | Val Acc: 0.4737 | Val F1: 0.1667 | Val Sens: 0.1000
+[2026-10-04 18:04:00] [36/48] extra_trees          | k=500 | CW=unweighted | Train CV ROC: 0.5971 | Val ROC: 0.6556 | Val Acc: 0.4737 | Val F1: 0.1667 | Val Sens: 0.1000
+[2026-10-04 18:04:05] [37/48] extra_trees          | k= 50 | CW=balanced   | Train CV ROC: 0.6283 | Val ROC: 0.6444 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:04:09] [38/48] extra_trees          | k=100 | CW=balanced   | Train CV ROC: 0.6462 | Val ROC: 0.6111 | Val Acc: 0.6316 | Val F1: 0.6316 | Val Sens: 0.6000
+[2026-10-04 18:04:12] [39/48] extra_trees          | k=200 | CW=balanced   | Train CV ROC: 0.6261 | Val ROC: 0.5889 | Val Acc: 0.5789 | Val F1: 0.6000 | Val Sens: 0.6000
+[2026-10-04 18:04:16] [40/48] extra_trees          | k=500 | CW=balanced   | Train CV ROC: 0.6083 | Val ROC: 0.5778 | Val Acc: 0.5789 | Val F1: 0.5556 | Val Sens: 0.5000
+[2026-10-04 18:04:26] [41/48] xgboost              | k= 50 | CW=unweighted | Train CV ROC: 0.5928 | Val ROC: 0.5333 | Val Acc: 0.4737 | Val F1: 0.2857 | Val Sens: 0.2000
+[2026-10-04 18:04:37] [42/48] xgboost              | k=100 | CW=unweighted | Train CV ROC: 0.6571 | Val ROC: 0.6333 | Val Acc: 0.5789 | Val F1: 0.3333 | Val Sens: 0.2000
+[2026-10-04 18:04:48] [43/48] xgboost              | k=200 | CW=unweighted | Train CV ROC: 0.6023 | Val ROC: 0.6000 | Val Acc: 0.5263 | Val F1: 0.1818 | Val Sens: 0.1000
+[2026-10-04 18:05:02] [44/48] xgboost              | k=500 | CW=unweighted | Train CV ROC: 0.5763 | Val ROC: 0.6167 | Val Acc: 0.4737 | Val F1: 0.0000 | Val Sens: 0.0000
+[2026-10-04 18:05:13] [45/48] xgboost              | k= 50 | CW=balanced   | Train CV ROC: 0.6074 | Val ROC: 0.5556 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:05:23] [46/48] xgboost              | k=100 | CW=balanced   | Train CV ROC: 0.5935 | Val ROC: 0.6333 | Val Acc: 0.6316 | Val F1: 0.6316 | Val Sens: 0.6000
+[2026-10-04 18:05:35] [47/48] xgboost              | k=200 | CW=balanced   | Train CV ROC: 0.5738 | Val ROC: 0.5778 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:05:48] [48/48] xgboost              | k=500 | CW=balanced   | Train CV ROC: 0.5778 | Val ROC: 0.6111 | Val Acc: 0.5789 | Val F1: 0.5556 | Val Sens: 0.5000
+[2026-10-04 18:05:48] 
+=== Performing Multi-Seed Stability Testing on Top Configurations ===
+[2026-10-04 18:05:48] Testing 5-seed stability for Top Model: random_forest (k=100, CW=unweighted)...
+[2026-10-04 18:05:49]   -> Val ROC-AUC across seeds: 0.6733 ± 0.0295 (Min: 0.6333, Max: 0.7222)
+[2026-10-04 18:05:49] Testing 5-seed stability for Top Model: random_forest (k=100, CW=balanced)...
+[2026-10-04 18:05:50]   -> Val ROC-AUC across seeds: 0.6689 ± 0.0215 (Min: 0.6444, Max: 0.7000)
+[2026-10-04 18:05:50] Testing 5-seed stability for Top Model: logistic_regression (k=200, CW=unweighted)...
+[2026-10-04 18:05:51]   -> Val ROC-AUC across seeds: 0.7000 ± 0.0000 (Min: 0.7000, Max: 0.7000)
+[2026-10-04 18:05:51] 
+=== EXPERIMENT COMPLETION & COMPARISON vs BASELINE ===
+[2026-10-04 18:05:51] Baseline Validation ROC-AUC: 0.7333
+[2026-10-04 18:05:51] Best New Config: random_forest (k=100, CW=unweighted)
+[2026-10-04 18:05:51] Best New Val ROC-AUC: 0.7222 (Delta: -0.0111)
+[2026-10-04 18:05:51] Best New Val BalAcc:  0.4389 (Delta: -0.0000)
+[2026-10-04 18:05:51] Best New Val Sens:    0.1000 (Delta: +0.0000)
+[2026-10-04 18:05:51] Best New Val F1:      0.1538 (Delta: +0.0000)

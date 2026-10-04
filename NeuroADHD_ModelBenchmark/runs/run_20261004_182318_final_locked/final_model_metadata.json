@@ -1,0 +1,42 @@
+{
+  "run_id": "run_20261004_182318_final_locked",
+  "status": "FINAL_LOCKED_TEST_EVALUATION",
+  "model_architecture": "RandomForestClassifier",
+  "feature_selection": "SelectKBest(f_classif, k=100)",
+  "hyperparameters": {
+    "n_estimators": 50,
+    "max_depth": 3,
+    "min_samples_split": 2,
+    "min_samples_leaf": 1,
+    "max_features": "sqrt",
+    "class_weight": "balanced",
+    "random_state": 42
+  },
+  "refit_dataset_subjects": 133,
+  "test_dataset_subjects": 20,
+  "test_site": "Peking_2",
+  "final_test_metrics": {
+    "accuracy": 0.6,
+    "balanced_accuracy": 0.6,
+    "precision": 0.6,
+    "recall_sensitivity": 0.6,
+    "specificity": 0.6,
+    "f1_score": 0.6,
+    "roc_auc": 0.56,
+    "pr_auc": 0.634112926547137,
+    "confusion_matrix": {
+      "tp": 6,
+      "tn": 6,
+      "fp": 4,
+      "fn": 4
+    }
+  },
+  "baseline_comparison_deltas": {
+    "accuracy_delta": 0.05,
+    "balanced_accuracy_delta": 0.05,
+    "sensitivity_delta": 0.3,
+    "specificity_delta": -0.2,
+    "f1_score_delta": 0.2,
+    "roc_auc_delta": -0.07
+  }
+}

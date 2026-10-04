@@ -1,0 +1,60 @@
+source_file,diagnosis_field,raw_diagnosis_value,row_count,mapped_binary_label
+data/adhd200/raw/phenotypes/Brown/participants.tsv,(no diagnosis field),,26,
+data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv,DX,pending,26,
+data/adhd200/raw/phenotypes/KKI/participants.tsv,dx,ADHD-Combined,16,ADHD
+data/adhd200/raw/phenotypes/KKI/participants.tsv,dx,ADHD-Hyperactive/Impulsive,1,ADHD
+data/adhd200/raw/phenotypes/KKI/participants.tsv,dx,ADHD-Inattentive,5,ADHD
+data/adhd200/raw/phenotypes/KKI/participants.tsv,dx,Typically Developing Children,61,Control
+data/adhd200/raw/phenotypes/KKI_phenotypic.csv,DX,0,61,Control
+data/adhd200/raw/phenotypes/KKI_phenotypic.csv,DX,1,16,ADHD
+data/adhd200/raw/phenotypes/KKI_phenotypic.csv,DX,2,1,ADHD
+data/adhd200/raw/phenotypes/KKI_phenotypic.csv,DX,3,5,ADHD
+data/adhd200/raw/phenotypes/NYU/participants.tsv,dx,ADHD-Combined,121,ADHD
+data/adhd200/raw/phenotypes/NYU/participants.tsv,dx,ADHD-Hyperactive/Impulsive,2,ADHD
+data/adhd200/raw/phenotypes/NYU/participants.tsv,dx,ADHD-Inattentive,58,ADHD
+data/adhd200/raw/phenotypes/NYU/participants.tsv,dx,Typically Developing Children,123,Control
+data/adhd200/raw/phenotypes/NYU_phenotypic.csv,DX,0,99,Control
+data/adhd200/raw/phenotypes/NYU_phenotypic.csv,DX,1,77,ADHD
+data/adhd200/raw/phenotypes/NYU_phenotypic.csv,DX,2,2,ADHD
+data/adhd200/raw/phenotypes/NYU_phenotypic.csv,DX,3,44,ADHD
+data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv,dx,ADHD-Combined,29,ADHD
+data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv,dx,ADHD-Hyperactive/Impulsive,6,ADHD
+data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv,dx,ADHD-Inattentive,1,ADHD
+data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv,dx,Typically Developing Children,37,Control
+data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv,DX,0,23,Control
+data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv,DX,1,18,ADHD
+data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv,DX,2,6,ADHD
+data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv,DX,3,1,ADHD
+data/adhd200/raw/phenotypes/OHSU/participants.tsv,dx,ADHD-Combined,27,ADHD
+data/adhd200/raw/phenotypes/OHSU/participants.tsv,dx,ADHD-Hyperactive/Impulsive,3,ADHD
+data/adhd200/raw/phenotypes/OHSU/participants.tsv,dx,ADHD-Inattentive,13,ADHD
+data/adhd200/raw/phenotypes/OHSU/participants.tsv,dx,Typically Developing Children,70,Control
+data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv,DX,0,28,Control
+data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv,DX,1,4,ADHD
+data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv,DX,2,1,ADHD
+data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv,DX,3,1,ADHD
+data/adhd200/raw/phenotypes/OHSU_phenotypic.csv,DX,0,42,Control
+data/adhd200/raw/phenotypes/OHSU_phenotypic.csv,DX,1,23,ADHD
+data/adhd200/raw/phenotypes/OHSU_phenotypic.csv,DX,2,2,ADHD
+data/adhd200/raw/phenotypes/OHSU_phenotypic.csv,DX,3,12,ADHD
+data/adhd200/raw/phenotypes/Peking_1/participants.tsv,dx,ADHD-Combined,25,ADHD
+data/adhd200/raw/phenotypes/Peking_1/participants.tsv,dx,ADHD-Hyperactive/Impulsive,2,ADHD
+data/adhd200/raw/phenotypes/Peking_1/participants.tsv,dx,ADHD-Inattentive,45,ADHD
+data/adhd200/raw/phenotypes/Peking_1/participants.tsv,dx,Typically Developing Children,115,Control
+data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv,DX,0,27,Control
+data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv,DX,1,9,ADHD
+data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv,DX,2,1,ADHD
+data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv,DX,3,14,ADHD
+data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv,DX,0,61,Control
+data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv,DX,1,7,ADHD
+data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv,DX,3,17,ADHD
+data/adhd200/raw/phenotypes/Peking_2/participants.tsv,dx,ADHD-Combined,15,ADHD
+data/adhd200/raw/phenotypes/Peking_2/participants.tsv,dx,ADHD-Inattentive,20,ADHD
+data/adhd200/raw/phenotypes/Peking_2/participants.tsv,dx,Typically Developing Children,32,Control
+data/adhd200/raw/phenotypes/Peking_3/participants.tsv,dx,ADHD-Combined,7,ADHD
+data/adhd200/raw/phenotypes/Peking_3/participants.tsv,dx,ADHD-Inattentive,12,ADHD
+data/adhd200/raw/phenotypes/Peking_3/participants.tsv,dx,Typically Developing Children,23,Control
+data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv,dx,ADHD-Inattentive,8,ADHD
+data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv,dx,Typically Developing Children,99,Control
+data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv,DX,0,89,Control
+data/adhd200/raw/phenotypes/WashU/participants.tsv,dx,Typically Developing Children,60,Control

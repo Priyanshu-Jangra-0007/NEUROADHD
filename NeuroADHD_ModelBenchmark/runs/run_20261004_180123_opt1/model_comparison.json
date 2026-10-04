@@ -1,0 +1,239 @@
+{
+  "run_id": "run_20261004_180123_opt1",
+  "test_evaluation_performed": false,
+  "test_status_message": "Final test evaluation not performed during this optimization run.",
+  "baseline_reference": {
+    "model_name": "random_forest",
+    "k_features": 100,
+    "class_weight_mode": "unweighted",
+    "seed": 42,
+    "validation_metrics": {
+      "accuracy": 0.4211,
+      "balanced_accuracy": 0.4389,
+      "precision": 0.3333,
+      "recall_sensitivity": 0.1,
+      "specificity": 0.7778,
+      "f1_score": 0.1538,
+      "roc_auc": 0.7333,
+      "pr_auc": 0.7516
+    },
+    "stored_test_metrics_peking_2": {
+      "accuracy": 0.55,
+      "balanced_accuracy": 0.55,
+      "precision": 0.6,
+      "recall_sensitivity": 0.3,
+      "specificity": 0.8,
+      "f1_score": 0.4,
+      "roc_auc": 0.63
+    }
+  },
+  "best_new_configuration": {
+    "combo_id": 26,
+    "model_name": "random_forest",
+    "class_weight_mode": "unweighted",
+    "k_features": 100,
+    "best_hyperparameters": {
+      "class_weight": null,
+      "max_depth": 3,
+      "max_features": "sqrt",
+      "n_estimators": 50,
+      "random_state": 42
+    },
+    "cv_training_metrics": {
+      "cv_roc_auc_mean": 0.6675245098039216,
+      "cv_roc_auc_std": 0.148758357491238,
+      "cv_balanced_acc_mean": 0.5196078431372548,
+      "cv_balanced_acc_std": 0.08653036926908325,
+      "cv_f1_mean": 0.19,
+      "cv_accuracy_mean": 0.7027667984189724,
+      "cv_sensitivity_mean": 0.13333333333333333,
+      "cv_specificity_mean": 0.9058823529411765
+    },
+    "validation_metrics": {
+      "accuracy": 0.42105263157894735,
+      "balanced_accuracy": 0.4388888888888889,
+      "precision": 0.3333333333333333,
+      "recall_sensitivity": 0.1,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.15384615384615385,
+      "roc_auc": 0.7222222222222223,
+      "pr_auc": 0.6062987012987013,
+      "confusion_matrix": {
+        "tp": 1,
+        "tn": 7,
+        "fp": 2,
+        "fn": 9
+      }
+    },
+    "execution_time_seconds": 5.102
+  },
+  "seed_stability": [
+    {
+      "model_name": "random_forest",
+      "class_weight_mode": "unweighted",
+      "k_features": 100,
+      "hyperparameters": {
+        "class_weight": null,
+        "max_depth": 3,
+        "max_features": "sqrt",
+        "n_estimators": 50,
+        "random_state": 42
+      },
+      "seeds_tested": [
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "val_roc_auc": {
+        "mean": 0.6733333333333335,
+        "std": 0.0294811092476036,
+        "min": 0.6333333333333333,
+        "max": 0.7222222222222223
+      },
+      "val_balanced_acc": {
+        "mean": 0.4288888888888889,
+        "std": 0.019999999999999997,
+        "min": 0.3888888888888889,
+        "max": 0.4388888888888889
+      },
+      "val_f1_score": {
+        "mean": 0.12307692307692308,
+        "std": 0.06153846153846154,
+        "min": 0.0,
+        "max": 0.15384615384615385
+      },
+      "val_accuracy": {
+        "mean": 0.41052631578947363,
+        "std": 0.021052631578947368,
+        "min": 0.3684210526315789,
+        "max": 0.42105263157894735
+      },
+      "val_sensitivity": {
+        "mean": 0.08,
+        "std": 0.04,
+        "min": 0.0,
+        "max": 0.1
+      },
+      "val_specificity": {
+        "mean": 0.7777777777777778,
+        "std": 0.0,
+        "min": 0.7777777777777778,
+        "max": 0.7777777777777778
+      }
+    },
+    {
+      "model_name": "random_forest",
+      "class_weight_mode": "balanced",
+      "k_features": 100,
+      "hyperparameters": {
+        "class_weight": "balanced",
+        "max_depth": 3,
+        "max_features": "sqrt",
+        "n_estimators": 50,
+        "random_state": 42
+      },
+      "seeds_tested": [
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "val_roc_auc": {
+        "mean": 0.6688888888888889,
+        "std": 0.021545243810739214,
+        "min": 0.6444444444444445,
+        "max": 0.7
+      },
+      "val_balanced_acc": {
+        "mean": 0.6833333333333333,
+        "std": 0.03513641844631534,
+        "min": 0.6277777777777778,
+        "max": 0.7388888888888889
+      },
+      "val_f1_score": {
+        "mean": 0.7007017543859648,
+        "std": 0.0222080595065918,
+        "min": 0.6666666666666666,
+        "max": 0.7368421052631579
+      },
+      "val_accuracy": {
+        "mean": 0.6842105263157895,
+        "std": 0.0332871332649303,
+        "min": 0.631578947368421,
+        "max": 0.7368421052631579
+      },
+      "val_sensitivity": {
+        "mean": 0.7,
+        "std": 0.0,
+        "min": 0.7,
+        "max": 0.7
+      },
+      "val_specificity": {
+        "mean": 0.6666666666666666,
+        "std": 0.07027283689263066,
+        "min": 0.5555555555555556,
+        "max": 0.7777777777777778
+      }
+    },
+    {
+      "model_name": "logistic_regression",
+      "class_weight_mode": "unweighted",
+      "k_features": 200,
+      "hyperparameters": {
+        "C": 0.1,
+        "class_weight": null,
+        "max_iter": 1000,
+        "penalty": "l1",
+        "random_state": 42,
+        "solver": "saga"
+      },
+      "seeds_tested": [
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "val_roc_auc": {
+        "mean": 0.7,
+        "std": 0.0,
+        "min": 0.7,
+        "max": 0.7
+      },
+      "val_balanced_acc": {
+        "mean": 0.4444444444444445,
+        "std": 5.551115123125783e-17,
+        "min": 0.4444444444444444,
+        "max": 0.4444444444444444
+      },
+      "val_f1_score": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "val_accuracy": {
+        "mean": 0.42105263157894735,
+        "std": 0.0,
+        "min": 0.42105263157894735,
+        "max": 0.42105263157894735
+      },
+      "val_sensitivity": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "val_specificity": {
+        "mean": 0.888888888888889,
+        "std": 1.1102230246251565e-16,
+        "min": 0.8888888888888888,
+        "max": 0.8888888888888888
+      }
+    }
+  ],
+  "grid_results_count": 48
+}

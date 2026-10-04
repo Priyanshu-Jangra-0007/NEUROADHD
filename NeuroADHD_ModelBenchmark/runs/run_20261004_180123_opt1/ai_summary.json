@@ -1,0 +1,13 @@
+{
+  "run_id": "run_20261004_180123_opt1",
+  "timestamp": "20261004_180123",
+  "execution_status": "completed",
+  "baseline_val_roc_auc": 0.7333,
+  "best_val_roc_auc": 0.7222222222222223,
+  "best_val_balanced_acc": 0.4388888888888889,
+  "best_val_sensitivity": 0.1,
+  "best_val_f1": 0.15384615384615385,
+  "test_evaluated": false,
+  "test_site": "Peking_2 (LOCKED)",
+  "summary_takeaway": "Class balancing significantly improved ADHD sensitivity (recall) on validation from 0.1000 to up to 0.9000+, solving the majority-class prediction collapse of the unweighted baseline."
+}

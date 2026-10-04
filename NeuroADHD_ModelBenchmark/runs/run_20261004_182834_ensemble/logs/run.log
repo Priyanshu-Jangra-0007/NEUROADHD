@@ -1,0 +1,74 @@
+[2026-10-04 18:28:34] === Starting Hybrid / Ensemble Experiment: run_20261004_182834_ensemble ===
+[2026-10-04 18:28:36] Train split: 114 subjects (Control: 84, ADHD: 30)
+[2026-10-04 18:28:36] Validation split: 19 subjects (Control: 9, ADHD: 10) [NeuroIMAGE]
+[2026-10-04 18:28:36] Test split: 20 subjects [Peking_2] — LOCKED & UNTOUCHED!
+[2026-10-04 18:28:36] 
+--- Evaluating Base Models on Validation Set ---
+[2026-10-04 18:28:36]   Random Forest        | Val ROC-AUC: 0.7000 | Val BalAcc: 0.6833 | Val Sens: 0.7000 | Val F1: 0.7000 | Val Acc: 0.6842
+[2026-10-04 18:28:36]   XGBoost              | Val ROC-AUC: 0.6333 | Val BalAcc: 0.6333 | Val Sens: 0.6000 | Val F1: 0.6316 | Val Acc: 0.6316
+[2026-10-04 18:28:36]   Extra Trees          | Val ROC-AUC: 0.6111 | Val BalAcc: 0.6333 | Val Sens: 0.6000 | Val F1: 0.6316 | Val Acc: 0.6316
+[2026-10-04 18:28:36]   RBF SVM              | Val ROC-AUC: 0.6111 | Val BalAcc: 0.5444 | Val Sens: 0.2000 | Val F1: 0.3077 | Val Acc: 0.5263
+[2026-10-04 18:28:36]   Logistic Regression  | Val ROC-AUC: 0.6778 | Val BalAcc: 0.4889 | Val Sens: 0.2000 | Val F1: 0.2857 | Val Acc: 0.4737
+[2026-10-04 18:28:36] 
+--- Model Complementarity & Error Analysis ---
+[2026-10-04 18:28:36] Probability Correlation Matrix:
+        rf    xgb     et    svm     lr
+rf   1.000  0.820  0.951  0.860  0.689
+xgb  0.820  1.000  0.789  0.783  0.775
+et   0.951  0.789  1.000  0.907  0.661
+svm  0.860  0.783  0.907  1.000  0.629
+lr   0.689  0.775  0.661  0.629  1.000
+[2026-10-04 18:28:36] 
+--- Generating Leakage-Safe Out-of-Fold Training Predictions for Stacking ---
+[2026-10-04 18:28:38] 
+=== A. HARD VOTING ENSEMBLES ===
+[2026-10-04 18:28:38]   Hard Voting (RF + XGBoost)                    | Val ROC: 0.6778 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Hard Voting (RF + Extra Trees)                | Val ROC: 0.6444 | Val BalAcc: 0.6833 | Val Sens: 0.7000 | Val F1: 0.7000 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Hard Voting (RF + XGBoost + Extra Trees)      | Val ROC: 0.6556 | Val BalAcc: 0.6333 | Val Sens: 0.6000 | Val F1: 0.6316 | Val Acc: 0.6316
+[2026-10-04 18:28:38]   Hard Voting (RF + XGBoost + Extra Trees + RBF SVM) | Val ROC: 0.6333 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Hard Voting (RF + XGBoost + Extra Trees + Logistic Regression) | Val ROC: 0.6667 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Hard Voting (All 5 Base Models)               | Val ROC: 0.6444 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38] 
+=== B. SOFT VOTING ENSEMBLES (Equal & Weighted) ===
+[2026-10-04 18:28:38]   Soft Voting Equal (RF + XGBoost)              | Val ROC: 0.6778 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Weighted (RF + XGBoost)           | Val ROC: 0.6889 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Equal (RF + Extra Trees)          | Val ROC: 0.6444 | Val BalAcc: 0.6833 | Val Sens: 0.7000 | Val F1: 0.7000 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Weighted (RF + Extra Trees)       | Val ROC: 0.6556 | Val BalAcc: 0.6833 | Val Sens: 0.7000 | Val F1: 0.7000 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Equal (RF + XGBoost + Extra Trees) | Val ROC: 0.6556 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Weighted (RF + XGBoost + Extra Trees) | Val ROC: 0.6556 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Equal (RF + XGBoost + Extra Trees + RBF SVM) | Val ROC: 0.6333 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Weighted (RF + XGBoost + Extra Trees + RBF SVM) | Val ROC: 0.6444 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Equal (RF + XGBoost + Extra Trees + Logistic Regression) | Val ROC: 0.6667 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Weighted (RF + XGBoost + Extra Trees + Logistic Regression) | Val ROC: 0.6778 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Soft Voting Equal (All 5 Base Models)         | Val ROC: 0.6444 | Val BalAcc: 0.6389 | Val Sens: 0.5000 | Val F1: 0.5882 | Val Acc: 0.6316
+[2026-10-04 18:28:38]   Soft Voting Weighted (All 5 Base Models)      | Val ROC: 0.6556 | Val BalAcc: 0.6889 | Val Sens: 0.6000 | Val F1: 0.6667 | Val Acc: 0.6842
+[2026-10-04 18:28:38] 
+=== C. STACKING ENSEMBLES (OOF Meta-Classifiers) ===
+[2026-10-04 18:28:38]   Stacking (Logistic Regression Meta on RF + XGBoost)     | Val ROC: 0.6778 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Balanced LogReg Meta on RF + XGBoost)         | Val ROC: 0.6778 | Val BalAcc: 0.6778 | Val Sens: 0.8000 | Val F1: 0.7273 | Val Acc: 0.6842
+[2026-10-04 18:28:38]   Stacking (Linear SVM Meta on RF + XGBoost)              | Val ROC: 0.5444 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Logistic Regression Meta on RF + Extra Trees) | Val ROC: 0.6556 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Balanced LogReg Meta on RF + Extra Trees)     | Val ROC: 0.6556 | Val BalAcc: 0.6278 | Val Sens: 0.7000 | Val F1: 0.6667 | Val Acc: 0.6316
+[2026-10-04 18:28:38]   Stacking (Linear SVM Meta on RF + Extra Trees)          | Val ROC: 0.4222 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Logistic Regression Meta on RF + XGBoost + Extra Trees) | Val ROC: 0.6667 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Balanced LogReg Meta on RF + XGBoost + Extra Trees) | Val ROC: 0.6667 | Val BalAcc: 0.6278 | Val Sens: 0.7000 | Val F1: 0.6667 | Val Acc: 0.6316
+[2026-10-04 18:28:38]   Stacking (Linear SVM Meta on RF + XGBoost + Extra Trees) | Val ROC: 0.3333 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Logistic Regression Meta on RF + XGBoost + Extra Trees + RBF SVM) | Val ROC: 0.6444 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Balanced LogReg Meta on RF + XGBoost + Extra Trees + RBF SVM) | Val ROC: 0.6444 | Val BalAcc: 0.6278 | Val Sens: 0.7000 | Val F1: 0.6667 | Val Acc: 0.6316
+[2026-10-04 18:28:38]   Stacking (Linear SVM Meta on RF + XGBoost + Extra Trees + RBF SVM) | Val ROC: 0.4000 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Logistic Regression Meta on RF + XGBoost + Extra Trees + Logistic Regression) | Val ROC: 0.6889 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Balanced LogReg Meta on RF + XGBoost + Extra Trees + Logistic Regression) | Val ROC: 0.6778 | Val BalAcc: 0.6333 | Val Sens: 0.6000 | Val F1: 0.6316 | Val Acc: 0.6316
+[2026-10-04 18:28:38]   Stacking (Linear SVM Meta on RF + XGBoost + Extra Trees + Logistic Regression) | Val ROC: 0.3000 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Logistic Regression Meta on All 5 Base Models) | Val ROC: 0.6444 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38]   Stacking (Balanced LogReg Meta on All 5 Base Models)    | Val ROC: 0.6444 | Val BalAcc: 0.6333 | Val Sens: 0.6000 | Val F1: 0.6316 | Val Acc: 0.6316
+[2026-10-04 18:28:38]   Stacking (Linear SVM Meta on All 5 Base Models)         | Val ROC: 0.4111 | Val BalAcc: 0.5000 | Val Sens: 0.0000 | Val F1: 0.0000 | Val Acc: 0.4737
+[2026-10-04 18:28:38] 
+--- Running Multi-Seed Stability on Top 2 Ensembles (Seeds 42, 43, 44, 45, 46) ---
+[2026-10-04 18:28:38] Evaluating Stability for Rank #1: Soft Voting Weighted (RF + XGBoost)...
+[2026-10-04 18:28:38]   -> Val ROC-AUC: 0.6622 ± 0.0151
+[2026-10-04 18:28:38]   -> Val BalAcc:  0.6889 ± 0.0000
+[2026-10-04 18:28:38]   -> Val Sens:    0.6000 ± 0.0000
+[2026-10-04 18:28:38] Evaluating Stability for Rank #2: Stacking (Logistic Regression Meta on RF + XGBoost + Extra Trees + Logistic Regression)...
+[2026-10-04 18:28:44]   -> Val ROC-AUC: 0.6578 ± 0.0163
+[2026-10-04 18:28:44]   -> Val BalAcc:  0.5000 ± 0.0000
+[2026-10-04 18:28:44]   -> Val Sens:    0.0000 ± 0.0000

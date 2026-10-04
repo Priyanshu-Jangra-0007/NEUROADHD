@@ -1,0 +1,63 @@
+{
+  "run_id": "run_20261004_182834_ensemble",
+  "experiment": "Hybrid Ensemble Benchmark",
+  "combinations": [
+    {
+      "id": "combo_1",
+      "name": "RF + XGBoost",
+      "keys": [
+        "rf",
+        "xgb"
+      ]
+    },
+    {
+      "id": "combo_2",
+      "name": "RF + Extra Trees",
+      "keys": [
+        "rf",
+        "et"
+      ]
+    },
+    {
+      "id": "combo_3",
+      "name": "RF + XGBoost + Extra Trees",
+      "keys": [
+        "rf",
+        "xgb",
+        "et"
+      ]
+    },
+    {
+      "id": "combo_4",
+      "name": "RF + XGBoost + Extra Trees + RBF SVM",
+      "keys": [
+        "rf",
+        "xgb",
+        "et",
+        "svm"
+      ]
+    },
+    {
+      "id": "combo_5",
+      "name": "RF + XGBoost + Extra Trees + Logistic Regression",
+      "keys": [
+        "rf",
+        "xgb",
+        "et",
+        "lr"
+      ]
+    },
+    {
+      "id": "combo_all",
+      "name": "All 5 Base Models",
+      "keys": [
+        "rf",
+        "xgb",
+        "et",
+        "svm",
+        "lr"
+      ]
+    }
+  ],
+  "random_seed": 42
+}

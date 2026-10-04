@@ -1,0 +1,22 @@
+{
+  "run_id": "run_20261004_182318_final_locked",
+  "test_site": "Peking_2",
+  "test_subject_count": 20,
+  "metrics": {
+    "accuracy": 0.6,
+    "balanced_accuracy": 0.6,
+    "precision": 0.6,
+    "recall_sensitivity": 0.6,
+    "specificity": 0.6,
+    "f1_score": 0.6,
+    "roc_auc": 0.56,
+    "pr_auc": 0.634112926547137,
+    "confusion_matrix": {
+      "tp": 6,
+      "tn": 6,
+      "fp": 4,
+      "fn": 4
+    }
+  },
+  "evaluation_timestamp": "2026-10-04T18:23:20.274625+00:00"
+}

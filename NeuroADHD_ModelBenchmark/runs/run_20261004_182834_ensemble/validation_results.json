@@ -1,0 +1,1012 @@
+[
+  {
+    "ensemble_type": "hard_voting",
+    "combination_id": "combo_1",
+    "display_name": "Hard Voting (RF + XGBoost)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "weights": "unweighted_vote",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6777777777777778,
+      "pr_auc": 0.5849088411588411,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "hard_voting",
+    "combination_id": "combo_2",
+    "display_name": "Hard Voting (RF + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "Extra Trees"
+    ],
+    "weights": "unweighted_vote",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6833333333333333,
+      "precision": 0.7,
+      "recall_sensitivity": 0.7,
+      "specificity": 0.6666666666666666,
+      "f1_score": 0.7,
+      "roc_auc": 0.6444444444444444,
+      "pr_auc": 0.5716779273358221,
+      "confusion_matrix": {
+        "tp": 7,
+        "tn": 6,
+        "fp": 3,
+        "fn": 3
+      }
+    }
+  },
+  {
+    "ensemble_type": "hard_voting",
+    "combination_id": "combo_3",
+    "display_name": "Hard Voting (RF + XGBoost + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees"
+    ],
+    "weights": "unweighted_vote",
+    "validation_metrics": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.6333333333333333,
+      "precision": 0.6666666666666666,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.6666666666666666,
+      "f1_score": 0.631578947368421,
+      "roc_auc": 0.6555555555555556,
+      "pr_auc": 0.577907207171913,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 6,
+        "fp": 3,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "hard_voting",
+    "combination_id": "combo_4",
+    "display_name": "Hard Voting (RF + XGBoost + Extra Trees + RBF SVM)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM"
+    ],
+    "weights": "unweighted_vote",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6333333333333333,
+      "pr_auc": 0.5630587223234282,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "hard_voting",
+    "combination_id": "combo_5",
+    "display_name": "Hard Voting (RF + XGBoost + Extra Trees + Logistic Regression)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "Logistic Regression"
+    ],
+    "weights": "unweighted_vote",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6666666666666666,
+      "pr_auc": 0.5765755078255078,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "hard_voting",
+    "combination_id": "combo_all",
+    "display_name": "Hard Voting (All 5 Base Models)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM",
+      "Logistic Regression"
+    ],
+    "weights": "unweighted_vote",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6444444444444445,
+      "pr_auc": 0.5663471210162387,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_equal",
+    "combination_id": "combo_1",
+    "display_name": "Soft Voting Equal (RF + XGBoost)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "weights": "equal",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6777777777777778,
+      "pr_auc": 0.5849088411588411,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_weighted",
+    "combination_id": "combo_1",
+    "display_name": "Soft Voting Weighted (RF + XGBoost)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "weights": [
+      0.6,
+      0.4
+    ],
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6888888888888889,
+      "pr_auc": 0.5911209623709625,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_equal",
+    "combination_id": "combo_2",
+    "display_name": "Soft Voting Equal (RF + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "Extra Trees"
+    ],
+    "weights": "equal",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6833333333333333,
+      "precision": 0.7,
+      "recall_sensitivity": 0.7,
+      "specificity": 0.6666666666666666,
+      "f1_score": 0.7,
+      "roc_auc": 0.6444444444444444,
+      "pr_auc": 0.5716779273358221,
+      "confusion_matrix": {
+        "tp": 7,
+        "tn": 6,
+        "fp": 3,
+        "fn": 3
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_weighted",
+    "combination_id": "combo_2",
+    "display_name": "Soft Voting Weighted (RF + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "Extra Trees"
+    ],
+    "weights": [
+      0.6,
+      0.4
+    ],
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6833333333333333,
+      "precision": 0.7,
+      "recall_sensitivity": 0.7,
+      "specificity": 0.6666666666666666,
+      "f1_score": 0.7,
+      "roc_auc": 0.6555555555555556,
+      "pr_auc": 0.5746105038752097,
+      "confusion_matrix": {
+        "tp": 7,
+        "tn": 6,
+        "fp": 3,
+        "fn": 3
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_equal",
+    "combination_id": "combo_3",
+    "display_name": "Soft Voting Equal (RF + XGBoost + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees"
+    ],
+    "weights": "equal",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6555555555555556,
+      "pr_auc": 0.577907207171913,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_weighted",
+    "combination_id": "combo_3",
+    "display_name": "Soft Voting Weighted (RF + XGBoost + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees"
+    ],
+    "weights": [
+      0.5,
+      0.25,
+      0.25
+    ],
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6555555555555556,
+      "pr_auc": 0.5728622725313902,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_equal",
+    "combination_id": "combo_4",
+    "display_name": "Soft Voting Equal (RF + XGBoost + Extra Trees + RBF SVM)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM"
+    ],
+    "weights": "equal",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6333333333333333,
+      "pr_auc": 0.5630587223234282,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_weighted",
+    "combination_id": "combo_4",
+    "display_name": "Soft Voting Weighted (RF + XGBoost + Extra Trees + RBF SVM)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM"
+    ],
+    "weights": [
+      0.4,
+      0.2,
+      0.2,
+      0.2
+    ],
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6444444444444444,
+      "pr_auc": 0.5695738738385797,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_equal",
+    "combination_id": "combo_5",
+    "display_name": "Soft Voting Equal (RF + XGBoost + Extra Trees + Logistic Regression)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "Logistic Regression"
+    ],
+    "weights": "equal",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6666666666666666,
+      "pr_auc": 0.5765755078255078,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_weighted",
+    "combination_id": "combo_5",
+    "display_name": "Soft Voting Weighted (RF + XGBoost + Extra Trees + Logistic Regression)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "Logistic Regression"
+    ],
+    "weights": [
+      0.4,
+      0.2,
+      0.2,
+      0.2
+    ],
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6777777777777778,
+      "pr_auc": 0.5827876290376292,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_equal",
+    "combination_id": "combo_all",
+    "display_name": "Soft Voting Equal (All 5 Base Models)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM",
+      "Logistic Regression"
+    ],
+    "weights": "equal",
+    "validation_metrics": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.6388888888888888,
+      "precision": 0.7142857142857143,
+      "recall_sensitivity": 0.5,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.5882352941176471,
+      "roc_auc": 0.6444444444444445,
+      "pr_auc": 0.5663471210162387,
+      "confusion_matrix": {
+        "tp": 5,
+        "tn": 7,
+        "fp": 2,
+        "fn": 5
+      }
+    }
+  },
+  {
+    "ensemble_type": "soft_voting_weighted",
+    "combination_id": "combo_all",
+    "display_name": "Soft Voting Weighted (All 5 Base Models)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM",
+      "Logistic Regression"
+    ],
+    "weights": [
+      0.35,
+      0.2,
+      0.2,
+      0.15,
+      0.1
+    ],
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6555555555555556,
+      "pr_auc": 0.5728622725313902,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_1",
+    "meta_model": "Logistic Regression Meta",
+    "display_name": "Stacking (Logistic Regression Meta on RF + XGBoost)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.6777777777777778,
+      "pr_auc": 0.5849088411588411,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_1",
+    "meta_model": "Balanced LogReg Meta",
+    "display_name": "Stacking (Balanced LogReg Meta on RF + XGBoost)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6777777777777778,
+      "precision": 0.6666666666666666,
+      "recall_sensitivity": 0.8,
+      "specificity": 0.5555555555555556,
+      "f1_score": 0.7272727272727273,
+      "roc_auc": 0.6777777777777778,
+      "pr_auc": 0.5849088411588411,
+      "confusion_matrix": {
+        "tp": 8,
+        "tn": 5,
+        "fp": 4,
+        "fn": 2
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_1",
+    "meta_model": "Linear SVM Meta",
+    "display_name": "Stacking (Linear SVM Meta on RF + XGBoost)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.5444444444444445,
+      "pr_auc": 0.6089546074840192,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_2",
+    "meta_model": "Logistic Regression Meta",
+    "display_name": "Stacking (Logistic Regression Meta on RF + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "Extra Trees"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.6555555555555556,
+      "pr_auc": 0.5746105038752097,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_2",
+    "meta_model": "Balanced LogReg Meta",
+    "display_name": "Stacking (Balanced LogReg Meta on RF + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "Extra Trees"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.6277777777777778,
+      "precision": 0.6363636363636364,
+      "recall_sensitivity": 0.7,
+      "specificity": 0.5555555555555556,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6555555555555556,
+      "pr_auc": 0.5746105038752097,
+      "confusion_matrix": {
+        "tp": 7,
+        "tn": 5,
+        "fp": 4,
+        "fn": 3
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_2",
+    "meta_model": "Linear SVM Meta",
+    "display_name": "Stacking (Linear SVM Meta on RF + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "Extra Trees"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.4222222222222223,
+      "pr_auc": 0.5316267964062081,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_3",
+    "meta_model": "Logistic Regression Meta",
+    "display_name": "Stacking (Logistic Regression Meta on RF + XGBoost + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.6666666666666666,
+      "pr_auc": 0.5811956058647235,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_3",
+    "meta_model": "Balanced LogReg Meta",
+    "display_name": "Stacking (Balanced LogReg Meta on RF + XGBoost + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.6277777777777778,
+      "precision": 0.6363636363636364,
+      "recall_sensitivity": 0.7,
+      "specificity": 0.5555555555555556,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6666666666666666,
+      "pr_auc": 0.5811956058647235,
+      "confusion_matrix": {
+        "tp": 7,
+        "tn": 5,
+        "fp": 4,
+        "fn": 3
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_3",
+    "meta_model": "Linear SVM Meta",
+    "display_name": "Stacking (Linear SVM Meta on RF + XGBoost + Extra Trees)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.33333333333333337,
+      "pr_auc": 0.4062117268696216,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_4",
+    "meta_model": "Logistic Regression Meta",
+    "display_name": "Stacking (Logistic Regression Meta on RF + XGBoost + Extra Trees + RBF SVM)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.6444444444444444,
+      "pr_auc": 0.5695738738385797,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_4",
+    "meta_model": "Balanced LogReg Meta",
+    "display_name": "Stacking (Balanced LogReg Meta on RF + XGBoost + Extra Trees + RBF SVM)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.6277777777777778,
+      "precision": 0.6363636363636364,
+      "recall_sensitivity": 0.7,
+      "specificity": 0.5555555555555556,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6444444444444444,
+      "pr_auc": 0.5695738738385797,
+      "confusion_matrix": {
+        "tp": 7,
+        "tn": 5,
+        "fp": 4,
+        "fn": 3
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_4",
+    "meta_model": "Linear SVM Meta",
+    "display_name": "Stacking (Linear SVM Meta on RF + XGBoost + Extra Trees + RBF SVM)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.4,
+      "pr_auc": 0.5888445597230426,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_5",
+    "meta_model": "Logistic Regression Meta",
+    "display_name": "Stacking (Logistic Regression Meta on RF + XGBoost + Extra Trees + Logistic Regression)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "Logistic Regression"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.6888888888888889,
+      "pr_auc": 0.5911209623709625,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_5",
+    "meta_model": "Balanced LogReg Meta",
+    "display_name": "Stacking (Balanced LogReg Meta on RF + XGBoost + Extra Trees + Logistic Regression)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "Logistic Regression"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.6333333333333333,
+      "precision": 0.6666666666666666,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.6666666666666666,
+      "f1_score": 0.631578947368421,
+      "roc_auc": 0.6777777777777778,
+      "pr_auc": 0.5827876290376292,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 6,
+        "fp": 3,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_5",
+    "meta_model": "Linear SVM Meta",
+    "display_name": "Stacking (Linear SVM Meta on RF + XGBoost + Extra Trees + Logistic Regression)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "Logistic Regression"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.3,
+      "pr_auc": 0.3924649615090791,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_all",
+    "meta_model": "Logistic Regression Meta",
+    "display_name": "Stacking (Logistic Regression Meta on All 5 Base Models)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM",
+      "Logistic Regression"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.6444444444444445,
+      "pr_auc": 0.5663471210162387,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_all",
+    "meta_model": "Balanced LogReg Meta",
+    "display_name": "Stacking (Balanced LogReg Meta on All 5 Base Models)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM",
+      "Logistic Regression"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.6333333333333333,
+      "precision": 0.6666666666666666,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.6666666666666666,
+      "f1_score": 0.631578947368421,
+      "roc_auc": 0.6444444444444445,
+      "pr_auc": 0.5663471210162387,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 6,
+        "fp": 3,
+        "fn": 4
+      }
+    }
+  },
+  {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_all",
+    "meta_model": "Linear SVM Meta",
+    "display_name": "Stacking (Linear SVM Meta on All 5 Base Models)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "RBF SVM",
+      "Logistic Regression"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.41111111111111115,
+      "pr_auc": 0.5715379039605045,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  }
+]

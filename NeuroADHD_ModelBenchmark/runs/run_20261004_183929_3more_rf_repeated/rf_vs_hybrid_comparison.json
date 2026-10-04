@@ -1,0 +1,62 @@
+[
+  {
+    "model": "Balanced Random Forest (8-Rep CV Mean)",
+    "protocol": "5-Fold Repeated CV (8 Seeds)",
+    "roc_auc": "0.6045 \u00b1 0.0163",
+    "balanced_accuracy": "0.6026 \u00b1 0.0163",
+    "sensitivity": "0.4969 \u00b1 0.0339",
+    "specificity": "0.7083 \u00b1 0.0194",
+    "f1_score": "0.4566 \u00b1 0.0232",
+    "accuracy": "0.6447 \u00b1 0.0138"
+  },
+  {
+    "model": "Balanced Random Forest (New 3 Reps Mean: 47,48,49)",
+    "protocol": "5-Fold Repeated CV (3 Seeds)",
+    "roc_auc": "0.6022 \u00b1 0.0085",
+    "balanced_accuracy": "0.6078 \u00b1 0.0144",
+    "sensitivity": "0.5167 \u00b1 0.0144",
+    "specificity": "0.6989 \u00b1 0.0186",
+    "f1_score": "0.4663 \u00b1 0.0167",
+    "accuracy": "0.6441 \u00b1 0.0157"
+  },
+  {
+    "model": "Soft Voting (0.6 RF / 0.4 XGB)",
+    "protocol": "5-Fold Repeated CV (5 Seeds)",
+    "roc_auc": "0.5926 \u00b1 0.0229",
+    "balanced_accuracy": "0.5798 \u00b1 0.0226",
+    "sensitivity": "0.4500 \u00b1 0.0354",
+    "specificity": "\u2014",
+    "f1_score": "0.4234 \u00b1 0.0299",
+    "accuracy": "0.6316 \u00b1 0.0196"
+  },
+  {
+    "model": "Hard Voting (RF + XGBoost)",
+    "protocol": "5-Fold Repeated CV (5 Seeds)",
+    "roc_auc": "0.5926 \u00b1 0.0229",
+    "balanced_accuracy": "0.5798 \u00b1 0.0226",
+    "sensitivity": "0.4500 \u00b1 0.0354",
+    "specificity": "\u2014",
+    "f1_score": "0.4234 \u00b1 0.0299",
+    "accuracy": "0.6316 \u00b1 0.0196"
+  },
+  {
+    "model": "Stacking (Balanced LogReg)",
+    "protocol": "5-Fold Repeated CV (5 Seeds)",
+    "roc_auc": "0.5555 \u00b1 0.0280",
+    "balanced_accuracy": "0.5428 \u00b1 0.0191",
+    "sensitivity": "0.5050 \u00b1 0.0485",
+    "specificity": "\u2014",
+    "f1_score": "0.4065 \u00b1 0.0263",
+    "accuracy": "0.5579 \u00b1 0.0129"
+  },
+  {
+    "model": "Balanced Random Forest (Historical Ref)",
+    "protocol": "Single Partition (NeuroIMAGE Val)",
+    "roc_auc": "0.7000",
+    "balanced_accuracy": "0.6833",
+    "sensitivity": "0.7000",
+    "specificity": "0.6667",
+    "f1_score": "0.7000",
+    "accuracy": "0.6842"
+  }
+]

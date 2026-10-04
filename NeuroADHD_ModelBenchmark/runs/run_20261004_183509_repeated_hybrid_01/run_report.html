@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroADHD — Repeated Hybrid Robustness Benchmark Report</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --cyan: #38bdf8;
+      --green: #4ade80;
+      --amber: #facc15;
+      --rose: #fb7185;
+      --purple: #c084fc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 32px 20px; line-height: 1.5; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { margin-bottom: 28px; border-bottom: 1px solid var(--card-border); padding-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; background: #064e3b; color: var(--green); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .badge-locked { background: #451a03; color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+    h1 { font-size: 1.75rem; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    h2 { font-size: 1.25rem; font-weight: 700; margin: 24px 0 12px 0; color: var(--cyan); }
+    p { color: var(--text-muted); font-size: 0.95rem; }
+    .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); }
+    .card-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
+    .card-val { font-size: 1.6rem; font-weight: 800; color: #fff; }
+    .card-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; margin: 16px 0 24px 0; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--card-border); font-size: 0.9rem; }
+    th { background: #1a2234; color: var(--cyan); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    .highlight { color: var(--green); font-weight: 700; }
+    .img-container { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; }
+    .img-container img { max-width: 100%; height: auto; border-radius: 8px; }
+    .decision-box { background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(245, 158, 11, 0.1)); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 20px; margin: 24px 0; }
+    .decision-title { font-size: 1.1rem; font-weight: 700; color: #f87171; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+          <span class="badge">Robustness Experiment Complete</span>
+          <span class="badge badge-locked">Peking_2 Locked &amp; Untouched</span>
+        </div>
+        <h1>NeuroADHD — Repeated Hybrid-Only Robustness Experiment</h1>
+        <p>Run ID: <code>run_20261004_183509_repeated_hybrid_01</code> | 5 Repeated 5-Fold Stratified CV Splits (Seeds: 42, 43, 44, 45, 46)</p>
+      </div>
+      <div>
+        <p style="text-align: right;">Development Cohort: <strong>133 Subjects</strong> (7 Sites)<br>Test Cohort: <strong>20 Subjects (Peking_2)</strong></p>
+      </div>
+    </div>
+
+    <h2>Executive Summary &amp; Model Rankings</h2>
+    <div class="grid-cards">
+      <div class="card">
+        <div class="card-title">Top Hybrid Architecture</div>
+        <div class="card-val" style="color: var(--cyan); font-size: 1.3rem;">Soft Voting (0.6 RF / 0.4 XGB)</div>
+        <div class="card-sub">Tied with Hard Voting across all metrics</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Mean ROC-AUC (5 Reps)</div>
+        <div class="card-val">0.5926 <span style="font-size: 0.9rem; color: var(--text-muted);">± 0.0229</span></div>
+        <div class="card-sub">Range: [0.5589 - 0.6304]</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Mean Balanced Accuracy</div>
+        <div class="card-val">0.5798 <span style="font-size: 0.9rem; color: var(--text-muted);">± 0.0226</span></div>
+        <div class="card-sub">Range: [0.5387 - 0.5995]</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Single Reference Delta</div>
+        <div class="card-val" style="color: var(--rose);">-0.1074</div>
+        <div class="card-sub">Balanced RF Ref: 0.7000 ROC-AUC</div>
+      </div>
+    </div>
+
+    <h2>Repeated Cross-Validation Summary (5 Repetitions &times; 5 Folds)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Hybrid Model</th>
+          <th>ROC-AUC (Mean &plusmn; Std) [Min - Max]</th>
+          <th>PR-AUC (Mean &plusmn; Std)</th>
+          <th>Balanced Acc (Mean &plusmn; Std)</th>
+          <th>Sensitivity (ADHD Recall)</th>
+          <th>Specificity</th>
+          <th>F1 Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Soft Voting (0.6 RF / 0.4 XGB)</strong></td>
+          <td><strong>0.5926 &plusmn; 0.0229</strong> [0.5589 - 0.6304]</td>
+          <td>0.3682 &plusmn; 0.0178</td>
+          <td><strong>0.5798 &plusmn; 0.0226</strong></td>
+          <td>0.4500 &plusmn; 0.0354</td>
+          <td><strong>0.7097 &plusmn; 0.0192</strong></td>
+          <td><strong>0.4234 &plusmn; 0.0299</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Hard Voting (RF + XGBoost)</strong></td>
+          <td><strong>0.5926 &plusmn; 0.0229</strong> [0.5589 - 0.6304]</td>
+          <td>0.3682 &plusmn; 0.0178</td>
+          <td><strong>0.5798 &plusmn; 0.0226</strong></td>
+          <td>0.4500 &plusmn; 0.0354</td>
+          <td><strong>0.7097 &plusmn; 0.0192</strong></td>
+          <td><strong>0.4234 &plusmn; 0.0299</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Stacking (Balanced LogReg Meta)</strong></td>
+          <td>0.5555 &plusmn; 0.0280 [0.5247 - 0.6011]</td>
+          <td>0.3381 &plusmn; 0.0177</td>
+          <td>0.5428 &plusmn; 0.0191</td>
+          <td><strong>0.5050 &plusmn; 0.0485</strong></td>
+          <td>0.5806 &plusmn; 0.0226</td>
+          <td>0.4065 &plusmn; 0.0263</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Distribution Plots Across Repetitions</h2>
+    <div class="img-container">
+      <img src="plots/repeated_hybrid_distributions.png" alt="Repeated Hybrid Metric Distributions">
+    </div>
+
+    <h2>Repetition-by-Repetition Detailed Breakdown</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Repetition</th>
+          <th>Seed</th>
+          <th>Hybrid Model</th>
+          <th>ROC-AUC</th>
+          <th>PR-AUC</th>
+          <th>Accuracy</th>
+          <th>Balanced Acc</th>
+          <th>Sensitivity</th>
+          <th>Specificity</th>
+          <th>F1 Score</th>
+          <th>TP / TN / FP / FN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Rep 1</td><td>42</td><td>Soft Voting</td><td>0.5962</td><td>0.3605</td><td>0.6466</td><td>0.5977</td><td>0.4750</td><td>0.7204</td><td>0.4471</td><td>19 / 67 / 26 / 21</td></tr>
+        <tr><td>Rep 1</td><td>42</td><td>Stacking</td><td>0.5247</td><td>0.3176</td><td>0.5414</td><td>0.5153</td><td>0.4500</td><td>0.5806</td><td>0.3711</td><td>18 / 54 / 39 / 22</td></tr>
+        <tr><td>Rep 2</td><td>43</td><td>Soft Voting</td><td>0.5917</td><td>0.3735</td><td>0.6391</td><td>0.5995</td><td>0.5000</td><td>0.6989</td><td>0.4545</td><td>20 / 65 / 28 / 20</td></tr>
+        <tr><td>Rep 2</td><td>43</td><td>Stacking</td><td>0.6011</td><td>0.3670</td><td>0.5489</td><td>0.5563</td><td>0.5750</td><td>0.5376</td><td>0.4340</td><td>23 / 50 / 43 / 17</td></tr>
+        <tr><td>Rep 3</td><td>44</td><td>Soft Voting</td><td>0.5858</td><td>0.3644</td><td>0.5940</td><td>0.5387</td><td>0.4000</td><td>0.6774</td><td>0.3721</td><td>16 / 63 / 30 / 24</td></tr>
+        <tr><td>Rep 3</td><td>44</td><td>Stacking</td><td>0.5293</td><td>0.3204</td><td>0.5639</td><td>0.5386</td><td>0.4750</td><td>0.6022</td><td>0.3958</td><td>19 / 56 / 37 / 21</td></tr>
+        <tr><td>Rep 4</td><td>45</td><td>Soft Voting</td><td>0.5589</td><td>0.3504</td><td>0.6316</td><td>0.5727</td><td>0.4250</td><td>0.7204</td><td>0.4096</td><td>17 / 67 / 26 / 23</td></tr>
+        <tr><td>Rep 4</td><td>45</td><td>Stacking</td><td>0.5694</td><td>0.3444</td><td>0.5789</td><td>0.5707</td><td>0.5500</td><td>0.5914</td><td>0.4400</td><td>22 / 55 / 38 / 18</td></tr>
+        <tr><td>Rep 5</td><td>46</td><td>Soft Voting</td><td>0.6304</td><td>0.3923</td><td>0.6466</td><td>0.5906</td><td>0.4500</td><td>0.7312</td><td>0.4337</td><td>18 / 68 / 25 / 22</td></tr>
+        <tr><td>Rep 5</td><td>46</td><td>Stacking</td><td>0.5532</td><td>0.3410</td><td>0.5564</td><td>0.5332</td><td>0.4750</td><td>0.5914</td><td>0.3918</td><td>19 / 55 / 38 / 21</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Comparison Against Historical Single-Model Reference</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Architecture</th>
+          <th>ROC-AUC</th>
+          <th>Balanced Accuracy</th>
+          <th>Sensitivity</th>
+          <th>F1 Score</th>
+          <th>Assessment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Balanced Random Forest (Historical Ref)</strong></td>
+          <td><strong>0.7000</strong></td>
+          <td><strong>0.6833</strong></td>
+          <td><strong>0.7000</strong></td>
+          <td><strong>0.7000</strong></td>
+          <td><span class="badge">Reference Baseline</span></td>
+        </tr>
+        <tr>
+          <td><strong>Best Hybrid (Soft Voting Mean)</strong></td>
+          <td>0.5926 &plusmn; 0.0229</td>
+          <td>0.5798 &plusmn; 0.0226</td>
+          <td>0.4500 &plusmn; 0.0354</td>
+          <td>0.4234 &plusmn; 0.0299</td>
+          <td style="color: var(--rose); font-weight: 600;">-0.1074 ROC-AUC vs Ref</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="decision-box">
+      <div class="decision-title">Definitive Conclusion: HYBRID NOT BETTER</div>
+      <p style="color: #fca5a5;">
+        Across 5 independent cross-validation repetitions with changing fold assignments, none of the hybrid architectures (Soft Voting, Hard Voting, or Stacking) demonstrate improvement over the selected single Balanced Random Forest reference. The single-model Balanced Random Forest remains superior and more parsimonious for downstream deployment.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

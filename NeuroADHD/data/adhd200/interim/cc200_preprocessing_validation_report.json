@@ -1,0 +1,128 @@
+{
+  "created_utc": "2026-09-29T19:48:29.820196+00:00",
+  "input_feature_count": 19900,
+  "input_X_columns_only_roi_pairs": true,
+  "subject_id_and_site_kept_as_metadata": true,
+  "diagnosis_kept_separate_as_y": true,
+  "preprocessing_sequence": [
+    {
+      "name": "imputer",
+      "class": "SimpleImputer"
+    },
+    {
+      "name": "variance",
+      "class": "VarianceThreshold"
+    },
+    {
+      "name": "scaler",
+      "class": "StandardScaler"
+    },
+    {
+      "name": "select",
+      "class": "SelectKBest"
+    }
+  ],
+  "selected_feature_count": 100,
+  "feature_selection": "SelectKBest(score_func=f_classif, k=100), after imputation, variance filtering, and scaling",
+  "fit_scope": {
+    "training_subject_count": 114,
+    "fitted_subject_ids_exactly_training_ids": true,
+    "validation_or_test_used_in_fit": false
+  },
+  "partitions": {
+    "train": {
+      "input_shape": [
+        114,
+        19900
+      ],
+      "output_shape": [
+        114,
+        100
+      ],
+      "subjects": 114,
+      "labels": {
+        "Control_0": 84,
+        "ADHD_1": 30
+      },
+      "sites": [
+        "KKI",
+        "NYU",
+        "OHSU",
+        "Peking_1",
+        "Peking_3",
+        "Pittsburgh"
+      ],
+      "site_counts": {
+        "KKI": 24,
+        "NYU": 6,
+        "OHSU": 14,
+        "Peking_1": 38,
+        "Peking_3": 11,
+        "Pittsburgh": 21
+      },
+      "subject_ids_preserved_in_order": true,
+      "all_output_values_finite": true
+    },
+    "validation": {
+      "input_shape": [
+        19,
+        19900
+      ],
+      "output_shape": [
+        19,
+        100
+      ],
+      "subjects": 19,
+      "labels": {
+        "Control_0": 9,
+        "ADHD_1": 10
+      },
+      "sites": [
+        "NeuroIMAGE"
+      ],
+      "site_counts": {
+        "NeuroIMAGE": 19
+      },
+      "subject_ids_preserved_in_order": true,
+      "all_output_values_finite": true
+    },
+    "test": {
+      "input_shape": [
+        20,
+        19900
+      ],
+      "output_shape": [
+        20,
+        100
+      ],
+      "subjects": 20,
+      "labels": {
+        "Control_0": 10,
+        "ADHD_1": 10
+      },
+      "sites": [
+        "Peking_2"
+      ],
+      "site_counts": {
+        "Peking_2": 20
+      },
+      "subject_ids_preserved_in_order": true,
+      "all_output_values_finite": true
+    }
+  },
+  "subject_overlap": false,
+  "site_overlap": false,
+  "test_information_used_for_preprocessing": false,
+  "test_labels_passed_to_preprocessing": false,
+  "pipeline_fitted_only_on_X_train_y_train": true,
+  "k_assessment": "k=100 retained unchanged. It reduces p=19,900 to 100 within each training fit (114 training subjects in the current split), a reasonable conservative starting point for p much greater than n. F-score ranking is univariate and may be unstable/correlated; assess candidate k values and selection stability using training-only nested/grouped CV before model comparisons.",
+  "synthetic_leakage_test": {
+    "command": "python -m unittest discover -s tests -p test_cc200_preprocessing_leakage.py -v",
+    "result": "passed",
+    "tests_passed": 2,
+    "tests_failed": 0,
+    "checks": "Validation/test values changed to extreme values while train stayed fixed; imputation/scaling statistics, ANOVA selected features, and transformed training data remained identical. Overlapping subject IDs were rejected."
+  },
+  "classifier_trained": false,
+  "accuracy_calculated": false
+}

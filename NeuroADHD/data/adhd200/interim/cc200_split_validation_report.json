@@ -1,0 +1,76 @@
+{
+  "created_utc": "2026-09-29T19:39:38.500362+00:00",
+  "strategy": "fixed_group_holdout_by_site",
+  "config": "configs/splits/cc200_site_holdout.json",
+  "manifest": "data/adhd200/processed/splits/subject_split_manifest.csv",
+  "subjects_total": 153,
+  "class_counts_total": {
+    "Control_0": 103,
+    "ADHD_1": 50
+  },
+  "partitions": {
+    "train": {
+      "subjects": 114,
+      "diagnosis_counts": {
+        "Control_0": 84,
+        "ADHD_1": 30
+      },
+      "site_counts": {
+        "KKI": 24,
+        "NYU": 6,
+        "OHSU": 14,
+        "Peking_1": 38,
+        "Peking_3": 11,
+        "Pittsburgh": 21
+      },
+      "site_list": [
+        "KKI",
+        "NYU",
+        "OHSU",
+        "Peking_1",
+        "Peking_3",
+        "Pittsburgh"
+      ]
+    },
+    "validation": {
+      "subjects": 19,
+      "diagnosis_counts": {
+        "Control_0": 9,
+        "ADHD_1": 10
+      },
+      "site_counts": {
+        "NeuroIMAGE": 19
+      },
+      "site_list": [
+        "NeuroIMAGE"
+      ]
+    },
+    "test": {
+      "subjects": 20,
+      "diagnosis_counts": {
+        "Control_0": 10,
+        "ADHD_1": 10
+      },
+      "site_counts": {
+        "Peking_2": 20
+      },
+      "site_list": [
+        "Peking_2"
+      ]
+    }
+  },
+  "subject_overlap": {
+    "train_validation": [],
+    "train_test": [],
+    "validation_test": []
+  },
+  "all_subjects_assigned_once": true,
+  "site_overlap": {
+    "train_validation": [],
+    "train_test": [],
+    "validation_test": []
+  },
+  "preprocessing_fitted": false,
+  "test_data_used_to_fit_or_select_preprocessing": false,
+  "model_training_performed": false
+}

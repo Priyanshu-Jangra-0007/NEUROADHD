@@ -1,0 +1,134 @@
+{
+  "run_id": "run_20261004_184605_explainability",
+  "selected_features_count": 100,
+  "top_10_edges": [
+    {
+      "feature_name": "ROI_023__ROI_189",
+      "roi_a": "ROI_023",
+      "roi_b": "ROI_189",
+      "mean_abs_shap": 0.016762209288490898,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    },
+    {
+      "feature_name": "ROI_100__ROI_153",
+      "roi_a": "ROI_100",
+      "roi_b": "ROI_153",
+      "mean_abs_shap": 0.0161654820749022,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    },
+    {
+      "feature_name": "ROI_034__ROI_041",
+      "roi_a": "ROI_034",
+      "roi_b": "ROI_041",
+      "mean_abs_shap": 0.015495812483631008,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    },
+    {
+      "feature_name": "ROI_143__ROI_153",
+      "roi_a": "ROI_143",
+      "roi_b": "ROI_153",
+      "mean_abs_shap": 0.014264738786903883,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    },
+    {
+      "feature_name": "ROI_023__ROI_103",
+      "roi_a": "ROI_023",
+      "roi_b": "ROI_103",
+      "mean_abs_shap": 0.014142594053427373,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    },
+    {
+      "feature_name": "ROI_003__ROI_006",
+      "roi_a": "ROI_003",
+      "roi_b": "ROI_006",
+      "mean_abs_shap": 0.013857831704268636,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    },
+    {
+      "feature_name": "ROI_056__ROI_138",
+      "roi_a": "ROI_056",
+      "roi_b": "ROI_138",
+      "mean_abs_shap": 0.013221733312471244,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    },
+    {
+      "feature_name": "ROI_026__ROI_153",
+      "roi_a": "ROI_026",
+      "roi_b": "ROI_153",
+      "mean_abs_shap": 0.012707067293572927,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    },
+    {
+      "feature_name": "ROI_034__ROI_103",
+      "roi_a": "ROI_034",
+      "roi_b": "ROI_103",
+      "mean_abs_shap": 0.012573295682554558,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    },
+    {
+      "feature_name": "ROI_006__ROI_127",
+      "roi_a": "ROI_006",
+      "roi_b": "ROI_127",
+      "mean_abs_shap": 0.01215369724165627,
+      "model_association_direction": "Higher connectivity increases ADHD probability"
+    }
+  ],
+  "top_hub_rois": [
+    {
+      "roi_name": "ROI_003",
+      "appearances_in_top_50_edges": 8,
+      "appearances_in_all_100_edges": 16
+    },
+    {
+      "roi_name": "ROI_034",
+      "appearances_in_top_50_edges": 6,
+      "appearances_in_all_100_edges": 9
+    },
+    {
+      "roi_name": "ROI_006",
+      "appearances_in_top_50_edges": 4,
+      "appearances_in_all_100_edges": 6
+    },
+    {
+      "roi_name": "ROI_153",
+      "appearances_in_top_50_edges": 3,
+      "appearances_in_all_100_edges": 4
+    },
+    {
+      "roi_name": "ROI_189",
+      "appearances_in_top_50_edges": 6,
+      "appearances_in_all_100_edges": 7
+    },
+    {
+      "roi_name": "ROI_151",
+      "appearances_in_top_50_edges": 4,
+      "appearances_in_all_100_edges": 5
+    },
+    {
+      "roi_name": "ROI_023",
+      "appearances_in_top_50_edges": 3,
+      "appearances_in_all_100_edges": 6
+    },
+    {
+      "roi_name": "ROI_100",
+      "appearances_in_top_50_edges": 3,
+      "appearances_in_all_100_edges": 4
+    },
+    {
+      "roi_name": "ROI_103",
+      "appearances_in_top_50_edges": 2,
+      "appearances_in_all_100_edges": 2
+    },
+    {
+      "roi_name": "ROI_174",
+      "appearances_in_top_50_edges": 6,
+      "appearances_in_all_100_edges": 9
+    }
+  ],
+  "ranking_overlap": {
+    "top_10": "7/10",
+    "top_20": "14/20",
+    "top_50": "40/50"
+  },
+  "peking_2_status": "INTERPRETATION_ONLY_LOCKED"
+}

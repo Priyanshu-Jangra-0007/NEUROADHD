@@ -1,0 +1,153 @@
+{
+  "run_id": "run_20261004_183929_3more_rf_repeated",
+  "new_repetitions_stats": {
+    "roc_auc": {
+      "mean": 0.6022401433691756,
+      "std": 0.008502163071322214,
+      "min": 0.592741935483871,
+      "max": 0.6091397849462366
+    },
+    "pr_auc": {
+      "mean": 0.3814645643113215,
+      "std": 0.019973124749447815,
+      "min": 0.3584378752160872,
+      "max": 0.39409791075204875
+    },
+    "accuracy": {
+      "mean": 0.6441102756892231,
+      "std": 0.015651624056136324,
+      "min": 0.631578947368421,
+      "max": 0.6616541353383458
+    },
+    "balanced_accuracy": {
+      "mean": 0.6077956989247312,
+      "std": 0.014352799782707835,
+      "min": 0.5940860215053764,
+      "max": 0.6227150537634409
+    },
+    "recall_sensitivity": {
+      "mean": 0.5166666666666666,
+      "std": 0.014433756729740658,
+      "min": 0.5,
+      "max": 0.525
+    },
+    "specificity": {
+      "mean": 0.6989247311827956,
+      "std": 0.018624202231923393,
+      "min": 0.6881720430107527,
+      "max": 0.7204301075268817
+    },
+    "f1_score": {
+      "mean": 0.4662878298678376,
+      "std": 0.01666343929941647,
+      "min": 0.449438202247191,
+      "max": 0.4827586206896552
+    }
+  },
+  "all_8_repetitions_stats": {
+    "roc_auc": {
+      "mean": 0.6044690860215054,
+      "std": 0.016281243826363652,
+      "min": 0.589247311827957,
+      "max": 0.6403225806451612
+    },
+    "pr_auc": {
+      "mean": 0.3814899738315148,
+      "std": 0.02237498732729981,
+      "min": 0.35218140680353816,
+      "max": 0.4186966530073861
+    },
+    "accuracy": {
+      "mean": 0.644736842105263,
+      "std": 0.013776321523502322,
+      "min": 0.631578947368421,
+      "max": 0.6691729323308271
+    },
+    "balanced_accuracy": {
+      "mean": 0.6026041666666666,
+      "std": 0.016255415225972344,
+      "min": 0.5780913978494624,
+      "max": 0.6280913978494624
+    },
+    "recall_sensitivity": {
+      "mean": 0.49687499999999996,
+      "std": 0.03390506704651345,
+      "min": 0.425,
+      "max": 0.525
+    },
+    "specificity": {
+      "mean": 0.7083333333333334,
+      "std": 0.01943786595214094,
+      "min": 0.6881720430107527,
+      "max": 0.7311827956989247
+    },
+    "f1_score": {
+      "mean": 0.4566140261612862,
+      "std": 0.023157986305985676,
+      "min": 0.4146341463414634,
+      "max": 0.4883720930232558
+    }
+  },
+  "hybrid_comparison": [
+    {
+      "model": "Balanced Random Forest (8-Rep CV Mean)",
+      "protocol": "5-Fold Repeated CV (8 Seeds)",
+      "roc_auc": "0.6045 \u00b1 0.0163",
+      "balanced_accuracy": "0.6026 \u00b1 0.0163",
+      "sensitivity": "0.4969 \u00b1 0.0339",
+      "specificity": "0.7083 \u00b1 0.0194",
+      "f1_score": "0.4566 \u00b1 0.0232",
+      "accuracy": "0.6447 \u00b1 0.0138"
+    },
+    {
+      "model": "Balanced Random Forest (New 3 Reps Mean: 47,48,49)",
+      "protocol": "5-Fold Repeated CV (3 Seeds)",
+      "roc_auc": "0.6022 \u00b1 0.0085",
+      "balanced_accuracy": "0.6078 \u00b1 0.0144",
+      "sensitivity": "0.5167 \u00b1 0.0144",
+      "specificity": "0.6989 \u00b1 0.0186",
+      "f1_score": "0.4663 \u00b1 0.0167",
+      "accuracy": "0.6441 \u00b1 0.0157"
+    },
+    {
+      "model": "Soft Voting (0.6 RF / 0.4 XGB)",
+      "protocol": "5-Fold Repeated CV (5 Seeds)",
+      "roc_auc": "0.5926 \u00b1 0.0229",
+      "balanced_accuracy": "0.5798 \u00b1 0.0226",
+      "sensitivity": "0.4500 \u00b1 0.0354",
+      "specificity": "\u2014",
+      "f1_score": "0.4234 \u00b1 0.0299",
+      "accuracy": "0.6316 \u00b1 0.0196"
+    },
+    {
+      "model": "Hard Voting (RF + XGBoost)",
+      "protocol": "5-Fold Repeated CV (5 Seeds)",
+      "roc_auc": "0.5926 \u00b1 0.0229",
+      "balanced_accuracy": "0.5798 \u00b1 0.0226",
+      "sensitivity": "0.4500 \u00b1 0.0354",
+      "specificity": "\u2014",
+      "f1_score": "0.4234 \u00b1 0.0299",
+      "accuracy": "0.6316 \u00b1 0.0196"
+    },
+    {
+      "model": "Stacking (Balanced LogReg)",
+      "protocol": "5-Fold Repeated CV (5 Seeds)",
+      "roc_auc": "0.5555 \u00b1 0.0280",
+      "balanced_accuracy": "0.5428 \u00b1 0.0191",
+      "sensitivity": "0.5050 \u00b1 0.0485",
+      "specificity": "\u2014",
+      "f1_score": "0.4065 \u00b1 0.0263",
+      "accuracy": "0.5579 \u00b1 0.0129"
+    },
+    {
+      "model": "Balanced Random Forest (Historical Ref)",
+      "protocol": "Single Partition (NeuroIMAGE Val)",
+      "roc_auc": "0.7000",
+      "balanced_accuracy": "0.6833",
+      "sensitivity": "0.7000",
+      "specificity": "0.6667",
+      "f1_score": "0.7000",
+      "accuracy": "0.6842"
+    }
+  ]
+}

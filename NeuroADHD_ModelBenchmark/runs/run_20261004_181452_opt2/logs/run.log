@@ -1,0 +1,176 @@
+[2026-10-04 18:14:52] === Starting Opt-2 Focused Optimization Experiment Run: run_20261004_181452_opt2 ===
+[2026-10-04 18:14:54] Train split: 114 subjects (Control: 84, ADHD: 30)
+[2026-10-04 18:14:54] Validation split: 19 subjects (Control: 9, ADHD: 10) [NeuroIMAGE]
+[2026-10-04 18:14:54] Test split: 20 subjects [Peking_2] — LOCKED & UNTOUCHED!
+[2026-10-04 18:14:54] Starting controlled hyperparameter tuning across 4 focused candidates...
+[2026-10-04 18:14:54] 
+Candidate [1/4]: Random Forest (K=50, Balanced) — Evaluating 96 hyperparameter combinations...
+[2026-10-04 18:14:55]   [ 1/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6189 | Val ROC: 0.6444 | Val PR: 0.5767 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:14:56]   [ 2/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6145 | Val ROC: 0.5889 | Val PR: 0.5347 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:14:57]   [ 3/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6325 | Val ROC: 0.6000 | Val PR: 0.5409 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:14:58]   [ 4/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6189 | Val ROC: 0.6444 | Val PR: 0.5767 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:14:59]   [ 5/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6145 | Val ROC: 0.5889 | Val PR: 0.5347 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:00]   [ 6/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6325 | Val ROC: 0.6000 | Val PR: 0.5409 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:01]   [ 7/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6130 | Val ROC: 0.6222 | Val PR: 0.5548 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:02]   [ 8/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6185 | Val ROC: 0.5889 | Val PR: 0.5347 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:03]   [ 9/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6384 | Val ROC: 0.5778 | Val PR: 0.5295 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:03]   [10/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6130 | Val ROC: 0.6222 | Val PR: 0.5548 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:04]   [11/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6185 | Val ROC: 0.5889 | Val PR: 0.5347 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:05]   [12/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6384 | Val ROC: 0.5778 | Val PR: 0.5295 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:17]   [24/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.6143 | Val ROC: 0.6000 | Val PR: 0.5409 | Val Acc: 0.6316 | Val F1: 0.6316 | Val Sens: 0.6000
+[2026-10-04 18:15:19]   [26/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.5964 | Val ROC: 0.6000 | Val PR: 0.5352 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:40]   [48/96] Random Forest (K= 50, CW=balanced          ) | Train CV ROC: 0.5903 | Val ROC: 0.6222 | Val PR: 0.6290 | Val Acc: 0.5789 | Val F1: 0.5556 | Val Sens: 0.5000
+[2026-10-04 18:15:40]   [49/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.5964 | Val ROC: 0.6111 | Val PR: 0.5562 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:41]   [50/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6181 | Val ROC: 0.6000 | Val PR: 0.5444 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:43]   [51/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6083 | Val ROC: 0.5667 | Val PR: 0.5209 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:43]   [52/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.5964 | Val ROC: 0.6111 | Val PR: 0.5562 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:44]   [53/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6181 | Val ROC: 0.6000 | Val PR: 0.5444 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:46]   [54/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6083 | Val ROC: 0.5667 | Val PR: 0.5209 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:47]   [55/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6025 | Val ROC: 0.6000 | Val PR: 0.5533 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:48]   [56/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6162 | Val ROC: 0.6000 | Val PR: 0.5444 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:49]   [57/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6064 | Val ROC: 0.5556 | Val PR: 0.5157 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:50]   [58/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6025 | Val ROC: 0.6000 | Val PR: 0.5533 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:51]   [59/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6162 | Val ROC: 0.6000 | Val PR: 0.5444 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:15:52]   [60/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6064 | Val ROC: 0.5556 | Val PR: 0.5157 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:04]   [72/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6047 | Val ROC: 0.5778 | Val PR: 0.5247 | Val Acc: 0.6316 | Val F1: 0.6316 | Val Sens: 0.6000
+[2026-10-04 18:16:30]   [96/96] Random Forest (K= 50, CW=balanced_subsample) | Train CV ROC: 0.5984 | Val ROC: 0.5889 | Val PR: 0.5292 | Val Acc: 0.5263 | Val F1: 0.4706 | Val Sens: 0.4000
+[2026-10-04 18:16:30] 
+Candidate [2/4]: Random Forest (K=100, Balanced) — Evaluating 96 hyperparameter combinations...
+[2026-10-04 18:16:31]   [ 1/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6286 | Val ROC: 0.6556 | Val PR: 0.5779 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:32]   [ 2/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6125 | Val ROC: 0.6444 | Val PR: 0.5729 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:33]   [ 3/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6303 | Val ROC: 0.6556 | Val PR: 0.5809 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:33]   [ 4/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6286 | Val ROC: 0.6556 | Val PR: 0.5779 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:34]   [ 5/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6125 | Val ROC: 0.6444 | Val PR: 0.5729 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:35]   [ 6/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6303 | Val ROC: 0.6556 | Val PR: 0.5809 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:36]   [ 7/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6246 | Val ROC: 0.6444 | Val PR: 0.5693 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:37]   [ 8/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6185 | Val ROC: 0.6444 | Val PR: 0.5693 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:38]   [ 9/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6244 | Val ROC: 0.6556 | Val PR: 0.5809 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:39]   [10/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6246 | Val ROC: 0.6444 | Val PR: 0.5693 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:40]   [11/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6185 | Val ROC: 0.6444 | Val PR: 0.5693 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:41]   [12/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6244 | Val ROC: 0.6556 | Val PR: 0.5809 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:42]   [13/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6599 | Val ROC: 0.7000 | Val PR: 0.5959 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:43]   [14/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6322 | Val ROC: 0.6444 | Val PR: 0.5747 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:44]   [15/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6183 | Val ROC: 0.6444 | Val PR: 0.5747 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:45]   [16/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6542 | Val ROC: 0.7000 | Val PR: 0.5959 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:46]   [17/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6241 | Val ROC: 0.6556 | Val PR: 0.5809 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:47]   [18/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6082 | Val ROC: 0.6556 | Val PR: 0.5797 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:48]   [19/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6382 | Val ROC: 0.6667 | Val PR: 0.5859 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:49]   [20/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6203 | Val ROC: 0.6556 | Val PR: 0.5809 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:50]   [21/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6086 | Val ROC: 0.6444 | Val PR: 0.5747 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:51]   [22/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6363 | Val ROC: 0.6667 | Val PR: 0.5859 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:52]   [23/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6105 | Val ROC: 0.6556 | Val PR: 0.5809 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:53]   [24/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6028 | Val ROC: 0.6444 | Val PR: 0.5747 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:57]   [28/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6485 | Val ROC: 0.7000 | Val PR: 0.6031 | Val Acc: 0.6842 | Val F1: 0.6667 | Val Sens: 0.6000
+[2026-10-04 18:16:58]   [29/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6407 | Val ROC: 0.6222 | Val PR: 0.5550 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:16:59]   [30/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6207 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:04]   [35/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6188 | Val ROC: 0.6556 | Val PR: 0.5779 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:05]   [36/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6150 | Val ROC: 0.6444 | Val PR: 0.5747 | Val Acc: 0.7368 | Val F1: 0.7368 | Val Sens: 0.7000
+[2026-10-04 18:17:09]   [40/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6406 | Val ROC: 0.7111 | Val PR: 0.6150 | Val Acc: 0.6316 | Val F1: 0.5882 | Val Sens: 0.5000
+[2026-10-04 18:17:15]   [47/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6169 | Val ROC: 0.6667 | Val PR: 0.5859 | Val Acc: 0.7368 | Val F1: 0.7368 | Val Sens: 0.7000
+[2026-10-04 18:17:17]   [48/96] Random Forest (K=100, CW=balanced          ) | Train CV ROC: 0.6070 | Val ROC: 0.6333 | Val PR: 0.5695 | Val Acc: 0.6842 | Val F1: 0.6667 | Val Sens: 0.6000
+[2026-10-04 18:17:17]   [49/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6026 | Val ROC: 0.6667 | Val PR: 0.5979 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:18]   [50/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6087 | Val ROC: 0.6778 | Val PR: 0.6059 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:20]   [51/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6126 | Val ROC: 0.6556 | Val PR: 0.5830 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:20]   [52/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6026 | Val ROC: 0.6667 | Val PR: 0.5979 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:22]   [53/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6087 | Val ROC: 0.6778 | Val PR: 0.6059 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:23]   [54/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6126 | Val ROC: 0.6556 | Val PR: 0.5830 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:24]   [55/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6103 | Val ROC: 0.6667 | Val PR: 0.5979 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:25]   [56/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6186 | Val ROC: 0.6778 | Val PR: 0.6059 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:26]   [57/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6186 | Val ROC: 0.6556 | Val PR: 0.5830 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:27]   [58/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6103 | Val ROC: 0.6667 | Val PR: 0.5979 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:28]   [59/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6186 | Val ROC: 0.6778 | Val PR: 0.6059 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:29]   [60/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6186 | Val ROC: 0.6556 | Val PR: 0.5830 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:34]   [65/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6260 | Val ROC: 0.6667 | Val PR: 0.5892 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:35]   [66/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6321 | Val ROC: 0.6667 | Val PR: 0.5881 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:17:42]   [72/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6401 | Val ROC: 0.6556 | Val PR: 0.5800 | Val Acc: 0.6316 | Val F1: 0.6316 | Val Sens: 0.6000
+[2026-10-04 18:17:43]   [73/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6304 | Val ROC: 0.7000 | Val PR: 0.6091 | Val Acc: 0.5263 | Val F1: 0.4000 | Val Sens: 0.3000
+[2026-10-04 18:17:55]   [85/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6102 | Val ROC: 0.7167 | Val PR: 0.6097 | Val Acc: 0.5263 | Val F1: 0.3077 | Val Sens: 0.2000
+[2026-10-04 18:17:56]   [86/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6260 | Val ROC: 0.7000 | Val PR: 0.6101 | Val Acc: 0.5263 | Val F1: 0.3077 | Val Sens: 0.2000
+[2026-10-04 18:18:07]   [96/96] Random Forest (K=100, CW=balanced_subsample) | Train CV ROC: 0.6458 | Val ROC: 0.6333 | Val PR: 0.5622 | Val Acc: 0.4211 | Val F1: 0.1538 | Val Sens: 0.1000
+[2026-10-04 18:18:07] 
+Candidate [3/4]: Extra Trees (K=50, Balanced) — Evaluating 96 hyperparameter combinations...
+[2026-10-04 18:18:10]   [ 3/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6301 | Val ROC: 0.6222 | Val PR: 0.5623 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:12]   [ 6/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6301 | Val ROC: 0.6222 | Val PR: 0.5623 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:15]   [ 9/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6282 | Val ROC: 0.6222 | Val PR: 0.5623 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:18]   [12/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6282 | Val ROC: 0.6222 | Val PR: 0.5623 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:18]   [13/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6123 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:19]   [14/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6283 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:20]   [15/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6342 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:21]   [16/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6183 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:23]   [18/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6381 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:24]   [19/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6107 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:24]   [20/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6324 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:25]   [21/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6284 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:26]   [22/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6206 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:27]   [23/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6324 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:28]   [24/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6284 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:49]   [48/96] Extra Trees   (K= 50, CW=balanced          ) | Train CV ROC: 0.6205 | Val ROC: 0.6556 | Val PR: 0.5947 | Val Acc: 0.5263 | Val F1: 0.4000 | Val Sens: 0.3000
+[2026-10-04 18:18:52]   [51/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6301 | Val ROC: 0.6222 | Val PR: 0.5623 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:55]   [54/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6301 | Val ROC: 0.6222 | Val PR: 0.5623 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:18:57]   [57/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6282 | Val ROC: 0.6222 | Val PR: 0.5623 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:00]   [60/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6282 | Val ROC: 0.6222 | Val PR: 0.5623 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:01]   [61/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6123 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:02]   [62/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6283 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:02]   [63/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6342 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:03]   [64/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6183 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:05]   [66/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6381 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:06]   [67/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6107 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:07]   [68/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6324 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:08]   [69/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6284 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:09]   [70/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6206 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:10]   [71/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6324 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:11]   [72/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6284 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:32]   [96/96] Extra Trees   (K= 50, CW=balanced_subsample) | Train CV ROC: 0.6205 | Val ROC: 0.6556 | Val PR: 0.5947 | Val Acc: 0.5263 | Val F1: 0.4000 | Val Sens: 0.3000
+[2026-10-04 18:19:32] 
+Candidate [4/4]: Extra Trees (K=100, Balanced) — Evaluating 96 hyperparameter combinations...
+[2026-10-04 18:19:34]   [ 2/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6303 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:35]   [ 3/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6321 | Val ROC: 0.6667 | Val PR: 0.5827 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:36]   [ 5/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6303 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:37]   [ 6/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6321 | Val ROC: 0.6667 | Val PR: 0.5827 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:39]   [ 8/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6303 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:40]   [ 9/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6261 | Val ROC: 0.6667 | Val PR: 0.5827 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:41]   [11/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6303 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:42]   [12/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6261 | Val ROC: 0.6667 | Val PR: 0.5827 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:44]   [14/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6256 | Val ROC: 0.6222 | Val PR: 0.5580 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:45]   [15/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6162 | Val ROC: 0.6333 | Val PR: 0.5630 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:48]   [18/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6241 | Val ROC: 0.6333 | Val PR: 0.5630 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:49]   [20/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6218 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:50]   [21/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6240 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:52]   [23/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6199 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:19:53]   [24/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6200 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:15]   [48/96] Extra Trees   (K=100, CW=balanced          ) | Train CV ROC: 0.6324 | Val ROC: 0.6222 | Val PR: 0.5524 | Val Acc: 0.4737 | Val F1: 0.2857 | Val Sens: 0.2000
+[2026-10-04 18:20:16]   [50/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6303 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:17]   [51/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6321 | Val ROC: 0.6667 | Val PR: 0.5827 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:19]   [53/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6303 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:20]   [54/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6321 | Val ROC: 0.6667 | Val PR: 0.5827 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:21]   [56/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6303 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:22]   [57/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6261 | Val ROC: 0.6667 | Val PR: 0.5827 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:24]   [59/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6303 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:25]   [60/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6261 | Val ROC: 0.6667 | Val PR: 0.5827 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:27]   [62/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6256 | Val ROC: 0.6222 | Val PR: 0.5580 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:28]   [63/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6162 | Val ROC: 0.6333 | Val PR: 0.5630 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:30]   [66/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6241 | Val ROC: 0.6333 | Val PR: 0.5630 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:32]   [68/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6218 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:33]   [69/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6240 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:35]   [71/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6199 | Val ROC: 0.6333 | Val PR: 0.5666 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:36]   [72/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6200 | Val ROC: 0.6444 | Val PR: 0.5717 | Val Acc: 0.6842 | Val F1: 0.7000 | Val Sens: 0.7000
+[2026-10-04 18:20:57]   [96/96] Extra Trees   (K=100, CW=balanced_subsample) | Train CV ROC: 0.6324 | Val ROC: 0.6222 | Val PR: 0.5524 | Val Acc: 0.4737 | Val F1: 0.2857 | Val Sens: 0.2000
+[2026-10-04 18:20:57] 
+=== BEST CANDIDATE SELECTION ===
+[2026-10-04 18:20:57] Best Candidate: Random Forest (K=100, CW=balanced_subsample)
+[2026-10-04 18:20:57]   Best HPs: {"class_weight": "balanced_subsample", "max_depth": null, "max_features": "sqrt", "min_samples_leaf": 1, "min_samples_split": 2, "n_estimators": 50, "random_state": 42}
+[2026-10-04 18:20:57]   Val ROC-AUC: 0.7167 | Val PR-AUC: 0.6097 | Val BalAcc: 0.5444
+[2026-10-04 18:20:57]   Val Sens (ADHD): 0.2000 | Val Spec: 0.8889 | Val F1: 0.3077 | Val Acc: 0.5263
+[2026-10-04 18:20:57]   Train CV ROC-AUC: 0.6102 ± 0.1370
+[2026-10-04 18:20:57] 
+=== Multi-Seed Stability Testing on Top 2 Configurations across Seeds [42, 43, 44, 45, 46] ===
+[2026-10-04 18:20:57] Testing Config #1: Random Forest (K=100, CW=balanced_subsample)...
+[2026-10-04 18:20:58]   -> Val ROC-AUC across seeds: 0.6967 ± 0.0269
+[2026-10-04 18:20:58]   -> Val PR-AUC across seeds:  0.6557 ± 0.0276
+[2026-10-04 18:20:58]   -> Val BalAcc across seeds:  0.5322 ± 0.0398
+[2026-10-04 18:20:58]   -> Val Sens across seeds:    0.2200 ± 0.0400
+[2026-10-04 18:20:58] Testing Config #2: Random Forest (K=100, CW=balanced)...
+[2026-10-04 18:20:59]   -> Val ROC-AUC across seeds: 0.6878 ± 0.0341
+[2026-10-04 18:20:59]   -> Val PR-AUC across seeds:  0.6382 ± 0.0531
+[2026-10-04 18:20:59]   -> Val BalAcc across seeds:  0.6578 ± 0.0232
+[2026-10-04 18:20:59]   -> Val Sens across seeds:    0.5600 ± 0.0800

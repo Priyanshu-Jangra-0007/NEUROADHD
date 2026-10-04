@@ -1,0 +1,39 @@
+{
+  "run_id": "run_20261004_182318_final_locked",
+  "created_at": "2026-10-04T18:23:20.275120+00:00",
+  "status": "completed",
+  "purpose": "FINAL_LOCKED_TEST_EVALUATION",
+  "selection": {
+    "selected_model": "Random Forest (K=100, class_weight='balanced', max_depth=3, n_estimators=50)",
+    "selected_validation_roc_auc": 0.7,
+    "selected_validation_accuracy": 0.6842
+  },
+  "final_test": {
+    "final_test_executed": true,
+    "test_site": "Peking_2",
+    "metrics": {
+      "accuracy": 0.6,
+      "balanced_accuracy": 0.6,
+      "precision": 0.6,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.6,
+      "f1_score": 0.6,
+      "roc_auc": 0.56,
+      "pr_auc": 0.634112926547137,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 6,
+        "fp": 4,
+        "fn": 4
+      }
+    },
+    "baseline_deltas": {
+      "accuracy_delta": 0.05,
+      "balanced_accuracy_delta": 0.05,
+      "sensitivity_delta": 0.3,
+      "specificity_delta": -0.2,
+      "f1_score_delta": 0.2,
+      "roc_auc_delta": -0.07
+    }
+  }
+}

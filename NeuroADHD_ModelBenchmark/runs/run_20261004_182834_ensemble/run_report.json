@@ -1,0 +1,20 @@
+{
+  "run_id": "run_20261004_182834_ensemble",
+  "created_at": "2026-10-04T18:28:44.746228+00:00",
+  "status": "completed",
+  "purpose": "Hybrid / Ensemble Experiment (Hard Voting, Soft Voting, Stacking)",
+  "selection": {
+    "selected_model": "Soft Voting Weighted (RF + XGBoost)",
+    "selected_validation_roc_auc": 0.6889,
+    "selected_validation_pr_auc": 0.5911,
+    "selected_validation_accuracy": 0.6842,
+    "selected_validation_balanced_acc": 0.6889,
+    "selected_validation_sensitivity": 0.6,
+    "selected_validation_f1": 0.6667
+  },
+  "final_test": {
+    "final_test_executed": false,
+    "test_site": "Peking_2 (LOCKED)",
+    "message": "FINAL TEST NOT PERFORMED \u2014 Peking_2 remains locked."
+  }
+}

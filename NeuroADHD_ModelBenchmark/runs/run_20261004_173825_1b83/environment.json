@@ -1,0 +1,13 @@
+{
+  "os": "macOS-27.0.1-arm64-arm-64bit",
+  "python_version": "3.11.15",
+  "architecture": "arm64",
+  "environment_path": "/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD/.venv/bin/python",
+  "packages": {
+    "scikit-learn": "1.9.1",
+    "numpy": "2.4.6",
+    "pandas": "3.0.6",
+    "joblib": "1.6.0",
+    "xgboost": "3.2.0"
+  }
+}

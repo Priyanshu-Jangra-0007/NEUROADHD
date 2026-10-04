@@ -1,0 +1,27 @@
+{
+  "run_id": "run_20261004_181452_opt2",
+  "experiment": "Opt-2 Focused Optimization",
+  "candidates_tested": [
+    {
+      "model_name": "random_forest",
+      "display_name": "Random Forest",
+      "k": 50
+    },
+    {
+      "model_name": "random_forest",
+      "display_name": "Random Forest",
+      "k": 100
+    },
+    {
+      "model_name": "extra_trees",
+      "display_name": "Extra Trees",
+      "k": 50
+    },
+    {
+      "model_name": "extra_trees",
+      "display_name": "Extra Trees",
+      "k": 100
+    }
+  ],
+  "random_seed": 42
+}

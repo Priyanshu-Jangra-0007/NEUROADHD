@@ -1,0 +1,122 @@
+[
+  {
+    "timestamp": "2026-10-04T17:38:56.001802+00:00",
+    "stage": "preflight",
+    "status": "completed",
+    "details": "Initialized run run_20261004_173855_f0b1 with purpose: Reproducible Multi-Model ADHD Classification Benchmark"
+  },
+  {
+    "timestamp": "2026-10-04T17:38:56.002139+00:00",
+    "stage": "preflight_checks",
+    "status": "started",
+    "details": "Running preflight environment and data integrity checks"
+  },
+  {
+    "timestamp": "2026-10-04T17:38:56.819814+00:00",
+    "stage": "preflight_checks",
+    "status": "completed",
+    "details": "Preflight checks passed cleanly"
+  },
+  {
+    "timestamp": "2026-10-04T17:38:58.078407+00:00",
+    "stage": "model_training_logistic_regression",
+    "status": "started",
+    "details": "Started training logistic_regression"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:00.786543+00:00",
+    "stage": "model_training_logistic_regression",
+    "status": "completed",
+    "details": "Val ROC-AUC: 0.6889"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:02.165722+00:00",
+    "stage": "model_training_linear_svm",
+    "status": "started",
+    "details": "Started training linear_svm"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:04.271080+00:00",
+    "stage": "model_training_linear_svm",
+    "status": "completed",
+    "details": "Val ROC-AUC: 0.6889"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:05.521509+00:00",
+    "stage": "model_training_rbf_svm",
+    "status": "started",
+    "details": "Started training rbf_svm"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:07.626847+00:00",
+    "stage": "model_training_rbf_svm",
+    "status": "completed",
+    "details": "Val ROC-AUC: 0.6889"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:08.880862+00:00",
+    "stage": "model_training_random_forest",
+    "status": "started",
+    "details": "Started training random_forest"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:12.088805+00:00",
+    "stage": "model_training_random_forest",
+    "status": "completed",
+    "details": "Val ROC-AUC: 0.7333"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:13.489872+00:00",
+    "stage": "model_training_extra_trees",
+    "status": "started",
+    "details": "Started training extra_trees"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:16.991086+00:00",
+    "stage": "model_training_extra_trees",
+    "status": "completed",
+    "details": "Val ROC-AUC: 0.6889"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:18.400679+00:00",
+    "stage": "model_training_xgboost",
+    "status": "started",
+    "details": "Started training xgboost"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:24.653413+00:00",
+    "stage": "model_training_xgboost",
+    "status": "completed",
+    "details": "Val ROC-AUC: 0.7111"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:24.802794+00:00",
+    "stage": "ensemble_training",
+    "status": "started",
+    "details": "Initializing Voting and Stacking Ensembles"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:28.180490+00:00",
+    "stage": "ensemble_training",
+    "status": "completed",
+    "details": "Evaluated 3 ensemble strategies"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:28.206939+00:00",
+    "stage": "final_test_evaluation",
+    "status": "started",
+    "details": "Refitting Random Forest on Train+Val for final test evaluation"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:30.091996+00:00",
+    "stage": "final_test_evaluation",
+    "status": "completed",
+    "details": "Final Test ROC-AUC: 0.6300"
+  },
+  {
+    "timestamp": "2026-10-04T17:39:30.116745+00:00",
+    "stage": "run_finalization",
+    "status": "completed",
+    "details": "Run finalized with status: completed"
+  }
+]

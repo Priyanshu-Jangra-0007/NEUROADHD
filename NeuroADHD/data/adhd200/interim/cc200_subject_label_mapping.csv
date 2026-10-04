@@ -1,0 +1,162 @@
+cc200_subject_id,normalized_join_id,phenotype_subject_ids,site,diagnosis_raw_values,binary_label,status,phenotype_sources
+0010020,10020,10020,NYU,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NYU/participants.tsv|data/adhd200/raw/phenotypes/NYU_phenotypic.csv
+0010074,10074,10074,NYU,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NYU/participants.tsv|data/adhd200/raw/phenotypes/NYU_phenotypic.csv
+0015038,15038,15038,WashU,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/WashU/participants.tsv
+0016015,16015,16015,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016030,16030,16030,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016031,16031,16031,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016032,16032,16032,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016033,16033,16033,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016034,16034,16034,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016035,16035,16035,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016036,16036,16036,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016037,16037,16037,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016038,16038,16038,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016039,16039,16039,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016048,16048,16048,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016070,16070,16070,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016071,16071,16071,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016072,16072,16072,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016073,16073,16073,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016077,16077,16077,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016078,16078,16078,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0016079,16079,16079,Pittsburgh,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv|data/adhd200/raw/phenotypes/Pittsburgh_phenotypic.csv
+0023010,23010,23010,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023011,23011,23011,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023013,23013,23013,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023016,23016,23016,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023017,23017,23017,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023018,23018,23018,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023019,23019,23019,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023020,23020,23020,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023024,23024,23024,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023025,23025,23025,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023027,23027,23027,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023028,23028,23028,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0023042,23042,23042,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_TestRelease_phenotypic.csv
+0025001,25001,25001,Pittsburgh,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv
+0025009,25009,25009,Pittsburgh,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Pittsburgh/participants.tsv
+0026022,26022,26022,Brown,|pending,,missing_or_pending_diagnosis,data/adhd200/raw/phenotypes/Brown/participants.tsv|data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv
+0026024,26024,26024,Brown,|pending,,missing_or_pending_diagnosis,data/adhd200/raw/phenotypes/Brown/participants.tsv|data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv
+0026052,26052,26052,Brown,|pending,,missing_or_pending_diagnosis,data/adhd200/raw/phenotypes/Brown/participants.tsv|data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv
+0026053,26053,26053,Brown,|pending,,missing_or_pending_diagnosis,data/adhd200/raw/phenotypes/Brown/participants.tsv|data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv
+0026054,26054,26054,Brown,|pending,,missing_or_pending_diagnosis,data/adhd200/raw/phenotypes/Brown/participants.tsv|data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv
+0026055,26055,26055,Brown,|pending,,missing_or_pending_diagnosis,data/adhd200/raw/phenotypes/Brown/participants.tsv|data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv
+0026057,26057,26057,Brown,|pending,,missing_or_pending_diagnosis,data/adhd200/raw/phenotypes/Brown/participants.tsv|data/adhd200/raw/phenotypes/Brown_TestRelease_phenotypic.csv
+0027000,27000,27000,NeuroIMAGE,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv
+0027003,27003,27003,NeuroIMAGE,ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv
+0027004,27004,27004,NeuroIMAGE,ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv
+0027005,27005,27005,NeuroIMAGE,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv
+0027007,27007,27007,NeuroIMAGE,ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv
+1017176,1017176,1017176,NeuroIMAGE,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+1038415,1038415,1038415,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+1050345,1050345,1050345,Peking_3,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+1057962,1057962,1057962,NYU,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NYU/participants.tsv|data/adhd200/raw/phenotypes/NYU_phenotypic.csv
+1068505,1068505,1068505,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+1139030,1139030,1139030,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+1201251,1201251,1201251,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+1391181,1391181,1391181,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+1411495,1411495,1411495,NeuroIMAGE,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+1438162,1438162,1438162,NeuroIMAGE,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+1469171,1469171,1469171,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+1517058,1517058,1517058,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+1541812,1541812,1541812,KKI,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+1561488,1561488,1561488,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+1594156,1594156,1594156,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+1647968,1647968,1647968,OHSU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/OHSU/participants.tsv|data/adhd200/raw/phenotypes/OHSU_phenotypic.csv
+1686265,1686265,1686265,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+1784368,1784368,1784368,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+1794770,1794770,1794770,Peking_3,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+1805037,1805037,1805037,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+1809715,1809715,1809715,Peking_2,ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+1860323,1860323,1860323,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+1875084,1875084,1875084,NYU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NYU/participants.tsv|data/adhd200/raw/phenotypes/NYU_phenotypic.csv
+1875711,1875711,1875711,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+1879542,1879542,1879542,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+1883688,1883688,1883688,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+1947991,1947991,1947991,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+1985430,1985430,1985430,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+1995121,1995121,1995121,NYU,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NYU/participants.tsv|data/adhd200/raw/phenotypes/NYU_phenotypic.csv
+1996183,1996183,1996183,KKI,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2033178,2033178,2033178,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+2081148,2081148,2081148,KKI,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2081754,2081754,2081754,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+2106109,2106109,2106109,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+2138826,2138826,2138826,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2140063,2140063,2140063,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+2141250,2141250,2141250,Peking_2,ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+2174595,2174595,2174595,Peking_1,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+2207418,2207418,2207418,Peking_2,ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+2208591,2208591,2208591,Peking_3,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+2268253,2268253,2268253,Peking_3,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+2296326,2296326,2296326,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+2299519,2299519,2299519,KKI,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2344857,2344857,2344857,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2360428,2360428,2360428,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2377207,2377207,2377207,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+2411995,2411995,2411995,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+2419464,2419464,2419464,NeuroIMAGE,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+2498847,2498847,2498847,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+2599965,2599965,2599965,Peking_1,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+2601925,2601925,2601925,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2621228,2621228,2621228,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2641332,2641332,2641332,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2659769,2659769,2659769,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+2697768,2697768,2697768,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+2703336,2703336,2703336,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+2740232,2740232,2740232,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2756846,2756846,2756846,NeuroIMAGE,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+2897046,2897046,2897046,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+2903997,2903997,2903997,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+2907951,2907951,2907951,Peking_3,ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+2961243,2961243,2961243,NeuroIMAGE,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+3004580,3004580,3004580,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+3205761,3205761,3205761,Peking_2,ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+3212536,3212536,3212536,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+3233028,3233028,3233028,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+3304956,3304956,3304956,NeuroIMAGE,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+3306863,3306863,3306863,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+3310328,3310328,3310328,KKI,2|ADHD-Hyperactive/Impulsive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+3313497,3313497,3313497,Peking_1,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+3320367,3320367,3320367,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+3486975,3486975,3486975,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+3494778,3494778,3494778,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+3515506,3515506,3515506,NeuroIMAGE,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+3519022,3519022,3519022,KKI,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+3566449,3566449,3566449,NeuroIMAGE,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+3587000,3587000,3587000,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+3672854,3672854,3672854,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+3767334,3767334,3767334,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_TestRelease_phenotypic.csv
+3803759,3803759,3803759,Peking_3,ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+3827352,3827352,3827352,Peking_2,ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+3884955,3884955,3884955,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+3888614,3888614,3888614,NeuroIMAGE,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+3889095,3889095,3889095,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+3902469,3902469,3902469,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+3910672,3910672,3910672,Peking_2,ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+3917422,3917422,3917422,KKI,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+3930512,3930512,3930512,Peking_3,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+3976121,3976121,3976121,Peking_1,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+3980079,3980079,3980079,NeuroIMAGE,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+4053836,4053836,4053836,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+4055710,4055710,4055710,Peking_2,ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+4095229,4095229,4095229,NYU,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NYU/participants.tsv|data/adhd200/raw/phenotypes/NYU_phenotypic.csv
+4225073,4225073,4225073,Peking_2,ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+4241194,4241194,4241194,Peking_3,ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+4256491,4256491,4256491,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+4265987,4265987,4265987,Peking_2,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+4919979,4919979,4919979,NeuroIMAGE,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+5150328,5150328,5150328,Peking_1,3|ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+6115230,6115230,6115230,NeuroIMAGE,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+6187322,6187322,6187322,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv
+6346605,6346605,6346605,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+6383713,6383713,6383713,Peking_3,ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+6477085,6477085,6477085,Peking_3,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+7253183,7253183,7253183,Peking_2,ADHD-Inattentive,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+7339173,7339173,7339173,NeuroIMAGE,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/NeuroIMAGE/participants.tsv|data/adhd200/raw/phenotypes/NeuroIMAGE_phenotypic.csv
+7774305,7774305,7774305,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+7994085,7994085,7994085,Peking_3,Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_3/participants.tsv
+8337695,8337695,8337695,KKI,1|ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+8628223,8628223,8628223,KKI,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/KKI/participants.tsv|data/adhd200/raw/phenotypes/KKI_phenotypic.csv
+9002207,9002207,9002207,Peking_2,ADHD-Combined,ADHD,matched_labeled,data/adhd200/raw/phenotypes/Peking_2/participants.tsv
+9093997,9093997,9093997,Peking_1,0|Typically Developing Children,Control,matched_labeled,data/adhd200/raw/phenotypes/Peking_1/participants.tsv|data/adhd200/raw/phenotypes/Peking_1_phenotypic.csv

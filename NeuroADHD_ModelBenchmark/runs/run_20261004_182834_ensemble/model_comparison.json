@@ -1,0 +1,254 @@
+{
+  "best_hard_voting": {
+    "ensemble_type": "hard_voting",
+    "combination_id": "combo_1",
+    "display_name": "Hard Voting (RF + XGBoost)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "weights": "unweighted_vote",
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6777777777777778,
+      "pr_auc": 0.5849088411588411,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  "best_soft_voting": {
+    "ensemble_type": "soft_voting_weighted",
+    "combination_id": "combo_1",
+    "display_name": "Soft Voting Weighted (RF + XGBoost)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "weights": [
+      0.6,
+      0.4
+    ],
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6888888888888889,
+      "pr_auc": 0.5911209623709625,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  "best_stacking": {
+    "ensemble_type": "stacking",
+    "combination_id": "combo_5",
+    "meta_model": "Logistic Regression Meta",
+    "display_name": "Stacking (Logistic Regression Meta on RF + XGBoost + Extra Trees + Logistic Regression)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost",
+      "Extra Trees",
+      "Logistic Regression"
+    ],
+    "validation_metrics": {
+      "accuracy": 0.47368421052631576,
+      "balanced_accuracy": 0.5,
+      "precision": 0.0,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.6888888888888889,
+      "pr_auc": 0.5911209623709625,
+      "confusion_matrix": {
+        "tp": 0,
+        "tn": 9,
+        "fp": 0,
+        "fn": 10
+      }
+    }
+  },
+  "best_overall_ensemble": {
+    "ensemble_type": "soft_voting_weighted",
+    "combination_id": "combo_1",
+    "display_name": "Soft Voting Weighted (RF + XGBoost)",
+    "base_models": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "weights": [
+      0.6,
+      0.4
+    ],
+    "validation_metrics": {
+      "accuracy": 0.6842105263157895,
+      "balanced_accuracy": 0.6888888888888889,
+      "precision": 0.75,
+      "recall_sensitivity": 0.6,
+      "specificity": 0.7777777777777778,
+      "f1_score": 0.6666666666666666,
+      "roc_auc": 0.6888888888888889,
+      "pr_auc": 0.5911209623709625,
+      "confusion_matrix": {
+        "tp": 6,
+        "tn": 7,
+        "fp": 2,
+        "fn": 4
+      }
+    }
+  },
+  "current_best_single_model": {
+    "model": "Balanced Random Forest",
+    "k": 100,
+    "val_roc_auc": 0.7,
+    "val_pr_auc": 0.5959,
+    "val_balanced_acc": 0.6833,
+    "val_sensitivity": 0.7,
+    "val_specificity": 0.6667,
+    "val_f1": 0.7,
+    "val_accuracy": 0.6842
+  },
+  "deltas_vs_single_model": {
+    "roc_auc_delta": -0.0111,
+    "pr_auc_delta": -0.0048,
+    "balanced_acc_delta": 0.0056,
+    "sensitivity_delta": -0.1,
+    "specificity_delta": 0.1111,
+    "f1_delta": -0.0333,
+    "accuracy_delta": 0.0
+  },
+  "stability_results": [
+    {
+      "rank": 1,
+      "display_name": "Soft Voting Weighted (RF + XGBoost)",
+      "ensemble_type": "soft_voting_weighted",
+      "base_models": [
+        "Random Forest",
+        "XGBoost"
+      ],
+      "seeds": [
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "val_roc_auc": {
+        "mean": 0.6622222222222222,
+        "std": 0.015071844406945051,
+        "min": 0.6444444444444444,
+        "max": 0.6888888888888889
+      },
+      "val_pr_auc": {
+        "mean": 0.5830885574693625,
+        "std": 0.004019768192823081,
+        "min": 0.580752715421833,
+        "max": 0.5911209623709625
+      },
+      "val_balanced_acc": {
+        "mean": 0.6888888888888889,
+        "std": 0.0,
+        "min": 0.6888888888888889,
+        "max": 0.6888888888888889
+      },
+      "val_sensitivity": {
+        "mean": 0.6,
+        "std": 0.0,
+        "min": 0.6,
+        "max": 0.6
+      },
+      "val_specificity": {
+        "mean": 0.7777777777777778,
+        "std": 0.0,
+        "min": 0.7777777777777778,
+        "max": 0.7777777777777778
+      },
+      "val_f1_score": {
+        "mean": 0.6666666666666666,
+        "std": 0.0,
+        "min": 0.6666666666666666,
+        "max": 0.6666666666666666
+      },
+      "val_accuracy": {
+        "mean": 0.6842105263157895,
+        "std": 0.0,
+        "min": 0.6842105263157895,
+        "max": 0.6842105263157895
+      }
+    },
+    {
+      "rank": 2,
+      "display_name": "Stacking (Logistic Regression Meta on RF + XGBoost + Extra Trees + Logistic Regression)",
+      "ensemble_type": "stacking",
+      "base_models": [
+        "Random Forest",
+        "XGBoost",
+        "Extra Trees",
+        "Logistic Regression"
+      ],
+      "seeds": [
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "val_roc_auc": {
+        "mean": 0.6577777777777778,
+        "std": 0.016329931618554522,
+        "min": 0.6444444444444444,
+        "max": 0.6888888888888889
+      },
+      "val_pr_auc": {
+        "mean": 0.5748850855027327,
+        "std": 0.008841061300994973,
+        "min": 0.5663471210162387,
+        "max": 0.5911209623709625
+      },
+      "val_balanced_acc": {
+        "mean": 0.5,
+        "std": 0.0,
+        "min": 0.5,
+        "max": 0.5
+      },
+      "val_sensitivity": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "val_specificity": {
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "val_f1_score": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "val_accuracy": {
+        "mean": 0.47368421052631576,
+        "std": 0.0,
+        "min": 0.47368421052631576,
+        "max": 0.47368421052631576
+      }
+    }
+  ]
+}

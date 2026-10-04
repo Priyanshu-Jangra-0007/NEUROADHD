@@ -1,0 +1,118 @@
+==================================================
+NeuroADHD Model Benchmark
+==================================================
+Run ID: run_20261004_173825_1b83
+
+Dataset:
+153 subjects | 50 ADHD | 103 Control
+
+Split:
+Train = 114
+Validation = 19 (NeuroIMAGE)
+Test = 20 (Peking_2 - EVALUATING ONCE)
+==================================================
+NEUROADHD MODEL BENCHMARK — PREFLIGHT SAFETY CHECKS
+==================================================
+✔ 1. Primary dataset exists: NeuroADHD/data/adhd200/features/cc200/cc200_connectivity_features.csv
+✔ 2. Dataset row count verified: 153 subjects.
+✔ 3. Feature columns verified: exactly 19900 ROI-pair edge features.
+✔ 4. Predictor safety verified: subject_id, site, and diagnosis are separated from X.
+✔ 5. Subject ID uniqueness verified: 0 duplicates.
+✔ 6. Target encoding verified: Control(0)=103, ADHD(1)=50.
+✔ 7. Subject disjointness verified: 0 subject overlap across train/val/test splits.
+✔ 8. Whole-site group holdout integrity verified: Val={'NeuroIMAGE'}, Test={'Peking_2'}.
+✔ 9. Existing preprocessing implementation loaded from NeuroADHD/src/preprocessing.
+--------------------------------------------------
+ALL PREFLIGHT SAFETY CHECKS PASSED SUCCESSFULLY!
+--------------------------------------------------
+
+==================================================
+TRAINING MODELS IN ISOLATED ENVIRONMENTS
+==================================================
+
+[1/6] Training logistic_regression...
+Status: Completed | Val Acc: 0.4211 | Val F1: 0.0000 | Val ROC-AUC: 0.6889
+
+[2/6] Training linear_svm...
+Status: Completed | Val Acc: 0.3684 | Val F1: 0.0000 | Val ROC-AUC: 0.6889
+
+[3/6] Training rbf_svm...
+Status: Completed | Val Acc: 0.4737 | Val F1: 0.0000 | Val ROC-AUC: 0.6889
+
+[4/6] Training random_forest...
+Status: Completed | Val Acc: 0.4211 | Val F1: 0.1538 | Val ROC-AUC: 0.7333
+
+[5/6] Training extra_trees...
+Status: Completed | Val Acc: 0.4737 | Val F1: 0.1667 | Val ROC-AUC: 0.6889
+
+[6/6] Training xgboost...
+Status: Completed | Val Acc: 0.4737 | Val F1: 0.0000 | Val ROC-AUC: 0.7111
+
+==================================================
+ENSEMBLE & HYBRID PHASE
+==================================================
+[Soft Voting Ensemble] Val Acc: 0.4737 | Val F1: 0.0000 | Val ROC-AUC: 0.7111
+[Hard Voting Ensemble] Val Acc: 0.4737 | Val F1: 0.0000 | Val ROC-AUC: 0.5000
+[Stacking Meta-Classifier] Val Acc: 0.4737 | Val F1: 0.0000 | Val ROC-AUC: 0.6889
+
+==================================================
+MODEL LEADERBOARD (VALIDATION SET)
+==================================================
+Rank  | Model                     | Accuracy | F1       | ROC-AUC  | Bal Acc 
+-----------------------------------------------------------------
+1     | Random Forest             | 0.4211   | 0.1538   | 0.7333   | 0.4389  
+2     | XGBoost Classifier        | 0.4737   | 0.0000   | 0.7111   | 0.5000  
+3     | Soft Voting Ensemble      | 0.4737   | 0.0000   | 0.7111   | 0.5000  
+4     | RBF SVM                   | 0.4737   | 0.0000   | 0.6889   | 0.5000  
+5     | Stacking Meta-Classifier  | 0.4737   | 0.0000   | 0.6889   | 0.5000  
+6     | Extra Trees               | 0.4737   | 0.1667   | 0.6889   | 0.4944  
+7     | Logistic Regression (L1 & L2) | 0.4211   | 0.0000   | 0.6889   | 0.4444  
+8     | Linear SVM                | 0.3684   | 0.0000   | 0.6889   | 0.3889  
+9     | Hard Voting Ensemble      | 0.4737   | 0.0000   | 0.5000   | 0.5000  
+
+==================================================
+BEST MODEL (SELECTED VIA VALIDATION ROC-AUC)
+==================================================
+Model: Random Forest
+Validation Accuracy: 0.4211
+Validation F1:       0.1538
+Validation ROC-AUC:  0.7333
+
+==================================================
+FINAL TEST EVALUATION (PEKING_2 UNLEASHED ONCE)
+==================================================
+Model: Random Forest
+Accuracy:            0.5500
+Balanced Accuracy:   0.5500
+Precision:           0.6000
+Recall (ADHD):       0.3000
+Specificity (TDC):   0.8000
+F1 Score:            0.4000
+ROC-AUC:             0.6300
+PR-AUC:              0.7052
+--------------------------------------------------
+
+==================================================
+RUN COMPLETED
+==================================================
+Run ID: run_20261004_173825_1b83
+Status: completed
+
+Best Model: Random Forest
+Validation ROC-AUC: 0.7333
+Validation Accuracy: 0.4211
+
+Final Test: Evaluated
+Test ROC-AUC: 0.6300
+Test Accuracy: 0.5500
+
+Full report:
+runs/run_20261004_173825_1b83/run_report.html
+
+Machine-readable:
+runs/run_20261004_173825_1b83/run_report.json
+
+AI summary:
+runs/run_20261004_173825_1b83/ai_summary.json
+==================================================
+

@@ -1,0 +1,48 @@
+{
+  "name": "NeuroADHD_ModelBenchmark_v1",
+  "version": "1.0.0",
+  "random_seed": 42,
+  "data_paths": {
+    "feature_table": "NeuroADHD/data/adhd200/features/cc200/cc200_connectivity_features.csv",
+    "split_manifest": "NeuroADHD/data/adhd200/processed/splits/subject_split_manifest.csv",
+    "train_subjects": "NeuroADHD/data/adhd200/processed/splits/train_subjects.csv",
+    "val_subjects": "NeuroADHD/data/adhd200/processed/splits/validation_subjects.csv",
+    "test_subjects": "NeuroADHD/data/adhd200/processed/splits/test_subjects.csv"
+  },
+  "expected_dataset": {
+    "total_subjects": 153,
+    "train_subjects": 114,
+    "validation_subjects": 19,
+    "test_subjects": 20,
+    "features_per_subject": 19900,
+    "selected_features": 100,
+    "target_column": "diagnosis",
+    "labels": {
+      "Control": 0,
+      "ADHD": 1
+    }
+  },
+  "models": [
+    "logistic_regression",
+    "linear_svm",
+    "rbf_svm",
+    "random_forest",
+    "extra_trees",
+    "xgboost"
+  ],
+  "ensemble": {
+    "enabled": true,
+    "types": ["soft_voting", "hard_voting", "stacking"]
+  },
+  "evaluation_metrics": [
+    "accuracy",
+    "balanced_accuracy",
+    "precision",
+    "recall",
+    "specificity",
+    "f1",
+    "roc_auc",
+    "pr_auc"
+  ],
+  "selection_metric": "roc_auc"
+}

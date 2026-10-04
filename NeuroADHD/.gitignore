@@ -1,0 +1,9 @@
+.venv/
+data/adhd200/raw/
+data/adhd200/processed/
+data/adhd200/features/
+models/
+results/
+__pycache__/
+.ipynb_checkpoints/
+.env

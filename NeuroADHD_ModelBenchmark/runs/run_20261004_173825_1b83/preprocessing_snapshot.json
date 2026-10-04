@@ -1,0 +1,33 @@
+{
+  "fit_scope": "train_only",
+  "imputation_method": "SimpleImputer(strategy='median')",
+  "variance_threshold": 0.0,
+  "scaler": "StandardScaler",
+  "feature_selector": "SelectKBest(score_func=f_classif, k=100)",
+  "k": 100,
+  "input_features": 19900,
+  "output_features": 100,
+  "steps": [
+    {
+      "name": "imputer",
+      "class": "SimpleImputer",
+      "strategy": "median"
+    },
+    {
+      "name": "variance",
+      "class": "VarianceThreshold",
+      "threshold": 0.0
+    },
+    {
+      "name": "scaler",
+      "class": "StandardScaler"
+    },
+    {
+      "name": "select",
+      "class": "SelectKBest",
+      "score_func": "f_classif",
+      "k": 100
+    }
+  ],
+  "fit_on_full_dataset": false
+}
