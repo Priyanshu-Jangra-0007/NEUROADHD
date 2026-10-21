@@ -29,6 +29,24 @@ Thumbs.db
 outputs/
 NeuroADHD/data/adhd200/raw/
 
+# Large transfer archives (4.7GB+ each - exceed GitHub 100MB limit)
+NeuroADHD_NewPC_Transfer.zip
+NeuroADHD_NewPC_Transfer_v2.zip
+NeuroADHD_NewPC_Transfer/
+NeuroADHD_NewPC_Transfer_v2/
+
+# Raw MRI NIfTI files (up to 103MB each - exceed GitHub 100MB hard limit)
+*.nii
+*.nii.gz
+ADHD200_Official/experiments/
+
+# Large S3 inventory files (10-26MB binary data files)
+ADHD200_Official/metadata/cpac_existing153_s3_object_inventory.csv
+ADHD200_Official/metadata/cpac_existing153_s3_listing_summary.json
+ADHD200_Official/metadata/official_s3_inventory.csv
+ADHD200_Official/metadata/official_s3_inventory.json
+ADHD200_Official/metadata/raw_bids_object_inventory.csv
+
 # Environment configs with secrets
 .env
 .env.*

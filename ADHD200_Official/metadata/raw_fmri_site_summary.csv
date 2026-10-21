@@ -1,0 +1,10 @@
+site,total_missing_cc200_subjects,rs_fmri_available,anatomical_mri_available,both_available,incomplete,unknown,ready_for_preprocessing
+KKI,59,59,59,59,0,0,59
+NYU,257,251,257,251,6,0,251
+NeuroIMAGE,54,54,54,54,0,0,54
+OHSU,99,99,99,99,0,0,99
+Peking_1,98,98,98,98,0,0,98
+Peking_2,47,47,47,47,0,0,47
+Peking_3,31,31,31,31,0,0,31
+Pittsburgh,77,77,77,77,0,0,77
+WashU,59,59,59,59,0,0,59

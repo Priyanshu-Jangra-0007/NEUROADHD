@@ -1,0 +1,12 @@
+field,type,coding_or_units,official_source,notes
+site,Categorical,1–8,See site table,Site identifier
+gender,Categorical,0=Female; 1=Male,Phenotypic Key,Key says Gender; column spelling in actual files may vary
+handedness,Categorical,0=Left; 1=Right; 2=Ambidextrous,Phenotypic Key,
+diagnosis,Categorical,0=TDC; 1=ADHD-Combined; 2=ADHD-Hyperactive/Impulsive; 3=ADHD-Inattentive,Phenotypic Key,Preserve all four codes
+ADHD measure,Categorical,1=ADHD-RS IV; 2=CPRS-LV; 3=Conners Rating Scale-3,Phenotypic Key,Instrument choice code; score variables/details must be read from phenotype files
+IQ measure,Categorical,1=WISC-IV; 2=WASI; 3=WISCC-R; 4=two-subtest WASI; 5=two-subtest WISC/WAIS (Block Design and Vocabulary),Phenotypic Key,
+medication status,Categorical,1=Medication Naïve; 2=Not Medication Naïve,Phenotypic Key,No dosage/current medication particulars specified in key
+quality control,Categorical,0=Questionable; 1=Pass,Phenotypic Key,
+subject ID,Identifier,As supplied in phenotype/imaging metadata,Phenotype files / BIDS,Exact column name and coding can vary by file
+age,Numeric,Years; exact range/units in file,Official INDI retrospective sample entry,Official page reports age 7–21; do not infer per-site availability
+ADHD symptom scores,Numeric/instrument-specific,Instrument-dependent,INDI retrospective sample entry,Dimensional ADHD symptom measures stated; exact columns unavailable without individual phenotype files

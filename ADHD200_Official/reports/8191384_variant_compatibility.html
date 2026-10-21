@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>8191384 CC200 compatibility</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1150px;margin:2rem auto;padding:0 1rem;color:#20242b}table{border-collapse:collapse;display:block;overflow:auto}td,th{border:1px solid #bbb;padding:.45rem;text-align:left}th{background:#eef1f4}code{background:#f1f2f4;padding:.1em .25em}li{margin:.25em 0}</style></head><body>
+<h1>8191384 CC200 compatibility review</h1>
+<p><strong>Decision: STOP. Do not add 8191384 to the current feature cohort. No variant is exactly compatible.</strong> No CC200 object was downloaded, no preprocessing or feature extraction was run, and no file in the NeuroADHD project was changed.</p>
+<h2>Existing 153-subject cohort configuration</h2>
+<p>Source of truth inspected read-only: the NeuroADHD <code>manifest.csv</code>, local CC200 inputs and schema/QC summaries, feature metadata, and <code>src/features/extract_cc200_connectivity.py</code>. The manifest records official S3 source keys using <code>pipeline_adhd200-benchmark__freq-filter</code>, <code>global0</code>, <code>_bandpass_freqs_0.01.0.1</code>, and <code>_mask_CC200/roi_CC200.csv</code>. The local cohort’s 153 extracted inputs plus the one signal-quality exclusion (154 labeled inputs total) were matched against their recorded S3 global0 frequency-filtered variants: <strong>154/154 local files matched S3 ETag-derived MD5 and Content-Length</strong>. This establishes the object configuration for the current labeled cohort.</p>
+<ul>
+<li>C-PAC output pipeline identifier: <code>pipeline_adhd200-benchmark__freq-filter</code>. A C-PAC software version/release is <strong>not recorded</strong> in the inspected project files; none is inferred.</li>
+<li>Frequency filtering: <strong>0.01–0.1 Hz</strong>, encoded in the S3 path.</li>
+<li>Global signal regression: <strong>off</strong> (<code>global0</code>).</li>
+<li>Other path-encoded settings: CSF threshold 0.96; GM 0.7; WM 0.96; CompCor 5 components; selector pc10; <code>linear1.wm0.global0.motion1.quadratic1.gm0.compcor1.csf0</code>.</li>
+<li>ROI extraction: C-PAC <code>roi_timeseries</code>, CC200 mask, CSV (<code>roi_CC200.csv</code>).</li>
+<li>Input shape: 200 ROI rows/nodes, ROI IDs 1–200 in order; first column is the node/volume identifier and following columns are timepoints. Existing extracted cohort timepoints vary from <strong>77 to 261</strong>; they are not a fixed row count. Existing local inspection reported no missing or nonnumeric input values.</li>
+<li>Feature method: Pearson correlation across timepoints, symmetrized correlation matrix, diagonal removed, upper triangle in row-major <code>(i,j)</code> order, then Fisher z <code>arctanh(r)</code> with epsilon 1e-7 clipping. Exactly 19,900 features; existing order begins <code>ROI_001__ROI_002</code> and ends <code>ROI_199__ROI_200</code>.</li>
+<li>Signal-quality rule: reject a subject if any ROI time series has population standard deviation exactly zero; also reject non-finite/missing input or non-finite correlation/Fisher-z values.</li>
+<li>File dimensions/QC of existing cohort: 153 extracted subjects; 200 ROI rows each; observed timepoints 77–261. One labeled input, <code>0015038</code>, failed because 83 ROI time series were constant.</li>
+</ul>
+<h2>8191384 variants</h2>
+<p>Only S3 listing/HEAD metadata and path-encoded settings were inspected. The object contents were not fetched because <strong>no variant matches the current cohort configuration</strong>. Therefore CSV internals, exact node count, timepoints, numeric validity, constant ROI count, and missing/non-numeric cell counts are <strong>UNKNOWN</strong>, not assumed. Object size and filename/path are known from S3 metadata.</p>
+<table><thead><tr><th>#</th><th>Pipeline</th><th>GSR</th><th>Bandpass</th><th>S3 size (bytes)</th><th>Compatibility</th><th>Reason</th></tr></thead><tbody>
+<tr><td>1</td><td><code>pipeline_adhd200-benchmark</code></td><td>OFF</td><td>Not encoded</td><td>478550</td><td><strong>INCOMPATIBLE</strong></td><td>Global signal setting matches, but this pipeline has no 0.01–0.1 Hz bandpass output.</td></tr>
+<tr><td>2</td><td><code>pipeline_adhd200-benchmark</code></td><td>ON</td><td>Not encoded</td><td>476668</td><td><strong>INCOMPATIBLE</strong></td><td>Global signal regression is ON and the 0.01–0.1 Hz bandpass output is absent.</td></tr>
+<tr><td>3</td><td><code>pipeline_adhd200-benchmark__freq-filter</code></td><td>ON</td><td>0.01–0.1 Hz</td><td>472127</td><td><strong>INCOMPATIBLE</strong></td><td>Same frequency-filtered pipeline, but global signal regression is ON; cohort has it OFF.</td></tr>
+</tbody></table>
+<p>Exact S3 paths:</p>
+<ul>
+<li><code>s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark/8191384_session_1/roi_timeseries/_scan_rest_1/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global0.motion1.quadratic1.gm0.compcor1.csf0/_mask_CC200/roi_CC200.csv</code> (478550 bytes) — INCOMPATIBLE: Global signal setting matches, but this pipeline has no 0.01–0.1 Hz bandpass output.</li>
+<li><code>s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark/8191384_session_1/roi_timeseries/_scan_rest_1/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_mask_CC200/roi_CC200.csv</code> (476668 bytes) — INCOMPATIBLE: Global signal regression is ON and the 0.01–0.1 Hz bandpass output is absent.</li>
+<li><code>s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark__freq-filter/8191384_session_1/roi_timeseries/_scan_rest_1/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_bandpass_freqs_0.01.0.1/_mask_CC200/roi_CC200.csv</code> (472127 bytes) — INCOMPATIBLE: Same frequency-filtered pipeline, but global signal regression is ON; cohort has it OFF.</li>
+</ul>
+<h2>Compatibility decision</h2>
+<p>All variants are <strong>INCOMPATIBLE</strong> with the exact existing inputs:</p>
+<ol>
+<li>The frequency-filtered <code>global1</code> object has the matching 0.01–0.1 Hz bandpass but turns global signal regression on; the cohort’s files use <code>global0</code>.</li>
+<li>The standard benchmark <code>global0</code> object matches global signal regression but has no bandpass path component, so it does not match the 0.01–0.1 Hz filtering.</li>
+<li>The standard benchmark <code>global1</code> object has neither the cohort’s global signal setting nor its bandpass filtering.</li>
+</ul>
+<p>There is no frequency-filtered <code>global0</code> object listed for 8191384. Selecting a nearby variant would silently change preprocessing. Consequently, no candidate file was downloaded; the 153-subject feature table remains unchanged and no feature file for 8191384 was created.</p>
+<h2>Cohort impact</h2>
+<ul>
+<li>Original usable cohort: <strong>153</strong>.</li>
+<li>Candidate: <strong>8191384</strong>.</li>
+<li>Selected variant: <strong>None</strong>.</li>
+<li>Compatibility: <strong>No compatible variant</strong>.</li>
+<li>Signal-quality result: <strong>UNKNOWN</strong> (no candidate values read).</li>
+<li>New potential cohort: <strong>153</strong>.</li>
+<li>Adding this one candidate alone would not constitute a meaningful cohort expansion, even if a compatible derivative were later produced.</li>
+</ul>
+<h2>Next-step analysis: labeled subjects without compatible CC200 derivatives</h2>
+<p>Within the 935 valid-diagnosis participant IDs in the inspected local official per-site <code>participants.tsv</code> set, <strong>781</strong> do not have a compatible CC200 derivative under the current cohort configuration: <strong>780</strong> have no CC200 object in the two audited benchmark output trees, and <strong>one</strong> (<code>8191384</code>) has CC200 objects only in incompatible configurations. These subjects would require an exact-compatible derivative to be produced or raw-fMRI preprocessing under the chosen pipeline. One additional labeled subject (<code>0015038</code>) has the matching derivative configuration but failed the current signal-quality rule; it is separate from the 781 and is not included in the current 153.</p>
+<p>This count is scoped to the inspected local official participant tables and the two S3 trees <code>pipeline_adhd200-benchmark/</code> and <code>pipeline_adhd200-benchmark__freq-filter/</code>. It does not assert absence of other derivatives outside those audited paths.</p>
+<h2>Integrity / actions</h2>
+<ul>
+<li>S3 HEAD sizes: 472,127; 478,550; 476,668 bytes for the three variants, respectively. No GET request was made.</li>
+<li>Downloaded candidate objects: <strong>0</strong>.</li>
+<li>Candidate numeric validation / signal QC / connectivity extraction: <strong>not run</strong>.</li>
+<li>Existing NeuroADHD feature table: <strong>not modified</strong>.</li>
+<li>Model training: <strong>not performed</strong>.</li>
+</ul>
+</body></html>

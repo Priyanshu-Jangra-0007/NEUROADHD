@@ -1,0 +1,12 @@
+site,official_site_group,cc200_subjects,cc200_roi_objects,valid_diagnosis,adhd,control,missing_or_pending_diagnosis,motion_objects,mriqc_report_objects,already_in_153,known_prior_exclusion,potentially_usable_after_known_exclusion
+Brown,Bradley Hospital / Brown University,7,28,0,0,0,7,28,24,0,0,0
+KKI,Kennedy Krieger Institute,24,96,24,8,16,0,96,96,24,0,24
+NYU,New York University Child Study Center,6,24,6,4,2,0,24,24,6,0,6
+NeuroIMAGE,NeuroIMAGE,19,76,19,10,9,0,76,76,19,0,19
+OHSU,Oregon Health & Science University,14,56,14,0,14,0,56,56,14,0,14
+Peking_1,Peking University,38,152,38,14,24,0,152,152,38,0,38
+Peking_2,Peking University,20,80,20,10,10,0,80,80,20,0,20
+Peking_3,Peking University,12,47,12,4,8,0,48,48,11,0,12
+Pittsburgh,University of Pittsburgh,21,84,21,0,21,0,84,84,21,0,21
+WashU,Washington University in St. Louis,1,4,1,0,1,0,4,4,0,1,0
+TOTAL,All represented site labels,162,647,155,50,105,7,648,644,153,1,154

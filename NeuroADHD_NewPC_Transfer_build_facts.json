@@ -1,0 +1,32 @@
+{
+  "stage": "/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_NewPC_Transfer",
+  "zip": "/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_NewPC_Transfer.zip",
+  "payload_files": 1329,
+  "payload_bytes": 5170957265,
+  "staged_files_including_bookkeeping": 1332,
+  "serialized_artifact_paths_found": 136,
+  "estimator_artifacts": 68,
+  "pipeline_artifacts": 68,
+  "reported_candidates_without_binary": 11,
+  "unique_model_hashes": 9,
+  "feature_matrix_rows": 153,
+  "feature_matrix_columns": 19903,
+  "roi_features": 19900,
+  "diagnosis_counts": {
+    "1": 50,
+    "0": 103
+  },
+  "split_counts": {
+    "train": 114,
+    "validation": 19,
+    "test": 20
+  },
+  "pilot_subjects": 18,
+  "pilot_download_rows": 85,
+  "pilot_raw_files": 85,
+  "legacy_inventory_matched_complete_files": 137,
+  "legacy_partial_downloads_excluded": 3,
+  "credential_scan_findings": 0,
+  "copied_source_files_verified": 1326,
+  "zip_bytes": 5037229485
+}

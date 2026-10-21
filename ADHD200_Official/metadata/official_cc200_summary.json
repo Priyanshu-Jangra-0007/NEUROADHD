@@ -1,0 +1,31 @@
+{
+  "scope": "CC200 derivatives under two S3 C-PAC benchmark pipelines; official BIDS participants.tsv tables already present locally, with Brown pending labels supplemented from official Brown test-release phenotype CSV.",
+  "cc200_subjects": 162,
+  "cc200_roi_objects": 647,
+  "objects_by_pipeline": {
+    "pipeline_adhd200-benchmark__freq-filter": 323,
+    "pipeline_adhd200-benchmark": 324
+  },
+  "valid_diagnosis_subjects": 155,
+  "adhd": 50,
+  "control": 105,
+  "cc_subjects_without_valid_diagnosis": 7,
+  "cc_subjects_without_any_phenotype_record": 0,
+  "valid_official_participant_ids_in_local_table_set": 935,
+  "ADHD_in_local_table_set": 359,
+  "control_in_local_table_set": 576,
+  "valid_phenotyped_subjects_without_CC200_in_audited_pipelines": 780,
+  "potentially_usable_after_prior_known_exclusion": 154,
+  "existing_current_feature_subjects": 153,
+  "new_CC200_subjects_not_in_current_features": 1,
+  "new_candidate_ids": [
+    "8191384"
+  ],
+  "prior_excluded": {
+    "0015038": "83 ROI time series were constant; Pearson correlations undefined"
+  },
+  "official_phenotype_table_rows_unique_site_id": 961,
+  "phenotype_sources": "Read-only files already at NeuroADHD/data/adhd200/raw/phenotypes; no new file downloads in this task",
+  "S3_listing": "Anonymous ListObjectsV2 metadata, no object GET/downloads",
+  "important": "\u201cPotentially usable\u201d is inventory/label matched and excludes the one previously documented constant-signal subject. Numerical validity of new subject 8191384 is not verified without reading its CC200 derivative; candidate count is therefore an availability count, not final QC-cleared cohort."
+}

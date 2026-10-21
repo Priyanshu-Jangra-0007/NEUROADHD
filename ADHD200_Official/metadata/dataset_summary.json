@@ -1,0 +1,75 @@
+{
+  "official_dataset_name": "ADHD-200 Sample",
+  "purpose": "Open research and the ADHD-200 Global Competition to study brain basis of ADHD and MRI-based classification",
+  "provider": "ADHD-200 Consortium; published through INDI / 1000 Functional Connectomes Project",
+  "official_source": "https://fcon_1000.projects.nitrc.org/indi/adhd200/",
+  "s3_root": "s3://fcp-indi/data/Projects/ADHD200/",
+  "raw_bids": "s3://fcp-indi/data/Projects/ADHD200/RawDataBIDS/",
+  "officially_reported_participants": 598,
+  "officially_reported_adhd_participants": 383,
+  "age_range_years": "7\u201321",
+  "sites": [
+    {
+      "code": "1",
+      "name": "Peking University"
+    },
+    {
+      "code": "2",
+      "name": "Bradley Hospital / Brown University"
+    },
+    {
+      "code": "3",
+      "name": "Kennedy Krieger Institute"
+    },
+    {
+      "code": "4",
+      "name": "NeuroIMAGE Sample"
+    },
+    {
+      "code": "5",
+      "name": "New York University Child Study Center"
+    },
+    {
+      "code": "6",
+      "name": "Oregon Health & Science University"
+    },
+    {
+      "code": "7",
+      "name": "University of Pittsburgh"
+    },
+    {
+      "code": "8",
+      "name": "Washington University in St. Louis"
+    }
+  ],
+  "diagnosis_codes": {
+    "0": "Typically Developing Children",
+    "1": "ADHD-Combined",
+    "2": "ADHD-Hyperactive/Impulsive",
+    "3": "ADHD-Inattentive"
+  },
+  "modalities": [
+    "resting-state fMRI",
+    "MPRAGE/anatomical MRI"
+  ],
+  "raw_data_available": true,
+  "preprocessed_data_available": true,
+  "phenotype_available": true,
+  "cc200_derivatives": "YES: previous local NeuroADHD manifest records verified S3 object URLs under Outputs/cpac/.../roi_CC200.csv; exact current full inventory and count unavailable from listing attempt. This proves accessible CC200 time series objects, not complete coverage.",
+  "inventory_status": "PARTIAL_UNAVAILABLE",
+  "exact_sizes": "Not determinable from the accessible official inventory",
+  "s3_top_level_directories": [
+    "Outputs/",
+    "RawData/",
+    "RawDataBIDS/",
+    "Resources/",
+    "surfaces/"
+  ],
+  "caveats": [
+    "598 is the official source cohort figure, not S3 object count or CC200 usable cohort.",
+    "383 ADHD/598 total from official INDI retrospective data summary.",
+    "No source-backed per-site participant counts retrieved.",
+    "Potentially eligible usable subjects cannot be counted before inventory, phenotype matching, file QC, and exclusions.",
+    "No Peking_2 use is authorized for proposed experiments; current project existing Peking_2 results described for comparison only."
+  ]
+}

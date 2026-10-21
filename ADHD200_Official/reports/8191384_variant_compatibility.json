@@ -1,0 +1,68 @@
+{
+  "candidate": "8191384",
+  "cohort_subjects": 153,
+  "variants": [
+    {
+      "subject_id": "8191384",
+      "s3_uri": "s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark/8191384_session_1/roi_timeseries/_scan_rest_1/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global0.motion1.quadratic1.gm0.compcor1.csf0/_mask_CC200/roi_CC200.csv",
+      "pipeline_folder": "pipeline_adhd200-benchmark",
+      "preprocessing_variant": "no_bandpass_path_component",
+      "global_signal_regression": "OFF",
+      "size_bytes": "478550",
+      "compatibility": "INCOMPATIBLE",
+      "reason": "Global signal setting matches, but this pipeline has no 0.01\u20130.1 Hz bandpass output.",
+      "content_inspected": "NO; no compatible object exists, so audit stopped before GET",
+      "ROI_count": "UNKNOWN",
+      "timepoints": "UNKNOWN",
+      "numeric_validity": "UNKNOWN",
+      "constant_ROI_count": "UNKNOWN",
+      "missing_or_nonnumeric_values": "UNKNOWN"
+    },
+    {
+      "subject_id": "8191384",
+      "s3_uri": "s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark/8191384_session_1/roi_timeseries/_scan_rest_1/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_mask_CC200/roi_CC200.csv",
+      "pipeline_folder": "pipeline_adhd200-benchmark",
+      "preprocessing_variant": "no_bandpass_path_component",
+      "global_signal_regression": "ON",
+      "size_bytes": "476668",
+      "compatibility": "INCOMPATIBLE",
+      "reason": "Global signal regression is ON and the 0.01\u20130.1 Hz bandpass output is absent.",
+      "content_inspected": "NO; no compatible object exists, so audit stopped before GET",
+      "ROI_count": "UNKNOWN",
+      "timepoints": "UNKNOWN",
+      "numeric_validity": "UNKNOWN",
+      "constant_ROI_count": "UNKNOWN",
+      "missing_or_nonnumeric_values": "UNKNOWN"
+    },
+    {
+      "subject_id": "8191384",
+      "s3_uri": "s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark__freq-filter/8191384_session_1/roi_timeseries/_scan_rest_1/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_bandpass_freqs_0.01.0.1/_mask_CC200/roi_CC200.csv",
+      "pipeline_folder": "pipeline_adhd200-benchmark__freq-filter",
+      "preprocessing_variant": "bandpass_0.01_0.1",
+      "global_signal_regression": "ON",
+      "size_bytes": "472127",
+      "compatibility": "INCOMPATIBLE",
+      "reason": "Same frequency-filtered pipeline, but global signal regression is ON; cohort has it OFF.",
+      "content_inspected": "NO; no compatible object exists, so audit stopped before GET",
+      "ROI_count": "UNKNOWN",
+      "timepoints": "UNKNOWN",
+      "numeric_validity": "UNKNOWN",
+      "constant_ROI_count": "UNKNOWN",
+      "missing_or_nonnumeric_values": "UNKNOWN"
+    }
+  ],
+  "compatible_variants": 0,
+  "downloaded": false,
+  "qc_performed": false,
+  "features_extracted": false,
+  "new_potential_cohort": 153,
+  "official_valid_participant_table_count": 935,
+  "valid_participants_without_compatible_cc200": 781,
+  "breakdown_no_cc200_in_two_trees": 780,
+  "breakdown_incompatible_cc200_only": 1,
+  "separate_current_config_qc_failure": {
+    "subject_id": "0015038",
+    "reason": "83 ROI time series constant"
+  },
+  "existing_input_provenance_verified": "154/154 local labeled CC200 inputs matched their S3 frequency-filtered global0 object ETag-derived MD5 and Content-Length."
+}

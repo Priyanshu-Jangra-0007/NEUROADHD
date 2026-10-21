@@ -1,0 +1,67 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ADHD-200 CC200 availability report</title><style>body{font:16px/1.6 system-ui,-apple-system,sans-serif;max-width:1180px;margin:2rem auto;padding:0 1.25rem;color:#20242b}h1,h2{line-height:1.25}table{border-collapse:collapse;display:block;overflow:auto;margin:1rem 0}th,td{border:1px solid #cbd0d6;padding:.45rem .65rem;text-align:left}th{background:#f3f5f7}code{font-family:ui-monospace,monospace;background:#f2f3f5;padding:.08em .25em;border-radius:3px}li{margin:.2em 0}</style></head><body>
+<h1>Official ADHD-200 CC200 derivative availability and phenotype match</h1>
+<p>Audit date: 2026-10-05. No imaging object was downloaded or opened. S3 inventory is from anonymous <code>ListObjectsV2</code> metadata requests only. Existing NeuroADHD workspace files were read only.</p>
+<h2>Results</h2>
+<ul>
+<li>**Unique official CC200 derivative subjects:** 162 (at least one <code>roi_CC200.csv</code> in either audited C-PAC benchmark output).</li>
+<li>**CC200 ROI objects:** 647 across two pipelines; subject count is not object count because pipeline/configuration variants exist.</li>
+<li>**Subjects with valid diagnosis:** 155: **50 ADHD** (original subtype codes/labels pooled only for this count) and **105 typically developing controls**. Original phenotype labels remain unchanged in the CSV.</li>
+<li>**CC200 subjects without valid diagnosis:** 7; all 7 have phenotype IDs but Brown diagnosis is <code>pending</code>/blank.</li>
+<li>**CC200 subjects with no phenotype ID match:** 0.</li>
+<li>**Official phenotype IDs without CC200 in the two audited pipelines:** 780 with valid diagnosis, among 935 valid-diagnosis participant IDs in the local official BIDS phenotype tables.</li>
+<li>**Sites represented:** 10 site labels (eight official institutions, with Peking split as Peking_1/2/3 in the tables).</li>
+<li>**Potential cohort after applying the already documented exclusion:** 154 (includes the new candidate <code>8191384</code>; this is not final QC clearance).</li>
+<li>**Current NeuroADHD feature cohort:** 153 subjects. **New candidate absent from that feature table:** <code>8191384</code>.</li>
+</ul>
+<h2>Subjects by site label</h2>
+<table><thead><tr><th>Site label</th><th>CC200 subjects</th><th>Valid diagnosis</th><th>ADHD</th><th>Control</th><th>Missing/pending Dx</th><th>Already in current 153</th><th>Potentially usable after known exclusion</th></tr></thead><tbody>
+<tr><td>Brown</td><td>7</td><td>0</td><td>0</td><td>0</td><td>7</td><td>0</td><td>0</td></tr>
+<tr><td>KKI</td><td>24</td><td>24</td><td>8</td><td>16</td><td>0</td><td>24</td><td>24</td></tr>
+<tr><td>NYU</td><td>6</td><td>6</td><td>4</td><td>2</td><td>0</td><td>6</td><td>6</td></tr>
+<tr><td>NeuroIMAGE</td><td>19</td><td>19</td><td>10</td><td>9</td><td>0</td><td>19</td><td>19</td></tr>
+<tr><td>OHSU</td><td>14</td><td>14</td><td>0</td><td>14</td><td>0</td><td>14</td><td>14</td></tr>
+<tr><td>Peking_1</td><td>38</td><td>38</td><td>14</td><td>24</td><td>0</td><td>38</td><td>38</td></tr>
+<tr><td>Peking_2</td><td>20</td><td>20</td><td>10</td><td>10</td><td>0</td><td>20</td><td>20</td></tr>
+<tr><td>Peking_3</td><td>12</td><td>12</td><td>4</td><td>8</td><td>0</td><td>11</td><td>12</td></tr>
+<tr><td>Pittsburgh</td><td>21</td><td>21</td><td>0</td><td>21</td><td>0</td><td>21</td><td>21</td></tr>
+<tr><td>WashU</td><td>1</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>TOTAL</td><td>162</td><td>155</td><td>50</td><td>105</td><td>7</td><td>153</td><td>154</td></tr>
+</tbody></table>
+<h2>Pipeline/object coverage</h2>
+<table><thead><tr><th>C-PAC pipeline</th><th>CC200 ROI objects</th><th>Unique subjects</th></tr></thead><tbody>
+<tr><td><code>pipeline_adhd200-benchmark</code></td><td>324</td><td>162</td></tr>
+<tr><td><code>pipeline_adhd200-benchmark__freq-filter</code></td><td>323</td><td>162</td></tr>
+</tbody></table>
+<p>The standard <code>pipeline_adhd200-benchmark</code> has two CC200 nuisance-regression variants (global signal off/on) for each of 162 subjects. The <code>pipeline_adhd200-benchmark__freq-filter</code> has 323 CC200 objects across 162 subjects: two variants for most subjects and a single variant for <code>8191384</code>. The exact object variant and path are recorded in <code>official_cc200_inventory.csv</code>.</p>
+<p>Motion files (<code>FD.1D</code>, <code>motion_parameters.txt</code>) were found for all 162 subjects in both pipeline trees (324 files of each type across both trees). MRIQC report objects (<code>.json</code> and <code>.html</code>) were listed under <code>Outputs/mriqc/mriqc/</code>; the complete metadata listing contained 4,714 objects, with 644 report objects matching 161 of the 162 CC200 subjects (T1w and resting BOLD reports). <code>0026053</code> had no matched MRIQC report object in this listing. The local official per-site participant tables contain <code>qc_rest_1</code> values for 161 of 162 CC200 subjects: Pass=146, Questionable=12, -999=3, blank=1. <code>qc_anatomical_1</code> values are Pass=154, Questionable=4, -999=3, blank=1. The phenotype-match CSV preserves these fields. MRIQC reports were not downloaded or parsed, so no report-derived pass/fail conclusions are made.</p>
+<h2>Phenotype match and interpretation</h2>
+<p>The match uses official per-site BIDS <code>participants.tsv</code> files already present read-only in <code>/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD/data/adhd200/raw/phenotypes/</code>; Brown&#x27;s <code>DX=pending</code> values are filled from the existing official Brown test-release phenotype CSV because Brown <code>participants.tsv</code> has no diagnosis column. The normalized numeric identifier was used for joining padded C-PAC IDs to phenotype IDs, with site labels retained. All 162 CC200 derivative subjects matched a phenotype participant ID, including <code>8191384</code> (Peking_3, typically developing). Seven Brown CC200 subjects have <code>pending</code> diagnosis; no binary label is assigned to them.</p>
+<p>The audited local official phenotype tables contain 961 unique site/participant rows, of which 935 have a recognized diagnosis (359 ADHD subtypes combined for summary count; 576 controls), and 26 Brown rows are pending. There are 780 valid-diagnosis rows without a CC200 object in these two benchmark pipeline trees. This is a precise comparison to the local official BIDS phenotype table set inspected, not a claim that those tables represent every historical ADHD-200 competition roster or every possible derivative elsewhere in S3.</p>
+<h2>Comparison with current NeuroADHD cohort</h2>
+<p>The existing feature table contains 153 subjects. Intersection with the S3 CC200 inventory is 153 subjects. The local prior mapping has 161 CC200 subjects; the official S3 inventory adds <code>8191384</code>, which has a Peking_3 phenotype record and a control diagnosis. It is absent from the current 153-row feature table and is the sole **new labeled CC200 candidate** in this match.</p>
+<p>Previously excluded: <code>0015038</code> (WashU, control), skipped because **83 ROI time series were constant; Pearson correlations were undefined** according to <code>cc200_extraction_summary.json</code>. Seven Brown subjects (<code>0026022</code>, <code>0026024</code>, <code>0026052</code>, <code>0026053</code>, <code>0026054</code>, <code>0026055</code>, <code>0026057</code>) have CC200 outputs but pending diagnoses and were not in the current labeled feature cohort. The other 153 valid diagnosed CC200 subjects are already in the current feature table.</p>
+<p><code>8191384</code> is only potentially usable. Its CC200 numeric content was not inspected, and its available output variants do not fully match the current frequency-filtered pipeline variant: only global-signal-on was listed in the frequency-filtered tree. The standard benchmark tree has global-signal-off and global-signal-on objects. This configuration gap must be resolved before appending it to the existing cohort.</p>
+<h2>Recommended CC200-only download list for the new candidate</h2>
+<p>The only new valid-diagnosis candidate absent from current features is <code>8191384</code>. Available CC200 objects are:</p>
+<ul>
+<li><code>s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark__freq-filter/8191384_session_1/roi_timeseries/_scan_rest_1/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_bandpass_freqs_0.01.0.1/_mask_CC200/roi_CC200.csv</code> — 472127 bytes (global1)</li>
+<li><code>s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark/8191384_session_1/roi_timeseries/_scan_rest_1/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global0.motion1.quadratic1.gm0.compcor1.csf0/_mask_CC200/roi_CC200.csv</code> — 478550 bytes (global0)</li>
+<li><code>s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark/8191384_session_1/roi_timeseries/_scan_rest_1/_csf_threshold_0.96/_gm_threshold_0.7/_wm_threshold_0.96/_compcor_ncomponents_5_selector_pc10.linear1.wm0.global1.motion1.quadratic1.gm0.compcor1.csf0/_mask_CC200/roi_CC200.csv</code> — 476668 bytes (global1)</li>
+</ul>
+<p>This is a recommendation list of derivative objects only. It excludes raw BIDS and includes alternatives that should be reviewed for configuration compatibility. For strict continuation of the current feature pipeline, the frequency-filtered object is the closest named pipeline but is global-signal-on; do not treat it as configuration-identical to existing features without checking their exact provenance.</p>
+<h2>Exact cohort counts and limits</h2>
+<ul>
+<li>162 CC200 subjects found; 155 diagnosis-valid (50 ADHD, 105 controls); 7 pending diagnosis.</li>
+<li>154 remain after excluding the one previously documented constant-signal subject. Of these, 153 are already represented in current features and one is a new candidate.</li>
+<li>**154 is the exact inventory/label-based potential cohort count before download. It is not the final QC-cleared count.** The new candidate&#x27;s ROI values, time-series properties, and MRIQC report contents remain unread; its usability cannot be confirmed until a later authorized derivative/QC step.</li>
+<li>No raw BIDS, CC200 ROI, MRIQC report, phenotype file, or other object was downloaded in this audit. No preprocessing or modeling was performed. The existing NeuroADHD project was not modified.</li>
+</ul>
+<h2>Source references</h2>
+<ul>
+<li>Official project: <a href="https://fcon_1000.projects.nitrc.org/indi/adhd200/">https://fcon_1000.projects.nitrc.org/indi/adhd200/</a></li>
+<li>Official S3 instructions and outputs structure: <a href="https://fcon_1000.projects.nitrc.org/indi/s3/index.html">https://fcon_1000.projects.nitrc.org/indi/s3/index.html</a></li>
+<li>Official download instructions: <a href="https://fcon_1000.projects.nitrc.org/indi/adhd200/download_scripts/Download_Instructions_ADHD200.pdf">https://fcon_1000.projects.nitrc.org/indi/adhd200/download_scripts/Download_Instructions_ADHD200.pdf</a></li>
+<li>Official phenotype key: <a href="https://fcon_1000.projects.nitrc.org/indi/adhd200/general/ADHD-200_PhenotypicKey.pdf">https://fcon_1000.projects.nitrc.org/indi/adhd200/general/ADHD-200_PhenotypicKey.pdf</a></li>
+<li>Audited roots: <code>s3://fcp-indi/data/Projects/ADHD200/Outputs/cpac/raw_outputs/pipeline_adhd200-benchmark/</code>, <code>.../pipeline_adhd200-benchmark__freq-filter/</code>, and <code>s3://fcp-indi/data/Projects/ADHD200/Outputs/mriqc/mriqc/</code>.</li>
+</ul>
+</body></html>

@@ -1,0 +1,27 @@
+{
+  "audit_date": "2026-10-05",
+  "sources": [
+    {
+      "url": "https://fcon_1000.projects.nitrc.org/indi/adhd200/",
+      "purpose": "Official ADHD-200 project"
+    },
+    {
+      "url": "https://fcon_1000.projects.nitrc.org/indi/IndiRetro.html",
+      "purpose": "Official retrospective sample counts, age, modalities and phenotype overview"
+    },
+    {
+      "url": "https://fcon_1000.projects.nitrc.org/indi/s3/index.html",
+      "purpose": "Official S3 structure and availability"
+    },
+    {
+      "url": "https://fcon_1000.projects.nitrc.org/indi/adhd200/download_scripts/Download_Instructions_ADHD200.pdf",
+      "purpose": "Official download instructions/site list"
+    },
+    {
+      "url": "https://fcon_1000.projects.nitrc.org/indi/adhd200/general/ADHD-200_PhenotypicKey.pdf",
+      "purpose": "Official coding key"
+    }
+  ],
+  "s3_audit": "Anonymous S3 HTTPS ListBucket root delimiter listing returned five directories; un-delimited pagination request hung/timed out and was interrupted. Inventory explicitly incomplete. No object contents downloaded.",
+  "existing_project_read": "Read only: README, manifest, local CC200 summary and report. No source files edited."
+}

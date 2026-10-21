@@ -1,0 +1,116 @@
+{
+  "candidate_definition": "valid-diagnosis rows classified phenotype_without_CC200_derivative plus valid-diagnosis 8191384 with no compatible CC200 variant",
+  "missing_compatible_cc200_subjects": 781,
+  "listed_subject_prefixes": 781,
+  "raw_s3_listing_failures": 0,
+  "rest_bold_available": 775,
+  "anatomical_available": 781,
+  "both_available": 775,
+  "potentially_processable": 775,
+  "potential_adhd": 304,
+  "potential_control": 471,
+  "potential_by_site": {
+    "KKI": 59,
+    "NYU": 251,
+    "NeuroIMAGE": 54,
+    "OHSU": 99,
+    "Peking_1": 98,
+    "Peking_2": 47,
+    "Peking_3": 31,
+    "Pittsburgh": 77,
+    "WashU": 59
+  },
+  "diagnosis_counts_potential": {
+    "Typically Developing Children": 471,
+    "ADHD-Inattentive": 116,
+    "ADHD-Combined": 176,
+    "ADHD-Hyperactive/Impulsive": 12
+  },
+  "tr_seconds_subject_counts": {
+    "2.5": 217,
+    "2.0": 427,
+    "1.96": 54,
+    "1.5": 69,
+    "3": 1,
+    "3.0": 7
+  },
+  "potential_final_cohort_if_all_pass": 928,
+  "potential_final_adhd200_only_addition": 775,
+  "current_cohort": 153,
+  "download_size_bytes": {
+    "functional_bold": 70133625307,
+    "anatomical": 7201739516,
+    "subject_level_metadata": 285,
+    "deduplicated_shared_site_metadata_and_inherited_json": 163238,
+    "total": 77335528346
+  },
+  "download_size_gib": 72.02432336844504,
+  "candidate_subject_prefix_object_bytes_all_781": 77373970470,
+  "shared_metadata_object_count": 18,
+  "shared_metadata_keys": [
+    "data/Projects/ADHD200/RawDataBIDS/KKI/dataset_description.json",
+    "data/Projects/ADHD200/RawDataBIDS/KKI/participants.tsv",
+    "data/Projects/ADHD200/RawDataBIDS/NYU/dataset_description.json",
+    "data/Projects/ADHD200/RawDataBIDS/NYU/participants.tsv",
+    "data/Projects/ADHD200/RawDataBIDS/NeuroIMAGE/dataset_description.json",
+    "data/Projects/ADHD200/RawDataBIDS/NeuroIMAGE/participants.tsv",
+    "data/Projects/ADHD200/RawDataBIDS/OHSU/dataset_description.json",
+    "data/Projects/ADHD200/RawDataBIDS/OHSU/participants.tsv",
+    "data/Projects/ADHD200/RawDataBIDS/Peking_1/dataset_description.json",
+    "data/Projects/ADHD200/RawDataBIDS/Peking_1/participants.tsv",
+    "data/Projects/ADHD200/RawDataBIDS/Peking_2/dataset_description.json",
+    "data/Projects/ADHD200/RawDataBIDS/Peking_2/participants.tsv",
+    "data/Projects/ADHD200/RawDataBIDS/Peking_3/dataset_description.json",
+    "data/Projects/ADHD200/RawDataBIDS/Peking_3/participants.tsv",
+    "data/Projects/ADHD200/RawDataBIDS/Pittsburgh/dataset_description.json",
+    "data/Projects/ADHD200/RawDataBIDS/Pittsburgh/participants.tsv",
+    "data/Projects/ADHD200/RawDataBIDS/WashU/dataset_description.json",
+    "data/Projects/ADHD200/RawDataBIDS/WashU/participants.tsv"
+  ],
+  "NIfTI_payload_or_headers_fetched": false,
+  "preprocessing_done": false,
+  "model_training_done": false,
+  "runtime": "Runtime not yet benchmarked.",
+  "expected_full_cpac_output_size": "Unknown; cannot derive exact output size from raw object listings.",
+  "machine": "8 GiB RAM, 8 CPU cores, approximately 341 GiB available at audit time; full C-PAC feasibility is uncertain and not benchmarked.",
+  "tr_counts": {
+    "2.5": 217,
+    "2.0": 427,
+    "1.96": 54,
+    "1.5": 69,
+    "3": 1,
+    "3.0": 7
+  },
+  "missing_rest_subjects": [
+    {
+      "site": "NYU",
+      "subject_id": "0010016",
+      "diagnosis": "ADHD-Combined"
+    },
+    {
+      "site": "NYU",
+      "subject_id": "0010027",
+      "diagnosis": "ADHD-Combined"
+    },
+    {
+      "site": "NYU",
+      "subject_id": "0010055",
+      "diagnosis": "Typically Developing Children"
+    },
+    {
+      "site": "NYU",
+      "subject_id": "0010098",
+      "diagnosis": "ADHD-Combined"
+    },
+    {
+      "site": "NYU",
+      "subject_id": "0010105",
+      "diagnosis": "ADHD-Inattentive"
+    },
+    {
+      "site": "NYU",
+      "subject_id": "0010127",
+      "diagnosis": "ADHD-Combined"
+    }
+  ]
+}

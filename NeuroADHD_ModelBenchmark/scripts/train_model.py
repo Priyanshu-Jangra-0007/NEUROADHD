@@ -47,6 +47,7 @@ def load_model_class(model_name: str):
     elif model_name == "extra_trees":
         return ExtraTreesClassifier
     elif model_name == "xgboost":
+        # pyrefly: ignore [missing-import]
         from xgboost import XGBClassifier
         return XGBClassifier
     else:

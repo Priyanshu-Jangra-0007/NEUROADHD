@@ -1,0 +1,438 @@
+{
+  "sources": "S3 object listing plus GET of small BIDS JSON sidecars only; no NIfTI/raw MRI fetched.",
+  "sites": {
+    "KKI": {
+      "root_objects": 5,
+      "participants_tsv": true,
+      "dataset_description": true,
+      "json_sidecars": [
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/KKI/T1w.json",
+          "size_bytes": 657,
+          "fields": {
+            "RepetitionTime": 3.5,
+            "EchoTime": "Shortest",
+            "Manufacturer": "Philips",
+            "PhaseEncodingDirection": "i"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/KKI/dataset_description.json",
+          "size_bytes": 613,
+          "fields": {}
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/KKI/task-rest_acq-1_bold.json",
+          "size_bytes": 1914,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.5,
+            "EchoTime": 0.03,
+            "Manufacturer": "Philips",
+            "PhaseEncodingDirection": "j-"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/KKI/task-rest_acq-2_bold.json",
+          "size_bytes": 1914,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.5,
+            "EchoTime": 0.03,
+            "Manufacturer": "Philips",
+            "PhaseEncodingDirection": "j-"
+          }
+        }
+      ]
+    },
+    "NYU": {
+      "root_objects": 5,
+      "participants_tsv": true,
+      "dataset_description": true,
+      "json_sidecars": [
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/NYU/T1w.json",
+          "size_bytes": 738,
+          "fields": {
+            "RepetitionTime": 2.53,
+            "EchoTime": "0.00325",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "Allegra",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/NYU/dataset_description.json",
+          "size_bytes": 974,
+          "fields": {}
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/NYU/task-rest_bold.json",
+          "size_bytes": 1424,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.0,
+            "EchoTime": 0.015,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "Allegra",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "i"
+          }
+        }
+      ]
+    },
+    "NeuroIMAGE": {
+      "root_objects": 4,
+      "participants_tsv": true,
+      "dataset_description": true,
+      "json_sidecars": [
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/NeuroIMAGE/T1w.json",
+          "size_bytes": 798,
+          "fields": {
+            "RepetitionTime": 2.73,
+            "EchoTime": "0.00295",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "Avanto",
+            "MagneticFieldStrength": "1.5T",
+            "PhaseEncodingDirection": "j-"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/NeuroIMAGE/dataset_description.json",
+          "size_bytes": 290,
+          "fields": {}
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/NeuroIMAGE/task-rest_bold.json",
+          "size_bytes": 1856,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 1.96,
+            "EchoTime": 0.04,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "Avanto",
+            "MagneticFieldStrength": "1.5T",
+            "PhaseEncodingDirection": "j-"
+          }
+        }
+      ]
+    },
+    "OHSU": {
+      "root_objects": 4,
+      "participants_tsv": true,
+      "dataset_description": true,
+      "json_sidecars": [
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/OHSU/T1w.json",
+          "size_bytes": 738,
+          "fields": {
+            "RepetitionTime": 2.3,
+            "EchoTime": "0.00358",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/OHSU/dataset_description.json",
+          "size_bytes": 616,
+          "fields": {}
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/OHSU/task-rest_bold.json",
+          "size_bytes": 1819,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.5,
+            "EchoTime": 0.03,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        }
+      ]
+    },
+    "Peking_1": {
+      "root_objects": 4,
+      "participants_tsv": true,
+      "dataset_description": true,
+      "json_sidecars": [
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_1/T1w.json",
+          "size_bytes": 738,
+          "fields": {
+            "RepetitionTime": 2.53,
+            "EchoTime": "0.00339",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_1/dataset_description.json",
+          "size_bytes": 793,
+          "fields": {}
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_1/task-rest_bold.json",
+          "size_bytes": 1008,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.0,
+            "EchoTime": 0.03,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        }
+      ]
+    },
+    "Peking_2": {
+      "root_objects": 4,
+      "participants_tsv": true,
+      "dataset_description": true,
+      "json_sidecars": [
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_2/T1w.json",
+          "size_bytes": 736,
+          "fields": {
+            "RepetitionTime": 2.53,
+            "EchoTime": "0.00345",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_2/dataset_description.json",
+          "size_bytes": 793,
+          "fields": {}
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_2/task-rest_bold.json",
+          "size_bytes": 1736,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.0,
+            "EchoTime": 0.03,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        }
+      ]
+    },
+    "Peking_3": {
+      "root_objects": 8,
+      "participants_tsv": true,
+      "dataset_description": true,
+      "json_sidecars": [
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_3/acq-1_T1w.json",
+          "size_bytes": 428,
+          "fields": {
+            "RepetitionTime": 2.0,
+            "EchoTime": "0.00367",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_3/acq-2_T1w.json",
+          "size_bytes": 428,
+          "fields": {
+            "RepetitionTime": 1.95,
+            "EchoTime": "0.0036",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_3/acq-3_T1w.json",
+          "size_bytes": 429,
+          "fields": {
+            "RepetitionTime": 2.53,
+            "EchoTime": "0.00337",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_3/acq-4_T1w.json",
+          "size_bytes": 429,
+          "fields": {
+            "RepetitionTime": 1.77,
+            "EchoTime": "0.00392",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_3/acq-5_T1w.json",
+          "size_bytes": 429,
+          "fields": {
+            "RepetitionTime": 0.845,
+            "EchoTime": "0.00289",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_3/dataset_description.json",
+          "size_bytes": 793,
+          "fields": {}
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Peking_3/task-rest_bold.json",
+          "size_bytes": 752,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.0,
+            "EchoTime": 0.03,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T"
+          }
+        }
+      ]
+    },
+    "Pittsburgh": {
+      "root_objects": 5,
+      "participants_tsv": true,
+      "dataset_description": true,
+      "json_sidecars": [
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Pittsburgh/T1w.json",
+          "size_bytes": 741,
+          "fields": {
+            "RepetitionTime": 2.1,
+            "EchoTime": "0.00343",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "i"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Pittsburgh/dataset_description.json",
+          "size_bytes": 511,
+          "fields": {}
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Pittsburgh/sub-0016041/ses-1/func/sub-0016041_ses-1_task-rest_acq-1_run-1_bold.json",
+          "size_bytes": 285,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 3,
+            "ManufacturersModelName": "TrioTim"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Pittsburgh/task-rest_acq-1_bold.json",
+          "size_bytes": 1793,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 1.5,
+            "EchoTime": 0.028999999999999998,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/Pittsburgh/task-rest_acq-2_bold.json",
+          "size_bytes": 1917,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 3.0,
+            "EchoTime": 0.03,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        }
+      ]
+    },
+    "WashU": {
+      "root_objects": 7,
+      "participants_tsv": true,
+      "dataset_description": true,
+      "json_sidecars": [
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/WashU/T1w.json",
+          "size_bytes": 822,
+          "fields": {
+            "RepetitionTime": 2.4,
+            "EchoTime": "0.00308",
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/WashU/dataset_description.json",
+          "size_bytes": 659,
+          "fields": {}
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/WashU/task-reststudy1_bold.json",
+          "size_bytes": 1654,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.5,
+            "EchoTime": 0.027000000000000003,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/WashU/task-reststudy2_bold.json",
+          "size_bytes": 1649,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.5,
+            "EchoTime": 0.027000000000000003,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        },
+        {
+          "key": "data/Projects/ADHD200/RawDataBIDS/WashU/task-reststudy3_bold.json",
+          "size_bytes": 1643,
+          "fields": {
+            "TaskName": "rest",
+            "RepetitionTime": 2.5,
+            "EchoTime": 0.027000000000000003,
+            "Manufacturer": "Siemens",
+            "ManufacturersModelName": "TrioTim",
+            "MagneticFieldStrength": "3T",
+            "PhaseEncodingDirection": "j-"
+          }
+        }
+      ]
+    }
+  },
+  "subject_level_json_keys": [
+    "data/Projects/ADHD200/RawDataBIDS/Pittsburgh/sub-0016041/ses-1/func/sub-0016041_ses-1_task-rest_acq-1_run-1_bold.json"
+  ]
+}
