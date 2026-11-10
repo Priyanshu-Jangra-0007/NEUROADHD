@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>NeuroADHD Run Report — full_benchmark_01</title>
+  <style>
+    :root {
+      --bg-main: #0b0f19;
+      --card-bg: #151c2c;
+      --card-border: #232d42;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-yellow: #facc15;
+      --accent-purple: #a855f7;
+      --accent-red: #f87171;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; padding: 24px; font-size: 14px; line-height: 1.6; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { border-bottom: 2px solid var(--accent-blue); padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .header h1 { margin: 0; font-size: 24px; color: var(--accent-blue); }
+    .header p { margin: 4px 0 0 0; color: var(--text-muted); font-size: 13px; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .badge-success { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .badge-failed { background: rgba(248, 113, 113, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px; }
+    .card h3 { margin-top: 0; margin-bottom: 10px; font-size: 13px; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 0.5px; }
+    .card-val { font-size: 22px; font-weight: bold; color: var(--accent-green); }
+    .card-lbl { font-size: 12px; color: var(--text-muted); }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border); }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--card-border); font-size: 13px; }
+    th { background: #0f172a; color: var(--accent-blue); font-weight: 600; }
+    tr:hover { background: rgba(56, 189, 248, 0.05); }
+    .highlight { background: rgba(74, 222, 128, 0.12); font-weight: bold; }
+    .sec-title { font-size: 16px; margin-top: 28px; margin-bottom: 14px; color: var(--text-main); border-left: 4px solid var(--accent-blue); padding-left: 10px; }
+    .disclaimer { background: rgba(248, 113, 113, 0.1); border: 1px solid var(--accent-red); color: #fca5a5; padding: 12px; border-radius: 6px; margin-bottom: 24px; font-size: 13px; }
+    code { font-family: monospace; background: #0f172a; padding: 2px 6px; border-radius: 4px; color: var(--accent-blue); }
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <div class='header'>
+      <div>
+        <h1>NeuroADHD Experiment Run — <code>full_benchmark_01</code></h1>
+        <p>Executed on 2026-10-21T04:22:22.697993+00:00 | Duration: 51.91s</p>
+      </div>
+      <div><span class='badge badge-success'>completed</span></div>
+    </div>
+    <div class='disclaimer'>
+      <strong>⚠️ RESEARCH DISCLAIMER:</strong> Academic research benchmark. Not a clinical diagnostic tool.
+    </div>
+    <div class='grid-4'>
+      <div class='card'><div class='card-lbl'>Dataset Cohort</div><div class='card-val'>153 Subjects</div><div class='card-lbl'>50 ADHD / 103 Control</div></div>
+      <div class='card'><div class='card-lbl'>Partition Strategy</div><div class='card-val'>Site Group Holdout</div><div class='card-lbl'>Train 114 | Val 19 | Test 20</div></div>
+      <div class='card'><div class='card-lbl'>Selected Model</div><div class='card-val' style='font-size:16px; color:var(--accent-yellow);'>Random Forest</div><div class='card-lbl'>Val ROC-AUC: 0.7333</div></div>
+      <div class='card'><div class='card-lbl'>Test Status</div><div class='card-val' style='font-size:16px;'>Locked</div><div class='card-lbl'>Test Site: Peking_2</div></div>
+    </div>
+    <div class='sec-title'>1. Validation Model Leaderboard</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Model Name</th><th>Accuracy</th><th>Bal Acc</th><th>Precision</th><th>Recall (ADHD)</th><th>Specificity</th><th>F1 Score</th><th>ROC-AUC</th><th>PR-AUC</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr >
+          <td><strong>Logistic Regression (L1 & L2)</strong></td>
+          <td>0.4211</td>
+          <td>0.4444</td>
+          <td>0.0000</td>
+          <td>0.0000</td>
+          <td>0.8889</td>
+          <td>0.0000</td>
+          <td><strong>0.6889</strong></td>
+          <td>0.5942</td>
+        </tr>
+        <tr >
+          <td><strong>Linear SVM</strong></td>
+          <td>0.3684</td>
+          <td>0.3889</td>
+          <td>0.0000</td>
+          <td>0.0000</td>
+          <td>0.7778</td>
+          <td>0.0000</td>
+          <td><strong>0.6889</strong></td>
+          <td>0.5878</td>
+        </tr>
+        <tr >
+          <td><strong>RBF SVM</strong></td>
+          <td>0.4737</td>
+          <td>0.5000</td>
+          <td>0.0000</td>
+          <td>0.0000</td>
+          <td>1.0000</td>
+          <td>0.0000</td>
+          <td><strong>0.6889</strong></td>
+          <td>0.5924</td>
+        </tr>
+        <tr class='highlight'>
+          <td><strong>Random Forest</strong> <span class="badge badge-success">SELECTED</span></td>
+          <td>0.4211</td>
+          <td>0.4389</td>
+          <td>0.3333</td>
+          <td>0.1000</td>
+          <td>0.7778</td>
+          <td>0.1538</td>
+          <td><strong>0.7333</strong></td>
+          <td>0.6851</td>
+        </tr>
+        <tr >
+          <td><strong>Extra Trees</strong></td>
+          <td>0.4737</td>
+          <td>0.4944</td>
+          <td>0.5000</td>
+          <td>0.1000</td>
+          <td>0.8889</td>
+          <td>0.1667</td>
+          <td><strong>0.6889</strong></td>
+          <td>0.6875</td>
+        </tr>
+        <tr >
+          <td><strong>XGBoost Classifier</strong></td>
+          <td>0.4737</td>
+          <td>0.5000</td>
+          <td>0.0000</td>
+          <td>0.0000</td>
+          <td>1.0000</td>
+          <td>0.0000</td>
+          <td><strong>0.7111</strong></td>
+          <td>0.7538</td>
+        </tr>
+        <tr >
+          <td><strong>Soft Voting Ensemble</strong></td>
+          <td>0.4737</td>
+          <td>0.5000</td>
+          <td>0.0000</td>
+          <td>0.0000</td>
+          <td>1.0000</td>
+          <td>0.0000</td>
+          <td><strong>0.7111</strong></td>
+          <td>0.6755</td>
+        </tr>
+        <tr >
+          <td><strong>Hard Voting Ensemble</strong></td>
+          <td>0.4737</td>
+          <td>0.5000</td>
+          <td>0.0000</td>
+          <td>0.0000</td>
+          <td>1.0000</td>
+          <td>0.0000</td>
+          <td><strong>0.5000</strong></td>
+          <td>0.5000</td>
+        </tr>
+        <tr >
+          <td><strong>Stacking Meta-Classifier</strong></td>
+          <td>0.4737</td>
+          <td>0.5000</td>
+          <td>0.0000</td>
+          <td>0.0000</td>
+          <td>1.0000</td>
+          <td>0.0000</td>
+          <td><strong>0.6889</strong></td>
+          <td>0.5972</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class='sec-title'>2. Preprocessing & Leakage Safety</div>
+    <div class='card'>
+      <p><strong>Pipeline:</strong> SimpleImputer(strategy='median') &rarr; StandardScaler &rarr; SelectKBest(score_func=f_classif, k=100)</p>
+      <p><strong>Fitting Scope:</strong> <code>train_only</code> (0% data leakage into validation or test partitions)</p>
+    </div>
+    <div class='sec-title'>3. Final Test Evaluation (Peking_2)</div>
+<div class='card'><p>Test set remained locked during this run.</p></div>
+    <div class='sec-title'>4. Reproducibility & Environment</div>
+    <div class='card'>
+      <p><strong>OS:</strong> macOS-27.0.1-arm64-arm-64bit | <strong>Python:</strong> 3.11.15 | <strong>Arch:</strong> arm64</p>
+      <p><strong>Dataset SHA-256:</strong> <code>4750beb6523ce534012b26c1020782731eae0a05ca8658f57bad577649733b65</code></p>
+      <p><strong>Split Manifest SHA-256:</strong> <code>11e6c02091d442578e20935ade6d9f667f9d9fbdb57eaf352fb7d5e1a01b3ced</code></p>
+    </div>
+  </div>
+</body>
+</html>

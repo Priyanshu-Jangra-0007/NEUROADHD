@@ -42,7 +42,7 @@ def load_model_class(model_name: str):
         return LogisticRegression
     elif model_name in ("linear_svm", "rbf_svm"):
         return SVC
-    elif model_name == "random_forest":
+    elif model_name in ("random_forest", "balanced_random_forest"):
         return RandomForestClassifier
     elif model_name == "extra_trees":
         return ExtraTreesClassifier

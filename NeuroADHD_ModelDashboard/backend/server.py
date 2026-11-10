@@ -2,12 +2,27 @@
 from __future__ import annotations
 
 import json
+import os
+import sys
+import tempfile
 from typing import List, Optional
 from pathlib import Path
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+
+# Dynamic path resolution to import inference logic from NeuroADHD
+WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
+NEUROADHD_ROOT = WORKSPACE_ROOT / "NeuroADHD"
+if str(NEUROADHD_ROOT) not in sys.path:
+    sys.path.insert(0, str(NEUROADHD_ROOT))
+
+try:
+    from src.inference.predict_subject import predict_single_subject
+except ImportError:
+    predict_single_subject = None
+
 
 from services.benchmark_service import (
     get_dataset_info,
@@ -152,6 +167,102 @@ def get_latest_html_report():
     return get_run_html_report(run_id)
 
 
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB upload limit
+
+
+@app.post("/api/predict/subject")
+async def predict_subject(file: UploadFile = File(...)):
+    """Accept an uploaded roi_CC200.csv file and return an exploratory ADHD research prediction.
+
+    Accepts: multipart/form-data with a file field containing roi_CC200.csv
+    Returns: JSON containing validation status, prediction probabilities, and research disclaimer.
+    """
+    if predict_single_subject is None:
+        raise HTTPException(
+            status_code=500,
+            detail="Inference module is not available on the server."
+        )
+
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No filename provided in upload.")
+
+    filename_lower = file.filename.lower()
+    if not (filename_lower.endswith(".csv") or filename_lower.endswith(".txt")):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Uploaded file must be a CSV file (.csv) containing CC200 ROI time series."
+        )
+
+    temp_file = tempfile.NamedTemporaryFile(suffix=".csv", delete=False)
+    temp_path = Path(temp_file.name)
+    total_bytes = 0
+
+    try:
+        while True:
+            chunk = await file.read(1024 * 1024)
+            if not chunk:
+                break
+            total_bytes += len(chunk)
+            if total_bytes > MAX_UPLOAD_SIZE:
+                temp_file.close()
+                raise HTTPException(
+                    status_code=413,
+                    detail="File size exceeds maximum allowed limit of 10 MB."
+                )
+            temp_file.write(chunk)
+        temp_file.close()
+
+        if total_bytes == 0:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+        try:
+            raw_result = predict_single_subject(temp_path)
+        except ValueError as val_err:
+            raise HTTPException(status_code=400, detail=str(val_err))
+        except FileNotFoundError:
+            raise HTTPException(
+                status_code=500,
+                detail="Model artifact could not be located on the server."
+            )
+        except Exception as exc:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Inference processing failed: {str(exc)}"
+            )
+
+        # Return sanitized response without exposing internal server filesystem paths
+        return {
+            "status": "success",
+            "filename": file.filename,
+            "input_validation": raw_result["input_validation"],
+            "model_architecture": raw_result["model_architecture"],
+            "prediction": raw_result["prediction"],
+            "disclaimer": raw_result["disclaimer"]
+        }
+
+    finally:
+        if temp_path.exists():
+            try:
+                temp_path.unlink()
+            except Exception:
+                pass
+
+
+@app.get("/api/predict/sample")
+def get_sample_subject():
+    """Return a verified sample CC200 ROI time-series CSV for testing single-subject inference."""
+    sample_path = NEUROADHD_ROOT / "data" / "adhd200" / "raw" / "cc200" / "1017176_session_1" / "roi_CC200.csv"
+    if not sample_path.exists():
+        raise HTTPException(status_code=404, detail="Sample subject file not found on disk.")
+    return FileResponse(
+        path=str(sample_path),
+        filename="1017176_session_1_roi_CC200.csv",
+        media_type="text/csv"
+    )
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+
+

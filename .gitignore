@@ -50,3 +50,7 @@ ADHD200_Official/metadata/raw_bids_object_inventory.csv
 # Environment configs with secrets
 .env
 .env.*
+
+# Large zip archives
+NeuroADHD_Portable_Backup_FINAL.zip
+*.zip

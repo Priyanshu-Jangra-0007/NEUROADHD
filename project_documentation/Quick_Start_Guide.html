@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroADHD Quick Start Reference Card</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0e17;
+    --bg-card: #111827;
+    --border: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent: #38bdf8;
+    --accent-green: #34d399;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 30px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: 1.8rem; margin-bottom: 6px; color: var(--accent); }
+  h2 { font-size: 1.15rem; color: #ffffff; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .tag { background: rgba(56, 189, 248, 0.15); color: var(--accent); font-size: 11px; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); }
+  pre {
+    background: #070a10;
+    border: 1px solid #1e293b;
+    padding: 12px 14px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    overflow-x: auto;
+    color: #e2e8f0;
+    margin-top: 8px;
+  }
+  p { color: var(--text-secondary); margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #1e293b; }
+  th { background: #162032; color: var(--accent); font-family: var(--font-mono); }
+  @media print {
+    body { background: #fff; color: #000; }
+    .card { background: #f8fafc; border-color: #cbd5e1; }
+    pre { background: #f1f5f9; color: #000; border-color: #cbd5e1; }
+    th { background: #e2e8f0; color: #000; }
+    h1, h2 { color: #0284c7; }
+  }
+</style>
+</head>
+<body>
+  <h1>NeuroADHD Quick Start Reference Card</h1>
+  <p>Quick lookup guide for launching the NeuroADHD backend, dashboard, benchmark scripts, and CLI inference.</p>
+
+  <div class="card">
+    <h2><span class="tag">01</span> Python Virtual Environment Setup</h2>
+    <pre>
+cd /Users/apple/Documents/Codex/2026-09-29/down
+python3 -m venv venv
+source venv/bin/activate
+pip install numpy scipy pandas scikit-learn imbalanced-learn xgboost shap joblib fastapi uvicorn pydantic
+    </pre>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">02</span> Launch Interactive Web Application</h2>
+    <p>Run backend and frontend in two separate terminal windows:</p>
+    <pre>
+# Terminal 1 (FastAPI Backend):
+cd /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/backend
+python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+# Access API Docs: http://localhost:8000/docs
+
+# Terminal 2 (React 18 Frontend):
+cd /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend
+npm install
+npm run dev
+# Access Dashboard: http://localhost:5173
+    </pre>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">03</span> Single-Subject CLI Prediction</h2>
+    <pre>
+cd /Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD
+python -m src.inference.predict_subject \
+    --input_tc "src/data/ADHD200_CC200_TCs/0010001/roi_CC200.csv" \
+    --model_path "../NeuroADHD_ModelBenchmark/results/final_locked/final_model.joblib" \
+    --pipeline_path "../NeuroADHD_ModelBenchmark/results/final_locked/final_preprocessing_pipeline.joblib"
+    </pre>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">04</span> Key Ports, Endpoints & Checkpoints</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Location / Port</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Frontend UI</td>
+          <td>http://localhost:5173</td>
+          <td>React 18 / Vite 23-view dashboard</td>
+        </tr>
+        <tr>
+          <td>Backend API</td>
+          <td>http://localhost:8000</td>
+          <td>FastAPI server with Swagger docs at /docs</td>
+        </tr>
+        <tr>
+          <td>Best Model</td>
+          <td>final_model.joblib</td>
+          <td>Balanced Random Forest (K=100 ANOVA features)</td>
+        </tr>
+        <tr>
+          <td>Preprocessor</td>
+          <td>final_preprocessing_pipeline.joblib</td>
+          <td>Imputer + Standard Scaler + SelectKBest(100)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
+

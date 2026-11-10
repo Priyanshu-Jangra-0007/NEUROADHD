@@ -8,13 +8,15 @@ import {
   Network, 
   UserCheck, 
   GitBranch, 
-  AlertTriangle 
+  AlertTriangle,
+  UploadCloud
 } from "lucide-react";
 
 export function Sidebar({ currentTab, setTab }) {
   const menuItems = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "model", label: "Model & Pipeline", icon: BrainCircuit },
+    { id: "predict", label: "Single-Subject Prediction", icon: UploadCloud },
     { id: "performance", label: "Robustness & Test", icon: Activity },
     { id: "hybrids", label: "Hybrid Comparison", icon: Layers },
     { id: "explainability", label: "SHAP Explainability", icon: Sparkles },

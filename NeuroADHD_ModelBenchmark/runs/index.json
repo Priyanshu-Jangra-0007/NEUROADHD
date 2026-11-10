@@ -1,5 +1,32 @@
 [
   {
+    "run_id": "balanced_rf_01",
+    "created_at": "2026-10-21T04:29:42.550724+00:00",
+    "status": "completed",
+    "best_model": "Random Forest (Balanced Class Weights)",
+    "validation_roc_auc": 0.7,
+    "validation_accuracy": 0.5263,
+    "final_test_roc_auc": null,
+    "final_test_accuracy": null,
+    "test_status": "LOCKED",
+    "report_json": "runs/balanced_rf_01/metrics/balanced_random_forest.json",
+    "report_html": null
+  },
+  {
+    "run_id": "full_benchmark_01",
+    "created_at": "2026-10-21T04:22:22.697993+00:00",
+    "status": "completed",
+    "duration_seconds": 51.908,
+    "best_model": "Random Forest",
+    "validation_roc_auc": 0.7333,
+    "validation_accuracy": 0.4211,
+    "final_test_roc_auc": null,
+    "final_test_accuracy": null,
+    "test_status": "LOCKED",
+    "report_json": "runs/full_benchmark_01/run_report.json",
+    "report_html": "runs/full_benchmark_01/run_report.html"
+  },
+  {
     "run_id": "run_20261004_184658_explainability",
     "created_at": "2026-10-04T18:47:04.646836+00:00",
     "status": "completed",

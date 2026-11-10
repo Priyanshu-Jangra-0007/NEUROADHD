@@ -1,0 +1,22 @@
+{
+  "dataset_path": "NeuroADHD/data/adhd200/features/cc200/cc200_connectivity_features.csv",
+  "filename": "cc200_connectivity_features.csv",
+  "file_size_bytes": 40611220,
+  "sha256": "4750beb6523ce534012b26c1020782731eae0a05ca8658f57bad577649733b65",
+  "last_modified": "2026-09-29T19:33:49.905284+00:00",
+  "row_count": 153,
+  "column_count": 19903,
+  "subject_count": 153,
+  "adhd_count": 50,
+  "control_count": 103,
+  "original_features": 19900,
+  "target_column": "diagnosis",
+  "subject_id_column": "subject_id",
+  "site_column": "site",
+  "excluded_columns": [
+    "subject_id",
+    "site",
+    "diagnosis"
+  ],
+  "feature_naming_scheme": "ROI_{ROI1}_ROI_{ROI2}"
+}
