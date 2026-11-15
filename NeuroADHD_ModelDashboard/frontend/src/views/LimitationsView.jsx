@@ -1,53 +1,94 @@
 import React from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ShieldAlert, Cpu, Scale, HelpCircle, FileWarning } from "lucide-react";
 
 export function LimitationsView() {
   const limitations = [
     {
-      title: "Sample Size Constraints",
-      desc: "The current usable cohort consists of 153 subjects across all partitions (114 Train, 19 NeuroIMAGE Validation, 20 Peking_2 Test). While adequate for pilot machine learning benchmarking and cross-validation robustness, larger sample sizes are required for clinical claims."
+      title: "Site Confounding & Zero-ADHD Sites (OHSU & Pittsburgh)",
+      desc: "In the CC200 release of ADHD-200, OHSU (N=14) and Pittsburgh (N=21) contain exclusively typically developing controls with zero ADHD cases. In standard random-fold cross-validation, models can learn site-specific scanner artifacts as an artificial classification shortcut. In fact, site identity alone achieves an in-sample ROC-AUC of 0.7221 and a 5-fold CV AUC of 0.6745 on the 153-subject cohort. When evaluated under honest leave-one-institution-out CV (where site shortcuts cannot be exploited), functional connectivity collapses to chance (AUC 0.5342 [0.439, 0.633]). Only when zero-ADHD sites are excluded (Config 2, N=118) does honest cross-site generalization reach AUC 0.6221.",
+      icon: ShieldAlert,
+      color: "var(--accent-danger)"
     },
     {
-      title: "Multi-Site Scanner & Acquisition Heterogeneity",
-      desc: "fMRI time series originate from multiple sites with distinct scanner hardware, TR acquisition times, and demographic distributions. Performance variability across folds reflects inter-site distributional shifts."
+      title: "Same-Scanner Batch Holdout (Peking_2)",
+      desc: "Peking_2 was collected on the same scanner hardware using identical acquisition parameters as Peking_1 and Peking_3, both of which are present in the training partition. Therefore, evaluating on Peking_2 measures temporal batch stability within the same institution rather than generalization to an unseen clinical scanner environment.",
+      icon: FileWarning,
+      color: "var(--accent-warning)"
+    },
+    {
+      title: "Small Test Sample Size & Statistical Power (N=20)",
+      desc: "The held-out Peking_2 test set consists of only 20 subjects (10 Control, 10 ADHD). At N=20, each subject shifts accuracy by 5.0 percentage points. The Wilson 95% confidence interval for 12/20 accuracy spans [38.7%, 78.1%], and the stratified bootstrap 95% CI for test ROC-AUC spans [0.290, 0.830]. Because 50% chance lies comfortably within both intervals, the test accuracy of 60.0% is not statistically distinguishable from chance (binomial p ≈ 0.25).",
+      icon: Scale,
+      color: "var(--accent-warning)"
     },
     {
       title: "CC200 Data-Driven Parcellation Representation",
-      desc: "The Craddock 200 atlas is constructed via spatial spectral clustering of functional time courses. Node numbers (ROI_001 to ROI_200) represent data-driven clusters without a 1-to-1 anatomical lookup table in local C-PAC release files."
+      desc: "The Craddock 200 atlas is derived from spatial spectral clustering of functional time courses. Node numbers (ROI_001 to ROI_200) represent data-driven functional clusters without a 1-to-1 anatomical correspondence in local C-PAC release files, necessitating coordinate-based centroid approximations for neuroanatomical localization.",
+      icon: Cpu,
+      color: "var(--brand-blue)"
     },
     {
-      title: "Non-Causal Interpretability",
-      desc: "All SHAP attributions and permutation importance metrics reflect model decision weights in separating fMRI functional connectivity matrices. They do not imply causal neurobiological mechanisms."
+      title: "Non-Causal Statistical Association",
+      desc: "All TreeSHAP feature attributions and univariate ANOVA F-scores represent mathematical associations within the decision trees of the Random Forest. They reflect statistical correlation with class labels in this cohort and do not imply causal neurobiological etiology or pathology.",
+      icon: HelpCircle,
+      color: "var(--text-muted)"
     },
     {
-      title: "Research Prototype Status",
-      desc: "NeuroADHD is strictly an academic research platform for algorithmic exploration and explainability. It is not approved by medical regulatory authorities for diagnostic or treatment planning use."
+      title: "Academic Research Prototype — Not for Clinical Use",
+      desc: "NeuroADHD is strictly an academic methodology benchmark designed to explore machine learning robustness, site confounding, and feature attribution in resting-state fMRI. It is NOT cleared by any medical regulatory authority (such as the US FDA or EMA) and must never be used for clinical psychiatric diagnosis, triage, or treatment planning.",
+      icon: AlertTriangle,
+      color: "var(--accent-danger)"
     }
   ];
 
   return (
     <div className="view-container">
       <div style={{ marginBottom: "20px" }}>
-        <h2 style={{ fontSize: "1.4rem", fontWeight: "800", color: "var(--text-primary)" }}>Study Limitations &amp; Ethical Disclaimers</h2>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-          Explicit boundaries of validity, technical constraints, and appropriate scientific use cases for the NeuroADHD benchmark.
+        <h2 style={{ fontSize: "1.35rem", fontWeight: "800", color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+          Study Limitations &amp; Ethical Boundaries
+        </h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.5, marginTop: "4px" }}>
+          Explicit documentation of methodological constraints, statistical power boundaries, site confounding, and non-clinical status.
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "14px", marginBottom: "24px" }}>
-        {limitations.map((lim, i) => (
-          <div key={i} className="card" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-color)", borderRadius: "8px", padding: "16px", display: "flex", alignItems: "flex-start", gap: "14px" }}>
-            <AlertTriangle size={20} color="#d97706" style={{ flexShrink: 0, marginTop: "2px" }} />
-            <div>
-              <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)", marginBottom: "4px" }}>
-                {i + 1}. {lim.title}
-              </h3>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
-                {lim.desc}
-              </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "24px" }}>
+        {limitations.map((lim, i) => {
+          const Icon = lim.icon;
+          return (
+            <div 
+              key={i} 
+              className="card" 
+              style={{ 
+                display: "flex", 
+                alignItems: "flex-start", 
+                gap: "14px", 
+                padding: "18px 20px" 
+              }}
+            >
+              <div 
+                style={{ 
+                  background: "var(--bg-subtle)", 
+                  padding: "8px", 
+                  borderRadius: "var(--radius-md)", 
+                  color: lim.color,
+                  flexShrink: 0,
+                  marginTop: "2px"
+                }}
+              >
+                <Icon size={18} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)", marginBottom: "4px" }}>
+                  {i + 1}. {lim.title}
+                </h3>
+                <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", lineHeight: 1.55 }}>
+                  {lim.desc}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

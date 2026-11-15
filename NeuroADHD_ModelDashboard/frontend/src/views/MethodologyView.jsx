@@ -1,5 +1,5 @@
 import React from "react";
-import { GitBranch, ShieldCheck } from "lucide-react";
+import { GitBranch, ShieldCheck, AlertCircle } from "lucide-react";
 
 export function MethodologyView({ data }) {
   const cohort = data.cohort_breakdown;
@@ -7,47 +7,51 @@ export function MethodologyView({ data }) {
   return (
     <div className="view-container">
       <div style={{ marginBottom: "20px" }}>
-        <h2 style={{ fontSize: "1.4rem", fontWeight: "800", color: "var(--text-primary)" }}>Research Methodology &amp; Dataset Partitioning</h2>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-          End-to-end data processing workflow, leakage-free cross-validation guarantees, and independent site isolation rationale.
+        <h2 style={{ fontSize: "1.35rem", fontWeight: "800", color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+          Methodology &amp; Dataset Partitioning Protocol
+        </h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.5, marginTop: "4px" }}>
+          End-to-end data processing workflow, leakage-free cross-validation guarantees, and site-aware evaluation design.
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px", marginBottom: "24px" }}>
         {/* Partitioning Architecture */}
-        <div className="card" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-color)", borderRadius: "10px", padding: "20px" }}>
+        <div className="card">
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-            <GitBranch size={20} color="var(--brand-blue)" />
-            <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>Site-Aware Data Splitting Protocol</h3>
+            <GitBranch size={18} color="var(--brand-blue)" />
+            <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>
+              Site-Aware Partitioning Protocol
+            </h3>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
+            <div style={{ background: "var(--bg-subtle)", padding: "14px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "700", fontSize: "0.85rem" }}>
                 <span>1. Training Partition</span>
-                <span>N = {cohort.train_subjects}</span>
+                <span className="tabular-nums">N = {cohort.train_subjects}</span>
               </div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px" }}>
-                {cohort.train_control} Control, {cohort.train_adhd} ADHD across 6 recording sites. Used strictly for internal fold training and repeated cross-validation experiments.
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px", lineHeight: 1.4 }}>
+                <span className="tabular-nums">{cohort.train_control}</span> Control, <span className="tabular-nums">{cohort.train_adhd}</span> ADHD across 6 recording sites (KKI, NYU, OHSU, Peking_1, Peking_3, Pittsburgh). Used strictly for internal fold training and cross-validation experiments.
               </div>
             </div>
 
-            <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
+            <div style={{ background: "var(--bg-subtle)", padding: "14px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "700", fontSize: "0.85rem" }}>
                 <span>2. Development Validation Partition</span>
-                <span>N = {cohort.validation_subjects}</span>
+                <span className="tabular-nums">N = {cohort.validation_subjects}</span>
               </div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px" }}>
-                {cohort.validation_control} Control, {cohort.validation_adhd} ADHD from site <code>NeuroIMAGE</code>. Used for intermediate validation and hyperparameter tuning during development.
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px", lineHeight: 1.4 }}>
+                <span className="tabular-nums">{cohort.validation_control}</span> Control, <span className="tabular-nums">{cohort.validation_adhd}</span> ADHD from external site <code>NeuroIMAGE</code>. Used for intermediate model evaluation and threshold tuning during development.
               </div>
             </div>
 
-            <div style={{ background: "#fef3c7", padding: "12px", borderRadius: "8px", border: "1px solid #fde68a" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "700", fontSize: "0.85rem", color: "#92400e" }}>
+            <div style={{ background: "var(--accent-warning-subtle)", padding: "14px", borderRadius: "var(--radius-md)", border: "1px solid rgba(217, 119, 6, 0.3)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "700", fontSize: "0.85rem", color: "var(--accent-warning)" }}>
                 <span>3. Held-out Peking_2 Batch Partition</span>
-                <span>N = {cohort.test_subjects}</span>
+                <span className="tabular-nums">N = {cohort.test_subjects}</span>
               </div>
-              <div style={{ fontSize: "0.75rem", color: "#b45309", marginTop: "4px" }}>
+              <div style={{ fontSize: "0.75rem", color: "var(--accent-warning)", marginTop: "4px", lineHeight: 1.4 }}>
                 10 Control, 10 ADHD from site <code>Peking_2</code>. Held as a batch partition and scored once for this model; the baseline had been scored on the same set earlier. Note: Peking_2 is a same-institution, same-scanner batch holdout (Peking_1 and Peking_3 are in the training set).
               </div>
             </div>
@@ -55,23 +59,31 @@ export function MethodologyView({ data }) {
         </div>
 
         {/* Leakage Prevention Rules */}
-        <div className="card" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-color)", borderRadius: "10px", padding: "20px" }}>
+        <div className="card">
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-            <ShieldCheck size={20} color="var(--accent-green)" />
-            <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>Strict Leakage-Prevention Safeguards</h3>
+            <ShieldCheck size={18} color="var(--accent-success)" />
+            <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>
+              Strict Leakage-Prevention Safeguards
+            </h3>
           </div>
 
-          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-            <li style={{ background: "var(--bg-subtle)", padding: "10px", borderRadius: "6px" }}>
-              <strong>Fold-Internal Preprocessing:</strong> Feature selection (SelectKBest ANOVA F-test) and standardization (StandardScaler) are fitted STRICTLY inside outer training folds.
-            </li>
-            <li style={{ background: "var(--bg-subtle)", padding: "10px", borderRadius: "6px" }}>
-              <strong>Zero Test Set Contamination:</strong> No test subjects (Peking_2) were ever exposed to imputer median calculations, scaling parameters, or feature selector rankings during training.
-            </li>
-            <li style={{ background: "var(--bg-subtle)", padding: "10px", borderRadius: "6px" }}>
-              <strong>Repeated Cross-Validation Protocol:</strong> Evaluated across 8 independent random seeds (42–49) to ensure performance claims reflect robust distributions rather than lucky single splits.
-            </li>
-          </ul>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+            <div style={{ background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", lineHeight: 1.5 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Fold-Internal Preprocessing:</strong> Feature selection (SelectKBest ANOVA F-test) and standardization (StandardScaler) are fitted STRICTLY inside outer training folds. No validation or test subjects ever inform feature rankings.
+            </div>
+
+            <div style={{ background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", lineHeight: 1.5 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Peking_2 Test Isolation:</strong> No test subjects were ever exposed to imputer median calculations, scaling parameters, or feature selector rankings during training.
+            </div>
+
+            <div style={{ background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", lineHeight: 1.5 }}>
+              <strong style={{ color: "var(--text-primary)" }}>Multi-Seed Evaluation Protocol:</strong> Evaluated across 8 independent random seeds (42–49) to document seed variability rather than reporting cherry-picked single splits.
+            </div>
+
+            <div style={{ background: "var(--accent-warning-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid rgba(217, 119, 6, 0.3)", lineHeight: 1.5, color: "var(--accent-warning)" }}>
+              <strong>Site-Aware Cross-Validation Requirement:</strong> Standard random-fold CV allows subjects from the same site to appear in both train and validation splits. Grouped leave-one-institution-out CV is essential to verify true cross-scanner generalization.
+            </div>
+          </div>
         </div>
       </div>
     </div>

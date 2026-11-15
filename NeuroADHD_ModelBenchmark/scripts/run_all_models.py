@@ -483,11 +483,15 @@ def main():
     parser = argparse.ArgumentParser(description="NeuroADHD Model Benchmark Runner")
     parser.add_argument("--run-id", help="Optional specific run ID")
     parser.add_argument("--purpose", default="Reproducible Multi-Model ADHD Classification Benchmark", help="Purpose of the run")
-    parser.add_argument("--run-test", action="store_true", help="Explicitly allow evaluation on the locked test set (default: locked)")
+    parser.add_argument("--evaluate-test", action="store_true", help="Request evaluation on the locked test set (requires --confirm-test-eval)")
+    parser.add_argument("--confirm-test-eval", action="store_true", help="Explicit confirmation to score locked test set")
+    parser.add_argument("--run-test", action="store_true", help="Deprecated single flag; double confirmation now required")
     parser.add_argument("--no-test", action="store_true", help="Deprecated alias; test set is locked by default")
     args = parser.parse_args()
 
-    run_benchmark(run_id_input=args.run_id, purpose=args.purpose, run_test=args.run_test)
+    # Double-locking design: BOTH --evaluate-test AND --confirm-test-eval are strictly required
+    run_test = bool(args.evaluate_test and args.confirm_test_eval)
+    run_benchmark(run_id_input=args.run_id, purpose=args.purpose, run_test=run_test)
 
 
 if __name__ == "__main__":
