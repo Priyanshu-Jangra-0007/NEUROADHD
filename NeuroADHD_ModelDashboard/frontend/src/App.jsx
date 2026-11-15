@@ -37,7 +37,7 @@ class ErrorBoundary extends React.Component {
           <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>
             An unexpected error occurred while rendering this tab:
           </p>
-          <pre style={{ background: "#ffffff", padding: "12px", borderRadius: "6px", marginTop: "12px", fontSize: "0.8rem", color: "#991b1b", overflowX: "auto" }}>
+          <pre style={{ background: "var(--bg-surface)", padding: "12px", borderRadius: "6px", marginTop: "12px", fontSize: "0.8rem", color: "var(--accent-red)", overflowX: "auto" }}>
             {this.state.error?.toString()}
           </pre>
         </div>
@@ -49,28 +49,36 @@ class ErrorBoundary extends React.Component {
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState("overview");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <div className="app-container">
-      <Sidebar currentTab={currentTab} setTab={setCurrentTab} />
+      <Sidebar 
+        currentTab={currentTab} 
+        setTab={setCurrentTab} 
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
 
-      <div className="main-wrapper" style={{ marginLeft: "240px", flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-        <Header />
+      <div className="main-wrapper">
+        <Header onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
 
-        <main className="content-area" style={{ padding: "24px 32px", maxWidth: "1300px", width: "100%", margin: "0 auto" }}>
+        <main className="content-area">
           <DisclaimerBanner />
 
           <ErrorBoundary key={currentTab}>
-            {currentTab === "overview" && <OverviewView data={BENCHMARK_DATA} />}
-            {currentTab === "model" && <ModelView data={BENCHMARK_DATA} />}
-            {currentTab === "predict" && <SingleSubjectPredictView />}
-            {currentTab === "performance" && <PerformanceView data={BENCHMARK_DATA} />}
-            {currentTab === "hybrids" && <HybridComparisonView data={BENCHMARK_DATA} />}
-            {currentTab === "explainability" && <ExplainabilityView data={BENCHMARK_DATA} />}
-            {currentTab === "network" && <NetworkGraphView data={BENCHMARK_DATA} />}
-            {currentTab === "subjects" && <IndividualSubjectView data={BENCHMARK_DATA} />}
-            {currentTab === "methodology" && <MethodologyView data={BENCHMARK_DATA} />}
-            {currentTab === "limitations" && <LimitationsView />}
+            <div className="view-container">
+              {currentTab === "overview" && <OverviewView data={BENCHMARK_DATA} />}
+              {currentTab === "model" && <ModelView data={BENCHMARK_DATA} />}
+              {currentTab === "predict" && <SingleSubjectPredictView />}
+              {currentTab === "performance" && <PerformanceView data={BENCHMARK_DATA} />}
+              {currentTab === "hybrids" && <HybridComparisonView data={BENCHMARK_DATA} />}
+              {currentTab === "explainability" && <ExplainabilityView data={BENCHMARK_DATA} />}
+              {currentTab === "network" && <NetworkGraphView data={BENCHMARK_DATA} />}
+              {currentTab === "subjects" && <IndividualSubjectView data={BENCHMARK_DATA} />}
+              {currentTab === "methodology" && <MethodologyView data={BENCHMARK_DATA} />}
+              {currentTab === "limitations" && <LimitationsView />}
+            </div>
           </ErrorBoundary>
         </main>
       </div>

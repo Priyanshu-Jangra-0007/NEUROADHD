@@ -1,30 +1,75 @@
 import React from "react";
-import { Lock, Cpu } from "lucide-react";
+import { Lock, Cpu, Menu } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
-export function Header() {
+export function Header({ onOpenMobileMenu }) {
   return (
-    <header className="header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 28px", background: "var(--bg-surface)", borderBottom: "1px solid var(--border-color)" }}>
-      <div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <h1 style={{ fontSize: "1.25rem", fontWeight: "800", color: "var(--text-primary)" }}>NeuroADHD Research Platform</h1>
-          <span className="badge" style={{ background: "var(--accent-amber-bg)", color: "var(--accent-amber)", border: "1px solid rgba(217, 119, 6, 0.3)", padding: "2px 8px", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: "700" }}>
-            RESEARCH ONLY
-          </span>
+    <header className="header">
+      <div className="header-left">
+        <button
+          onClick={onOpenMobileMenu}
+          className="mobile-menu-btn"
+          aria-label="Open navigation sidebar"
+        >
+          <Menu size={20} />
+        </button>
+
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+            <h1 style={{ fontSize: "1.15rem", fontWeight: "800", color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
+              NeuroADHD Research Platform
+            </h1>
+            <span style={{ 
+              background: "var(--accent-amber-bg)", 
+              color: "var(--accent-amber)", 
+              border: "1px solid var(--accent-amber)", 
+              padding: "1px 8px", 
+              borderRadius: "var(--radius-full)", 
+              fontSize: "0.68rem", 
+              fontWeight: "700",
+              letterSpacing: "0.04em"
+            }}>
+              RESEARCH ONLY
+            </span>
+          </div>
+          <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "1px", display: "none" }} className="header-subtitle-desktop">
+            fMRI Functional Connectivity Machine Learning Benchmark (Craddock 200)
+          </p>
         </div>
-        <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "2px" }}>
-          ADHD Classification from Resting-State fMRI Functional Connectivity (Craddock 200 Parcellation)
-        </p>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "var(--brand-blue-bg)", color: "var(--brand-blue)", padding: "6px 12px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: "600" }}>
-          <Cpu size={14} />
-          <span>Balanced Random Forest (K=100)</span>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: "6px", 
+          background: "var(--brand-blue-bg)", 
+          color: "var(--brand-blue)", 
+          padding: "5px 10px", 
+          borderRadius: "var(--radius-md)", 
+          fontSize: "0.72rem", 
+          fontWeight: "600" 
+        }} className="header-badge-desktop">
+          <Cpu size={13} />
+          <span>Balanced RF (K=100)</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#fef3c7", color: "#b45309", padding: "6px 12px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: "600" }}>
-          <Lock size={14} />
+
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: "6px", 
+          background: "var(--accent-amber-bg)", 
+          color: "var(--accent-amber)", 
+          padding: "5px 10px", 
+          borderRadius: "var(--radius-md)", 
+          fontSize: "0.72rem", 
+          fontWeight: "600" 
+        }} className="header-badge-desktop">
+          <Lock size={13} />
           <span>Peking_2 Batch Holdout (N=20)</span>
         </div>
+
+        <ThemeToggle />
       </div>
     </header>
   );

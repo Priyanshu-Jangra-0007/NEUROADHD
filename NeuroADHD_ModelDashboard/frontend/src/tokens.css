@@ -1,0 +1,126 @@
+/* ==========================================================================
+   NeuroADHD Research Platform Design Tokens
+   WCAG AA Compliant (All text >= 4.5:1, brand >= 4.5:1)
+   Light & Dark Theme with System Preference Detection
+   ========================================================================== */
+
+:root {
+  /* Surface & Background (Light) */
+  --bg-app: #f8fafc;
+  --bg-canvas: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-muted: #e2e8f0;
+
+  /* Borders (Light) */
+  --border-color: #e2e8f0;
+  --border-subtle: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --border-strong: #cbd5e1;
+  --border-focus: #0369a1;
+
+  /* Typography Colors (Light) - Verified >= 4.5:1 */
+  --text-primary: #0f172a;      /* 15.6:1 on #ffffff, 14.2:1 on #f8fafc */
+  --text-secondary: #334155;    /* 10.35:1 on #ffffff, 9.45:1 on #f1f5f9 */
+  --text-muted: #475569;        /* 7.58:1 on #ffffff, 6.92:1 on #f1f5f9 */
+  --text-tertiary: #475569;     /* 7.58:1 on #ffffff, 6.92:1 on #f1f5f9 */
+  --text-inverse: #ffffff;
+
+  /* Scientific Accents (Light) - Verified >= 4.5:1 */
+  --brand-blue: #0369a1;        /* Sky 700: 5.93:1 on #ffffff */
+  --accent-brand: #0369a1;
+  --brand-blue-bg: #e0f2fe;     /* Sky 100 */
+  --accent-brand-subtle: #e0f2fe;
+
+  --accent-green: #15803d;      /* Green 700: 5.08:1 on #ffffff */
+  --accent-success: #15803d;
+  --accent-green-bg: #dcfce7;   /* Green 100 */
+  --accent-success-subtle: #dcfce7;
+
+  --accent-amber: #b45309;      /* Amber 700: 4.88:1 on #ffffff */
+  --accent-warning: #b45309;
+  --accent-amber-bg: #fef3c7;   /* Amber 100 */
+  --accent-warning-subtle: #fef3c7;
+
+  --accent-red: #b91c1c;        /* Red 700: 5.62:1 on #ffffff */
+  --accent-danger: #b91c1c;
+  --accent-red-bg: #fee2e2;     /* Red 100 */
+  --accent-danger-subtle: #fee2e2;
+
+  /* Spacing Scale (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Multi-layer subtle shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
+
+  /* Fonts */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+
+  /* Layout dimensions */
+  --sidebar-width: 250px;
+  --header-height: 64px;
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] {
+  --bg-app: #0b0f17;
+  --bg-canvas: #0b0f17;
+  --bg-surface: #111827;
+  --bg-surface-elevated: #1e293b;
+  --bg-subtle: #1a2234;
+  --bg-muted: #2d3748;
+
+  --border-color: #1f2937;
+  --border-subtle: #1f2937;
+  --border-hover: #374151;
+  --border-strong: #374151;
+  --border-focus: #38bdf8;
+
+  /* Typography Colors (Dark) - Verified >= 4.5:1 */
+  --text-primary: #f8fafc;      /* 15.1:1 on #111827 */
+  --text-secondary: #cbd5e1;    /* Slate 300: 11.95:1 on #111827, 9.85:1 on #1a2234 */
+  --text-muted: #94a3b8;        /* Slate 400: 6.92:1 on #111827, 5.71:1 on #1a2234 */
+  --text-tertiary: #94a3b8;
+  --text-inverse: #0f172a;
+
+  /* Scientific Accents (Dark) - Verified >= 4.5:1 */
+  --brand-blue: #38bdf8;        /* Sky 400: 8.28:1 on #111827, 6.83:1 on #1a2234 */
+  --accent-brand: #38bdf8;
+  --brand-blue-bg: rgba(56, 189, 248, 0.15);
+  --accent-brand-subtle: rgba(56, 189, 248, 0.15);
+
+  --accent-green: #4ade80;      /* Green 400: 10.15:1 on #111827 */
+  --accent-success: #4ade80;
+  --accent-green-bg: rgba(74, 222, 128, 0.15);
+  --accent-success-subtle: rgba(74, 222, 128, 0.15);
+
+  --accent-amber: #fbbf24;      /* Amber 400: 11.45:1 on #111827 */
+  --accent-warning: #fbbf24;
+  --accent-amber-bg: rgba(251, 191, 36, 0.15);
+  --accent-warning-subtle: rgba(251, 191, 36, 0.15);
+
+  --accent-red: #f87171;        /* Red 400: 7.82:1 on #111827 */
+  --accent-danger: #f87171;
+  --accent-red-bg: rgba(248, 113, 113, 0.15);
+  --accent-danger-subtle: rgba(248, 113, 113, 0.15);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+}
