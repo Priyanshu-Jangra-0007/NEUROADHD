@@ -1,0 +1,1406 @@
+{
+  "Config 1 (All 153 Subjects)": {
+    "majority_accuracy": 0.673202614379085,
+    "connectivity_only__stratified_5fold": {
+      "nested_metrics": {
+        "accuracy": 0.6274509803921569,
+        "balanced_accuracy": 0.5637864077669903,
+        "roc_auc": 0.6033009708737864,
+        "sensitivity": 0.38,
+        "specificity": 0.7475728155339806,
+        "precision": 0.4222222222222222,
+        "mcc": 0.13132385424041068,
+        "tp": 19,
+        "tn": 77,
+        "fp": 26,
+        "fn": 31
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.5553921568627451,
+          0.6993464052287581
+        ],
+        "balanced_accuracy": [
+          0.48898155416012556,
+          0.6409995936611134
+        ],
+        "roc_auc": [
+          0.5020046140736673,
+          0.6956500210703751
+        ],
+        "sensitivity": [
+          0.25,
+          0.5185363247863247
+        ],
+        "specificity": [
+          0.6630927088363109,
+          0.8333333333333334
+        ],
+        "mcc": [
+          -0.02244671393632463,
+          0.2869669096577774
+        ]
+      },
+      "selected_configs": [
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "RF-n50-d3-K100 (bal=SMOTE)",
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "RF-n50-d3-K100 (bal=SMOTE)"
+      ],
+      "top_candidates": {
+        "L2-LogReg-K100 (C=0.01, bal=SMOTE)": {
+          "accuracy": 0.6078431372549019,
+          "balanced_accuracy": 0.585242718446602,
+          "roc_auc": 0.6155339805825243,
+          "sensitivity": 0.52,
+          "specificity": 0.6504854368932039,
+          "precision": 0.41935483870967744,
+          "mcc": 0.16288247524838342,
+          "tp": 26,
+          "tn": 67,
+          "fp": 36,
+          "fn": 24
+        },
+        "L2-LogReg-K100 (C=0.01, bal=None)": {
+          "accuracy": 0.6339869281045751,
+          "balanced_accuracy": 0.5429126213592232,
+          "roc_auc": 0.61126213592233,
+          "sensitivity": 0.28,
+          "specificity": 0.8058252427184466,
+          "precision": 0.4117647058823529,
+          "mcc": 0.09682905995410163,
+          "tp": 14,
+          "tn": 83,
+          "fp": 20,
+          "fn": 36
+        },
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')": {
+          "accuracy": 0.6078431372549019,
+          "balanced_accuracy": 0.5903883495145632,
+          "roc_auc": 0.6106796116504853,
+          "sensitivity": 0.54,
+          "specificity": 0.6407766990291263,
+          "precision": 0.421875,
+          "mcc": 0.17189414183301657,
+          "tp": 27,
+          "tn": 66,
+          "fp": 37,
+          "fn": 23
+        },
+        "RF-n50-d3-K100 (bal=None)": {
+          "accuracy": 0.6601307189542484,
+          "balanced_accuracy": 0.5726213592233009,
+          "roc_auc": 0.6048543689320389,
+          "sensitivity": 0.32,
+          "specificity": 0.8252427184466019,
+          "precision": 0.47058823529411764,
+          "mcc": 0.1638645629992489,
+          "tp": 16,
+          "tn": 85,
+          "fp": 18,
+          "fn": 34
+        },
+        "RF-n50-d3-K100 (bal=class_weight='balanced')": {
+          "accuracy": 0.6274509803921569,
+          "balanced_accuracy": 0.6049514563106797,
+          "roc_auc": 0.6,
+          "sensitivity": 0.54,
+          "specificity": 0.6699029126213593,
+          "precision": 0.4426229508196721,
+          "mcc": 0.20107739409185216,
+          "tp": 27,
+          "tn": 69,
+          "fp": 34,
+          "fn": 23
+        }
+      }
+    },
+    "connectivity_only__loio": {
+      "nested_metrics": {
+        "accuracy": 0.5882352941176471,
+        "balanced_accuracy": 0.5192233009708738,
+        "roc_auc": 0.5341747572815534,
+        "sensitivity": 0.32,
+        "specificity": 0.7184466019417476,
+        "precision": 0.35555555555555557,
+        "mcc": 0.03957705196286349,
+        "tp": 16,
+        "tn": 74,
+        "fp": 29,
+        "fn": 34
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.5098039215686274,
+          0.6666666666666666
+        ],
+        "balanced_accuracy": [
+          0.4411529510794217,
+          0.5983134437034549
+        ],
+        "roc_auc": [
+          0.43931370634378153,
+          0.6333015448767768
+        ],
+        "sensitivity": [
+          0.19146403242147922,
+          0.4444444444444444
+        ],
+        "specificity": [
+          0.6326530612244898,
+          0.8039266221952699
+        ],
+        "mcc": [
+          -0.11889591632108405,
+          0.20311283827589294
+        ]
+      },
+      "selected_configs": [
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "RF-n50-d3-K100 (bal=None)",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=None)"
+      ],
+      "top_candidates": {
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')": {
+          "accuracy": 0.5816993464052288,
+          "balanced_accuracy": 0.5298058252427185,
+          "roc_auc": 0.5419417475728154,
+          "sensitivity": 0.38,
+          "specificity": 0.6796116504854369,
+          "precision": 0.36538461538461536,
+          "mcc": 0.05902994821751962,
+          "tp": 19,
+          "tn": 70,
+          "fp": 33,
+          "fn": 31
+        },
+        "ElasticNet-Full (C=0.01, l1=0.5, cw=None)": {
+          "accuracy": 0.673202614379085,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5318446601941749,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": 0.0,
+          "mcc": 0.0,
+          "tp": 0,
+          "tn": 103,
+          "fp": 0,
+          "fn": 50
+        },
+        "L2-LogReg-K100 (C=0.01, bal=SMOTE)": {
+          "accuracy": 0.5751633986928104,
+          "balanced_accuracy": 0.5146601941747573,
+          "roc_auc": 0.5258252427184466,
+          "sensitivity": 0.34,
+          "specificity": 0.6893203883495146,
+          "precision": 0.3469387755102041,
+          "mcc": 0.02947532640556204,
+          "tp": 17,
+          "tn": 71,
+          "fp": 32,
+          "fn": 33
+        },
+        "ElasticNet-Full (C=0.001, l1=0.5, cw=balanced)": {
+          "accuracy": 0.49673202614379086,
+          "balanced_accuracy": 0.5130097087378641,
+          "roc_auc": 0.5209708737864078,
+          "sensitivity": 0.56,
+          "specificity": 0.46601941747572817,
+          "precision": 0.3373493975903614,
+          "mcc": 0.02449701215315035,
+          "tp": 28,
+          "tn": 48,
+          "fp": 55,
+          "fn": 22
+        },
+        "L2-LogReg-Full (C=0.0001, cw=balanced)": {
+          "accuracy": 0.5816993464052288,
+          "balanced_accuracy": 0.49893203883495146,
+          "roc_auc": 0.5207766990291263,
+          "sensitivity": 0.26,
+          "specificity": 0.7378640776699029,
+          "precision": 0.325,
+          "mcc": -0.0022799212856632455,
+          "tp": 13,
+          "tn": 76,
+          "fp": 27,
+          "fn": 37
+        }
+      }
+    },
+    "connectivity_plus_covariates__stratified_5fold": {
+      "nested_metrics": {
+        "accuracy": 0.6143790849673203,
+        "balanced_accuracy": 0.5437864077669903,
+        "roc_auc": 0.5988349514563107,
+        "sensitivity": 0.34,
+        "specificity": 0.7475728155339806,
+        "precision": 0.3953488372093023,
+        "mcc": 0.09137814909654154,
+        "tp": 17,
+        "tn": 77,
+        "fp": 26,
+        "fn": 33
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.5359477124183006,
+          0.6862745098039216
+        ],
+        "balanced_accuracy": [
+          0.4693396226415094,
+          0.6185975609756098
+        ],
+        "roc_auc": [
+          0.5019254919773951,
+          0.6918412392581895
+        ],
+        "sensitivity": [
+          0.21273527004909984,
+          0.4666666666666667
+        ],
+        "specificity": [
+          0.663363810870883,
+          0.8295568181818183
+        ],
+        "mcc": [
+          -0.06742476411958444,
+          0.2463526258484004
+        ]
+      },
+      "selected_configs": [
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "RF-n50-d3-K100 (bal=SMOTE)",
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "RF-n50-d3-K100 (bal=class_weight='balanced')"
+      ],
+      "top_candidates": {
+        "L2-LogReg-K100 (C=0.01, bal=SMOTE)": {
+          "accuracy": 0.6078431372549019,
+          "balanced_accuracy": 0.585242718446602,
+          "roc_auc": 0.6141747572815534,
+          "sensitivity": 0.52,
+          "specificity": 0.6504854368932039,
+          "precision": 0.41935483870967744,
+          "mcc": 0.16288247524838342,
+          "tp": 26,
+          "tn": 67,
+          "fp": 36,
+          "fn": 24
+        },
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')": {
+          "accuracy": 0.6078431372549019,
+          "balanced_accuracy": 0.5903883495145632,
+          "roc_auc": 0.6118446601941747,
+          "sensitivity": 0.54,
+          "specificity": 0.6407766990291263,
+          "precision": 0.421875,
+          "mcc": 0.17189414183301657,
+          "tp": 27,
+          "tn": 66,
+          "fp": 37,
+          "fn": 23
+        },
+        "L2-LogReg-K100 (C=0.01, bal=None)": {
+          "accuracy": 0.6405228758169934,
+          "balanced_accuracy": 0.5477669902912621,
+          "roc_auc": 0.6114563106796116,
+          "sensitivity": 0.28,
+          "specificity": 0.8155339805825242,
+          "precision": 0.42424242424242425,
+          "mcc": 0.10894665366637703,
+          "tp": 14,
+          "tn": 84,
+          "fp": 19,
+          "fn": 36
+        },
+        "RF-n50-d3-K100 (bal=SMOTE)": {
+          "accuracy": 0.6405228758169934,
+          "balanced_accuracy": 0.5992233009708738,
+          "roc_auc": 0.6042718446601942,
+          "sensitivity": 0.48,
+          "specificity": 0.7184466019417476,
+          "precision": 0.4528301886792453,
+          "mcc": 0.19561823967918296,
+          "tp": 24,
+          "tn": 74,
+          "fp": 29,
+          "fn": 26
+        },
+        "RBF-SVM-K100 (C=10.0, bal=SMOTE)": {
+          "accuracy": 0.6405228758169934,
+          "balanced_accuracy": 0.5786407766990291,
+          "roc_auc": 0.5996116504854369,
+          "sensitivity": 0.4,
+          "specificity": 0.7572815533980582,
+          "precision": 0.4444444444444444,
+          "mcc": 0.16190612166625976,
+          "tp": 20,
+          "tn": 78,
+          "fp": 25,
+          "fn": 30
+        }
+      }
+    },
+    "connectivity_plus_covariates__loio": {
+      "nested_metrics": {
+        "accuracy": 0.5751633986928104,
+        "balanced_accuracy": 0.5043689320388349,
+        "roc_auc": 0.5025242718446602,
+        "sensitivity": 0.3,
+        "specificity": 0.7087378640776699,
+        "precision": 0.3333333333333333,
+        "mcc": 0.00899478453701443,
+        "tp": 15,
+        "tn": 73,
+        "fp": 30,
+        "fn": 35
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.49673202614379086,
+          0.6470588235294118
+        ],
+        "balanced_accuracy": [
+          0.42376879487393554,
+          0.5803272950384543
+        ],
+        "roc_auc": [
+          0.41213171062845994,
+          0.6000097087378641
+        ],
+        "sensitivity": [
+          0.1702127659574468,
+          0.42857142857142855
+        ],
+        "specificity": [
+          0.6190476190476191,
+          0.7944190739167374
+        ],
+        "mcc": [
+          -0.14967195516042414,
+          0.16640203831278652
+        ]
+      },
+      "selected_configs": [
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "RF-n50-d3-K100 (bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')"
+      ],
+      "top_candidates": {
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')": {
+          "accuracy": 0.5751633986928104,
+          "balanced_accuracy": 0.5249514563106796,
+          "roc_auc": 0.5366990291262136,
+          "sensitivity": 0.38,
+          "specificity": 0.6699029126213593,
+          "precision": 0.3584905660377358,
+          "mcc": 0.04919167083909004,
+          "tp": 19,
+          "tn": 69,
+          "fp": 34,
+          "fn": 31
+        },
+        "ElasticNet-Full (C=0.01, l1=0.5, cw=None)": {
+          "accuracy": 0.673202614379085,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.5318446601941749,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": 0.0,
+          "mcc": 0.0,
+          "tp": 0,
+          "tn": 103,
+          "fp": 0,
+          "fn": 50
+        },
+        "RF-n50-d3-K100 (bal=SMOTE)": {
+          "accuracy": 0.5947712418300654,
+          "balanced_accuracy": 0.5189320388349514,
+          "roc_auc": 0.5302912621359224,
+          "sensitivity": 0.3,
+          "specificity": 0.7378640776699029,
+          "precision": 0.35714285714285715,
+          "mcc": 0.03979649849546008,
+          "tp": 15,
+          "tn": 76,
+          "fp": 27,
+          "fn": 35
+        },
+        "ElasticNet-Full (C=0.001, l1=0.5, cw=balanced)": {
+          "accuracy": 0.49673202614379086,
+          "balanced_accuracy": 0.5130097087378641,
+          "roc_auc": 0.5209708737864078,
+          "sensitivity": 0.56,
+          "specificity": 0.46601941747572817,
+          "precision": 0.3373493975903614,
+          "mcc": 0.02449701215315035,
+          "tp": 28,
+          "tn": 48,
+          "fp": 55,
+          "fn": 22
+        },
+        "L2-LogReg-Full (C=0.0001, cw=balanced)": {
+          "accuracy": 0.5816993464052288,
+          "balanced_accuracy": 0.49893203883495146,
+          "roc_auc": 0.5205825242718447,
+          "sensitivity": 0.26,
+          "specificity": 0.7378640776699029,
+          "precision": 0.325,
+          "mcc": -0.0022799212856632455,
+          "tp": 13,
+          "tn": 76,
+          "fp": 27,
+          "fn": 37
+        }
+      }
+    },
+    "covariates_only__stratified_5fold": {
+      "nested_metrics": {
+        "accuracy": 0.5686274509803921,
+        "balanced_accuracy": 0.6024271844660194,
+        "roc_auc": 0.5818446601941748,
+        "sensitivity": 0.7,
+        "specificity": 0.5048543689320388,
+        "precision": 0.4069767441860465,
+        "mcc": 0.19366994005944166,
+        "tp": 35,
+        "tn": 52,
+        "fp": 51,
+        "fn": 15
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.49019607843137253,
+          0.6405228758169934
+        ],
+        "balanced_accuracy": [
+          0.5245073281837986,
+          0.6768296485260771
+        ],
+        "roc_auc": [
+          0.4902536130068246,
+          0.6736684917869588
+        ],
+        "sensitivity": [
+          0.5714285714285714,
+          0.8254140786749482
+        ],
+        "specificity": [
+          0.40623525943396227,
+          0.5982238663897541
+        ],
+        "mcc": [
+          0.04794211956491839,
+          0.3395075842383404
+        ]
+      },
+      "selected_configs": [
+        "LinearSVM-K100 (C=1.0, bal=SMOTE)",
+        "RF-n50-d3-K100 (bal=class_weight='balanced')",
+        "RBF-SVM-K100 (C=10.0, bal=SMOTE)",
+        "RBF-SVM-K100 (C=1.0, bal=SMOTE)",
+        "L2-LogReg-K100 (C=1.0, bal=SMOTE)"
+      ],
+      "top_candidates": {
+        "LinearSVM-K100 (C=1.0, bal=class_weight='balanced')": {
+          "accuracy": 0.673202614379085,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.6153398058252427,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": 0.0,
+          "mcc": 0.0,
+          "tp": 0,
+          "tn": 103,
+          "fp": 0,
+          "fn": 50
+        },
+        "LinearSVM-K100 (C=1.0, bal=None)": {
+          "accuracy": 0.673202614379085,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.612621359223301,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": 0.0,
+          "mcc": 0.0,
+          "tp": 0,
+          "tn": 103,
+          "fp": 0,
+          "fn": 50
+        },
+        "LinearSVM-K100 (C=0.1, bal=class_weight='balanced')": {
+          "accuracy": 0.673202614379085,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.6075728155339807,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": 0.0,
+          "mcc": 0.0,
+          "tp": 0,
+          "tn": 103,
+          "fp": 0,
+          "fn": 50
+        },
+        "RBF-SVM-K100 (C=1.0, bal=class_weight='balanced')": {
+          "accuracy": 0.5751633986928104,
+          "balanced_accuracy": 0.6278640776699029,
+          "roc_auc": 0.6067961165048543,
+          "sensitivity": 0.78,
+          "specificity": 0.47572815533980584,
+          "precision": 0.41935483870967744,
+          "mcc": 0.2456773172077889,
+          "tp": 39,
+          "tn": 49,
+          "fp": 54,
+          "fn": 11
+        },
+        "L2-LogReg-K100 (C=1.0, bal=SMOTE)": {
+          "accuracy": 0.5555555555555556,
+          "balanced_accuracy": 0.5927184466019417,
+          "roc_auc": 0.6036893203883495,
+          "sensitivity": 0.7,
+          "specificity": 0.4854368932038835,
+          "precision": 0.3977272727272727,
+          "mcc": 0.17595505277230014,
+          "tp": 35,
+          "tn": 50,
+          "fp": 53,
+          "fn": 15
+        }
+      }
+    },
+    "covariates_only__loio": {
+      "nested_metrics": {
+        "accuracy": 0.5032679738562091,
+        "balanced_accuracy": 0.39436893203883494,
+        "roc_auc": 0.4457281553398058,
+        "sensitivity": 0.08,
+        "specificity": 0.7087378640776699,
+        "precision": 0.11764705882352941,
+        "mcc": -0.23834845527163478,
+        "tp": 4,
+        "tn": 73,
+        "fp": 30,
+        "fn": 46
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.41830065359477125,
+          0.5816993464052288
+        ],
+        "balanced_accuracy": [
+          0.33608831404707434,
+          0.45139261109099954
+        ],
+        "roc_auc": [
+          0.3589684256055364,
+          0.5470814485588049
+        ],
+        "sensitivity": [
+          0.0,
+          0.15911363636363635
+        ],
+        "specificity": [
+          0.6161221590909091,
+          0.7928327860570851
+        ],
+        "mcc": [
+          -0.35550184183778855,
+          -0.11398363058455857
+        ]
+      },
+      "selected_configs": [
+        "RF-n50-d3-K100 (bal=None)",
+        "LinearSVM-K100 (C=1.0, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=1.0, bal=SMOTE)",
+        "RBF-SVM-K100 (C=10.0, bal=SMOTE)",
+        "RF-n50-d3-K100 (bal=None)",
+        "RF-n50-d3-K100 (bal=class_weight='balanced')"
+      ],
+      "top_candidates": {
+        "L2-LogReg-K100 (C=1.0, bal=SMOTE)": {
+          "accuracy": 0.5228758169934641,
+          "balanced_accuracy": 0.5375728155339805,
+          "roc_auc": 0.5492233009708738,
+          "sensitivity": 0.58,
+          "specificity": 0.49514563106796117,
+          "precision": 0.35802469135802467,
+          "mcc": 0.07061526493510767,
+          "tp": 29,
+          "tn": 51,
+          "fp": 52,
+          "fn": 21
+        },
+        "LinearSVM-K100 (C=1.0, bal=SMOTE)": {
+          "accuracy": 0.5424836601307189,
+          "balanced_accuracy": 0.5675728155339805,
+          "roc_auc": 0.5457281553398059,
+          "sensitivity": 0.64,
+          "specificity": 0.49514563106796117,
+          "precision": 0.38095238095238093,
+          "mcc": 0.1273917890325859,
+          "tp": 32,
+          "tn": 51,
+          "fp": 52,
+          "fn": 18
+        },
+        "LinearSVM-K100 (C=0.1, bal=SMOTE)": {
+          "accuracy": 0.5359477124183006,
+          "balanced_accuracy": 0.5575728155339805,
+          "roc_auc": 0.5369902912621359,
+          "sensitivity": 0.62,
+          "specificity": 0.49514563106796117,
+          "precision": 0.37349397590361444,
+          "mcc": 0.10840841945386684,
+          "tp": 31,
+          "tn": 51,
+          "fp": 52,
+          "fn": 19
+        },
+        "L2-LogReg-K100 (C=1.0, bal=class_weight='balanced')": {
+          "accuracy": 0.5359477124183006,
+          "balanced_accuracy": 0.5575728155339805,
+          "roc_auc": 0.5268932038834953,
+          "sensitivity": 0.62,
+          "specificity": 0.49514563106796117,
+          "precision": 0.37349397590361444,
+          "mcc": 0.10840841945386684,
+          "tp": 31,
+          "tn": 51,
+          "fp": 52,
+          "fn": 19
+        },
+        "L2-LogReg-K100 (C=0.1, bal=SMOTE)": {
+          "accuracy": 0.5228758169934641,
+          "balanced_accuracy": 0.5427184466019417,
+          "roc_auc": 0.5053398058252427,
+          "sensitivity": 0.6,
+          "specificity": 0.4854368932038835,
+          "precision": 0.3614457831325301,
+          "mcc": 0.08043795035362801,
+          "tp": 30,
+          "tn": 50,
+          "fp": 53,
+          "fn": 20
+        }
+      }
+    },
+    "permutation_test": {
+      "observed_auc": 0.5122330097087379,
+      "perm_mean": 0.423052427184466,
+      "perm_std": 0.06406448646375644,
+      "perm_95th": 0.5260776699029125,
+      "perm_99th": 0.570295145631068,
+      "p_value": 0.08591408591408592,
+      "n_permutations": 1000
+    }
+  },
+  "Config 2 (Excl. OHSU & Pittsburgh, 118 Subjects)": {
+    "majority_accuracy": 0.576271186440678,
+    "connectivity_only__stratified_5fold": {
+      "nested_metrics": {
+        "accuracy": 0.5847457627118644,
+        "balanced_accuracy": 0.5735294117647058,
+        "roc_auc": 0.6317647058823529,
+        "sensitivity": 0.5,
+        "specificity": 0.6470588235294118,
+        "precision": 0.5102040816326531,
+        "mcc": 0.14747145339559536,
+        "tp": 25,
+        "tn": 44,
+        "fp": 24,
+        "fn": 25
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.5,
+          0.6694915254237288
+        ],
+        "balanced_accuracy": [
+          0.490760933083279,
+          0.664710806697108
+        ],
+        "roc_auc": [
+          0.5282547852104303,
+          0.7294276296074319
+        ],
+        "sensitivity": [
+          0.37204995693367787,
+          0.6346590909090908
+        ],
+        "specificity": [
+          0.5302807486631016,
+          0.7534351949420443
+        ],
+        "mcc": [
+          -0.018476144462004112,
+          0.331739964092234
+        ]
+      },
+      "selected_configs": [
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')"
+      ],
+      "top_candidates": {
+        "RBF-SVM-K100 (C=1.0, bal=SMOTE)": {
+          "accuracy": 0.5932203389830508,
+          "balanced_accuracy": 0.5835294117647059,
+          "roc_auc": 0.6473529411764705,
+          "sensitivity": 0.52,
+          "specificity": 0.6470588235294118,
+          "precision": 0.52,
+          "mcc": 0.16705882352941176,
+          "tp": 26,
+          "tn": 44,
+          "fp": 24,
+          "fn": 24
+        },
+        "RF-n50-d3-K100 (bal=class_weight='balanced')": {
+          "accuracy": 0.6186440677966102,
+          "balanced_accuracy": 0.6135294117647059,
+          "roc_auc": 0.643235294117647,
+          "sensitivity": 0.58,
+          "specificity": 0.6470588235294118,
+          "precision": 0.5471698113207547,
+          "mcc": 0.2255709812142341,
+          "tp": 29,
+          "tn": 44,
+          "fp": 24,
+          "fn": 21
+        },
+        "RF-n50-d3-K100 (bal=None)": {
+          "accuracy": 0.6186440677966102,
+          "balanced_accuracy": 0.6055882352941176,
+          "roc_auc": 0.6361764705882353,
+          "sensitivity": 0.52,
+          "specificity": 0.6911764705882353,
+          "precision": 0.5531914893617021,
+          "mcc": 0.21316057466392727,
+          "tp": 26,
+          "tn": 47,
+          "fp": 21,
+          "fn": 24
+        },
+        "L2-LogReg-K100 (C=0.01, bal=None)": {
+          "accuracy": 0.6186440677966102,
+          "balanced_accuracy": 0.6002941176470589,
+          "roc_auc": 0.6338235294117647,
+          "sensitivity": 0.48,
+          "specificity": 0.7205882352941176,
+          "precision": 0.5581395348837209,
+          "mcc": 0.20595865956119547,
+          "tp": 24,
+          "tn": 49,
+          "fp": 19,
+          "fn": 26
+        },
+        "RBF-SVM-K100 (C=1.0, bal=class_weight='balanced')": {
+          "accuracy": 0.6016949152542372,
+          "balanced_accuracy": 0.5988235294117648,
+          "roc_auc": 0.6329411764705882,
+          "sensitivity": 0.58,
+          "specificity": 0.6176470588235294,
+          "precision": 0.5272727272727272,
+          "mcc": 0.19578444984762974,
+          "tp": 29,
+          "tn": 42,
+          "fp": 26,
+          "fn": 21
+        }
+      }
+    },
+    "connectivity_only__loio": {
+      "nested_metrics": {
+        "accuracy": 0.6186440677966102,
+        "balanced_accuracy": 0.6002941176470589,
+        "roc_auc": 0.6220588235294118,
+        "sensitivity": 0.48,
+        "specificity": 0.7205882352941176,
+        "precision": 0.5581395348837209,
+        "mcc": 0.20595865956119547,
+        "tp": 24,
+        "tn": 49,
+        "fp": 19,
+        "fn": 26
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.5338983050847458,
+          0.7033898305084746
+        ],
+        "balanced_accuracy": [
+          0.5150574381926684,
+          0.6903985054353229
+        ],
+        "roc_auc": [
+          0.5151121623357164,
+          0.7240384004887818
+        ],
+        "sensitivity": [
+          0.34531818181818186,
+          0.6190714285714286
+        ],
+        "specificity": [
+          0.6111111111111112,
+          0.8153846153846154
+        ],
+        "mcc": [
+          0.03038506436399752,
+          0.3885706765852758
+        ]
+      },
+      "selected_configs": [
+        "L2-LogReg-K100 (C=0.01, bal=SMOTE)",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=None)"
+      ],
+      "top_candidates": {
+        "RBF-SVM-K100 (C=0.1, bal=SMOTE)": {
+          "accuracy": 0.6101694915254238,
+          "balanced_accuracy": 0.5955882352941176,
+          "roc_auc": 0.6345588235294117,
+          "sensitivity": 0.5,
+          "specificity": 0.6911764705882353,
+          "precision": 0.5434782608695652,
+          "mcc": 0.19369960454329105,
+          "tp": 25,
+          "tn": 47,
+          "fp": 21,
+          "fn": 25
+        },
+        "RBF-SVM-K100 (C=0.1, bal=None)": {
+          "accuracy": 0.576271186440678,
+          "balanced_accuracy": 0.5,
+          "roc_auc": 0.626764705882353,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "precision": 0.0,
+          "mcc": 0.0,
+          "tp": 0,
+          "tn": 68,
+          "fp": 0,
+          "fn": 50
+        },
+        "L2-LogReg-Full (C=0.0001, cw=balanced)": {
+          "accuracy": 0.5932203389830508,
+          "balanced_accuracy": 0.5861764705882353,
+          "roc_auc": 0.6264705882352941,
+          "sensitivity": 0.54,
+          "specificity": 0.6323529411764706,
+          "precision": 0.5192307692307693,
+          "mcc": 0.17154754919393045,
+          "tp": 27,
+          "tn": 43,
+          "fp": 25,
+          "fn": 23
+        },
+        "RF-n50-d3-K100 (bal=class_weight='balanced')": {
+          "accuracy": 0.6186440677966102,
+          "balanced_accuracy": 0.6082352941176471,
+          "roc_auc": 0.625,
+          "sensitivity": 0.54,
+          "specificity": 0.6764705882352942,
+          "precision": 0.5510204081632653,
+          "mcc": 0.21707797939831636,
+          "tp": 27,
+          "tn": 46,
+          "fp": 22,
+          "fn": 23
+        },
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')": {
+          "accuracy": 0.6101694915254238,
+          "balanced_accuracy": 0.5955882352941176,
+          "roc_auc": 0.6238235294117647,
+          "sensitivity": 0.5,
+          "specificity": 0.6911764705882353,
+          "precision": 0.5434782608695652,
+          "mcc": 0.19369960454329105,
+          "tp": 25,
+          "tn": 47,
+          "fp": 21,
+          "fn": 25
+        }
+      }
+    },
+    "connectivity_plus_covariates__stratified_5fold": {
+      "nested_metrics": {
+        "accuracy": 0.6016949152542372,
+        "balanced_accuracy": 0.5882352941176471,
+        "roc_auc": 0.6314705882352942,
+        "sensitivity": 0.5,
+        "specificity": 0.6764705882352942,
+        "precision": 0.5319148936170213,
+        "mcc": 0.17812861392528742,
+        "tp": 25,
+        "tn": 46,
+        "fp": 22,
+        "fn": 25
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.5169491525423728,
+          0.6864406779661016
+        ],
+        "balanced_accuracy": [
+          0.5010294039026998,
+          0.676367583396995
+        ],
+        "roc_auc": [
+          0.5247899028094876,
+          0.7306034942445664
+        ],
+        "sensitivity": [
+          0.3720298281092012,
+          0.6382978723404256
+        ],
+        "specificity": [
+          0.560590909090909,
+          0.781270032051282
+        ],
+        "mcc": [
+          0.00208095072281113,
+          0.3602825255126399
+        ]
+      },
+      "selected_configs": [
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=None)",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=None)"
+      ],
+      "top_candidates": {
+        "RBF-SVM-K100 (C=1.0, bal=SMOTE)": {
+          "accuracy": 0.5932203389830508,
+          "balanced_accuracy": 0.5835294117647059,
+          "roc_auc": 0.6464705882352941,
+          "sensitivity": 0.52,
+          "specificity": 0.6470588235294118,
+          "precision": 0.52,
+          "mcc": 0.16705882352941176,
+          "tp": 26,
+          "tn": 44,
+          "fp": 24,
+          "fn": 24
+        },
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')": {
+          "accuracy": 0.5932203389830508,
+          "balanced_accuracy": 0.5835294117647059,
+          "roc_auc": 0.6341176470588236,
+          "sensitivity": 0.52,
+          "specificity": 0.6470588235294118,
+          "precision": 0.52,
+          "mcc": 0.16705882352941176,
+          "tp": 26,
+          "tn": 44,
+          "fp": 24,
+          "fn": 24
+        },
+        "L2-LogReg-K100 (C=0.01, bal=None)": {
+          "accuracy": 0.6101694915254238,
+          "balanced_accuracy": 0.5929411764705883,
+          "roc_auc": 0.6335294117647059,
+          "sensitivity": 0.48,
+          "specificity": 0.7058823529411765,
+          "precision": 0.5454545454545454,
+          "mcc": 0.18994830463391774,
+          "tp": 24,
+          "tn": 48,
+          "fp": 20,
+          "fn": 26
+        },
+        "RBF-SVM-K100 (C=1.0, bal=class_weight='balanced')": {
+          "accuracy": 0.6101694915254238,
+          "balanced_accuracy": 0.6061764705882353,
+          "roc_auc": 0.6329411764705883,
+          "sensitivity": 0.58,
+          "specificity": 0.6323529411764706,
+          "precision": 0.5370370370370371,
+          "mcc": 0.21062546263921314,
+          "tp": 29,
+          "tn": 43,
+          "fp": 25,
+          "fn": 21
+        },
+        "L2-LogReg-K100 (C=0.01, bal=SMOTE)": {
+          "accuracy": 0.5932203389830508,
+          "balanced_accuracy": 0.5835294117647059,
+          "roc_auc": 0.6294117647058823,
+          "sensitivity": 0.52,
+          "specificity": 0.6470588235294118,
+          "precision": 0.52,
+          "mcc": 0.16705882352941176,
+          "tp": 26,
+          "tn": 44,
+          "fp": 24,
+          "fn": 24
+        }
+      }
+    },
+    "connectivity_plus_covariates__loio": {
+      "nested_metrics": {
+        "accuracy": 0.6271186440677966,
+        "balanced_accuracy": 0.6102941176470589,
+        "roc_auc": 0.621764705882353,
+        "sensitivity": 0.5,
+        "specificity": 0.7205882352941176,
+        "precision": 0.5681818181818182,
+        "mcc": 0.22541333619531376,
+        "tp": 25,
+        "tn": 49,
+        "fp": 19,
+        "fn": 25
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.5423728813559322,
+          0.711864406779661
+        ],
+        "balanced_accuracy": [
+          0.5246651309053679,
+          0.7002627770976304
+        ],
+        "roc_auc": [
+          0.5158961705564967,
+          0.7241981358497065
+        ],
+        "sensitivity": [
+          0.3658419324577861,
+          0.6415431266846361
+        ],
+        "specificity": [
+          0.6111111111111112,
+          0.8153846153846154
+        ],
+        "mcc": [
+          0.049573745136733224,
+          0.40373272673066823
+        ]
+      },
+      "selected_configs": [
+        "L2-LogReg-K100 (C=0.01, bal=SMOTE)",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=0.01, bal=None)"
+      ],
+      "top_candidates": {
+        "RBF-SVM-K100 (C=0.1, bal=SMOTE)": {
+          "accuracy": 0.6101694915254238,
+          "balanced_accuracy": 0.5955882352941176,
+          "roc_auc": 0.6320588235294117,
+          "sensitivity": 0.5,
+          "specificity": 0.6911764705882353,
+          "precision": 0.5434782608695652,
+          "mcc": 0.19369960454329105,
+          "tp": 25,
+          "tn": 47,
+          "fp": 21,
+          "fn": 25
+        },
+        "RF-n50-d3-K100 (bal=class_weight='balanced')": {
+          "accuracy": 0.6186440677966102,
+          "balanced_accuracy": 0.6055882352941176,
+          "roc_auc": 0.628235294117647,
+          "sensitivity": 0.52,
+          "specificity": 0.6911764705882353,
+          "precision": 0.5531914893617021,
+          "mcc": 0.21316057466392727,
+          "tp": 26,
+          "tn": 47,
+          "fp": 21,
+          "fn": 24
+        },
+        "L2-LogReg-K100 (C=0.01, bal=SMOTE)": {
+          "accuracy": 0.6271186440677966,
+          "balanced_accuracy": 0.6129411764705883,
+          "roc_auc": 0.6276470588235294,
+          "sensitivity": 0.52,
+          "specificity": 0.7058823529411765,
+          "precision": 0.5652173913043478,
+          "mcc": 0.2288635327526885,
+          "tp": 26,
+          "tn": 48,
+          "fp": 20,
+          "fn": 24
+        },
+        "L2-LogReg-K100 (C=0.01, bal=class_weight='balanced')": {
+          "accuracy": 0.6101694915254238,
+          "balanced_accuracy": 0.5955882352941176,
+          "roc_auc": 0.6270588235294118,
+          "sensitivity": 0.5,
+          "specificity": 0.6911764705882353,
+          "precision": 0.5434782608695652,
+          "mcc": 0.19369960454329105,
+          "tp": 25,
+          "tn": 47,
+          "fp": 21,
+          "fn": 25
+        },
+        "L2-LogReg-Full (C=0.0001, cw=balanced)": {
+          "accuracy": 0.5932203389830508,
+          "balanced_accuracy": 0.5861764705882353,
+          "roc_auc": 0.6264705882352941,
+          "sensitivity": 0.54,
+          "specificity": 0.6323529411764706,
+          "precision": 0.5192307692307693,
+          "mcc": 0.17154754919393045,
+          "tp": 27,
+          "tn": 43,
+          "fp": 25,
+          "fn": 23
+        }
+      }
+    },
+    "covariates_only__stratified_5fold": {
+      "nested_metrics": {
+        "accuracy": 0.5677966101694916,
+        "balanced_accuracy": 0.5508823529411765,
+        "roc_auc": 0.5569117647058823,
+        "sensitivity": 0.44,
+        "specificity": 0.6617647058823529,
+        "precision": 0.4888888888888889,
+        "mcc": 0.10353065301757149,
+        "tp": 22,
+        "tn": 45,
+        "fp": 23,
+        "fn": 28
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.4745762711864407,
+          0.652542372881356
+        ],
+        "balanced_accuracy": [
+          0.4646734509021,
+          0.6404719751866491
+        ],
+        "roc_auc": [
+          0.4523489120528594,
+          0.6580438832001332
+        ],
+        "sensitivity": [
+          0.30183962264150943,
+          0.5818560606060605
+        ],
+        "specificity": [
+          0.5517241379310345,
+          0.7692307692307693
+        ],
+        "mcc": [
+          -0.07238551043479804,
+          0.2866949343288981
+        ]
+      },
+      "selected_configs": [
+        "RBF-SVM-K100 (C=10.0, bal=None)",
+        "RF-n50-d3-K100 (bal=None)",
+        "RF-n50-d3-K100 (bal=class_weight='balanced')",
+        "L2-LogReg-K100 (C=1.0, bal=class_weight='balanced')",
+        "RF-n50-d3-K100 (bal=None)"
+      ],
+      "top_candidates": {
+        "RF-n50-d3-K100 (bal=None)": {
+          "accuracy": 0.576271186440678,
+          "balanced_accuracy": 0.5397058823529411,
+          "roc_auc": 0.595735294117647,
+          "sensitivity": 0.3,
+          "specificity": 0.7794117647058824,
+          "precision": 0.5,
+          "mcc": 0.09012024053458077,
+          "tp": 15,
+          "tn": 53,
+          "fp": 15,
+          "fn": 35
+        },
+        "RF-n50-d3-K100 (bal=class_weight='balanced')": {
+          "accuracy": 0.559322033898305,
+          "balanced_accuracy": 0.5673529411764706,
+          "roc_auc": 0.5936764705882354,
+          "sensitivity": 0.62,
+          "specificity": 0.5147058823529411,
+          "precision": 0.484375,
+          "mcc": 0.1336100580176726,
+          "tp": 31,
+          "tn": 35,
+          "fp": 33,
+          "fn": 19
+        },
+        "RF-n50-d3-K100 (bal=SMOTE)": {
+          "accuracy": 0.5254237288135594,
+          "balanced_accuracy": 0.5088235294117647,
+          "roc_auc": 0.5783823529411765,
+          "sensitivity": 0.4,
+          "specificity": 0.6176470588235294,
+          "precision": 0.43478260869565216,
+          "mcc": 0.01787996349630379,
+          "tp": 20,
+          "tn": 42,
+          "fp": 26,
+          "fn": 30
+        },
+        "L2-LogReg-K100 (C=0.1, bal=SMOTE)": {
+          "accuracy": 0.576271186440678,
+          "balanced_accuracy": 0.5952941176470588,
+          "roc_auc": 0.5770588235294118,
+          "sensitivity": 0.72,
+          "specificity": 0.47058823529411764,
+          "precision": 0.5,
+          "mcc": 0.19310360576008093,
+          "tp": 36,
+          "tn": 32,
+          "fp": 36,
+          "fn": 14
+        },
+        "L2-LogReg-K100 (C=0.1, bal=None)": {
+          "accuracy": 0.5847457627118644,
+          "balanced_accuracy": 0.5126470588235295,
+          "roc_auc": 0.573529411764706,
+          "sensitivity": 0.04,
+          "specificity": 0.9852941176470589,
+          "precision": 0.6666666666666666,
+          "mcc": 0.079405291643605,
+          "tp": 2,
+          "tn": 67,
+          "fp": 1,
+          "fn": 48
+        }
+      }
+    },
+    "covariates_only__loio": {
+      "nested_metrics": {
+        "accuracy": 0.576271186440678,
+        "balanced_accuracy": 0.5767647058823528,
+        "roc_auc": 0.5976470588235294,
+        "sensitivity": 0.58,
+        "specificity": 0.5735294117647058,
+        "precision": 0.5,
+        "mcc": 0.1517544456176025,
+        "tp": 29,
+        "tn": 39,
+        "fp": 29,
+        "fn": 21
+      },
+      "nested_ci": {
+        "accuracy": [
+          0.4915254237288136,
+          0.6610169491525424
+        ],
+        "balanced_accuracy": [
+          0.4889051226551226,
+          0.6643807412100095
+        ],
+        "roc_auc": [
+          0.49227044148380356,
+          0.701599500739404
+        ],
+        "sensitivity": [
+          0.44680851063829785,
+          0.7090909090909091
+        ],
+        "specificity": [
+          0.45944838280903855,
+          0.6912357685009487
+        ],
+        "mcc": [
+          -0.022150714409068774,
+          0.3247275580701932
+        ]
+      },
+      "selected_configs": [
+        "RF-n50-d3-K100 (bal=class_weight='balanced')",
+        "RF-n50-d3-K100 (bal=None)",
+        "RBF-SVM-K100 (C=1.0, bal=SMOTE)",
+        "RF-n50-d3-K100 (bal=class_weight='balanced')"
+      ],
+      "top_candidates": {
+        "L2-LogReg-K100 (C=0.1, bal=SMOTE)": {
+          "accuracy": 0.6101694915254238,
+          "balanced_accuracy": 0.6326470588235295,
+          "roc_auc": 0.6354411764705883,
+          "sensitivity": 0.78,
+          "specificity": 0.4852941176470588,
+          "precision": 0.527027027027027,
+          "mcc": 0.2710971056642307,
+          "tp": 39,
+          "tn": 33,
+          "fp": 35,
+          "fn": 11
+        },
+        "L2-LogReg-K100 (C=0.1, bal=class_weight='balanced')": {
+          "accuracy": 0.6016949152542372,
+          "balanced_accuracy": 0.6252941176470588,
+          "roc_auc": 0.6189705882352942,
+          "sensitivity": 0.78,
+          "specificity": 0.47058823529411764,
+          "precision": 0.52,
+          "mcc": 0.25729732836677205,
+          "tp": 39,
+          "tn": 32,
+          "fp": 36,
+          "fn": 11
+        },
+        "LinearSVM-K100 (C=0.1, bal=SMOTE)": {
+          "accuracy": 0.6101694915254238,
+          "balanced_accuracy": 0.6326470588235295,
+          "roc_auc": 0.610735294117647,
+          "sensitivity": 0.78,
+          "specificity": 0.4852941176470588,
+          "precision": 0.527027027027027,
+          "mcc": 0.2710971056642307,
+          "tp": 39,
+          "tn": 33,
+          "fp": 35,
+          "fn": 11
+        },
+        "RBF-SVM-K100 (C=1.0, bal=class_weight='balanced')": {
+          "accuracy": 0.5677966101694916,
+          "balanced_accuracy": 0.5773529411764706,
+          "roc_auc": 0.6076470588235294,
+          "sensitivity": 0.64,
+          "specificity": 0.5147058823529411,
+          "precision": 0.49230769230769234,
+          "mcc": 0.15369214523146002,
+          "tp": 32,
+          "tn": 35,
+          "fp": 33,
+          "fn": 18
+        },
+        "RBF-SVM-K100 (C=1.0, bal=SMOTE)": {
+          "accuracy": 0.576271186440678,
+          "balanced_accuracy": 0.5714705882352942,
+          "roc_auc": 0.5948529411764706,
+          "sensitivity": 0.54,
+          "specificity": 0.6029411764705882,
+          "precision": 0.5,
+          "mcc": 0.141778358507836,
+          "tp": 27,
+          "tn": 41,
+          "fp": 27,
+          "fn": 23
+        }
+      }
+    },
+    "permutation_test": {
+      "observed_auc": 0.628235294117647,
+      "perm_mean": 0.48660338235294115,
+      "perm_std": 0.0673435315786164,
+      "perm_95th": 0.5973529411764705,
+      "perm_99th": 0.6408970588235294,
+      "p_value": 0.02097902097902098,
+      "n_permutations": 1000
+    }
+  }
+}
