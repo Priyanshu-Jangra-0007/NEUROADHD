@@ -276,7 +276,7 @@ def run_final_test_evaluation(run_id: str, best_model_info: dict) -> dict:
     return final_test_payload
 
 
-def run_benchmark(run_id_input: str | None = None, purpose: str = "Benchmark Execution", run_test: bool = True):
+def run_benchmark(run_id_input: str | None = None, purpose: str = "Benchmark Execution", run_test: bool = False):
     t_start = time.time()
     run_id = run_id_input or generate_run_id()
     
@@ -483,10 +483,11 @@ def main():
     parser = argparse.ArgumentParser(description="NeuroADHD Model Benchmark Runner")
     parser.add_argument("--run-id", help="Optional specific run ID")
     parser.add_argument("--purpose", default="Reproducible Multi-Model ADHD Classification Benchmark", help="Purpose of the run")
-    parser.add_argument("--no-test", action="store_true", help="Keep test set locked without evaluating final test")
+    parser.add_argument("--run-test", action="store_true", help="Explicitly allow evaluation on the locked test set (default: locked)")
+    parser.add_argument("--no-test", action="store_true", help="Deprecated alias; test set is locked by default")
     args = parser.parse_args()
 
-    run_benchmark(run_id_input=args.run_id, purpose=args.purpose, run_test=not args.no_test)
+    run_benchmark(run_id_input=args.run_id, purpose=args.purpose, run_test=args.run_test)
 
 
 if __name__ == "__main__":

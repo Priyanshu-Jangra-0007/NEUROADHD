@@ -23,7 +23,7 @@ export function Header() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#fef3c7", color: "#b45309", padding: "6px 12px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: "600" }}>
           <Lock size={14} />
-          <span>Peking_2 Locked Test (N=20)</span>
+          <span>Peking_2 Batch Holdout (N=20)</span>
         </div>
       </div>
     </header>

@@ -17,7 +17,7 @@ export function Sidebar({ currentTab, setTab }) {
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "model", label: "Model & Pipeline", icon: BrainCircuit },
     { id: "predict", label: "Single-Subject Prediction", icon: UploadCloud },
-    { id: "performance", label: "Robustness & Test", icon: Activity },
+    { id: "performance", label: "Held-out Peking_2 test (same institution as two training sites)", icon: Activity },
     { id: "hybrids", label: "Hybrid Comparison", icon: Layers },
     { id: "explainability", label: "SHAP Explainability", icon: Sparkles },
     { id: "network", label: "Connectivity Network", icon: Network },
@@ -68,8 +68,7 @@ export function Sidebar({ currentTab, setTab }) {
       </nav>
 
       <div style={{ marginTop: "auto", padding: "16px 18px", borderTop: "1px solid var(--border-color)", fontSize: "0.75rem", color: "var(--text-muted)" }}>
-        <div>Cohort: <strong>153 Subjects</strong></div>
-        <div style={{ marginTop: "4px" }}>Site: <strong>7 Dev / 1 Locked Test</strong></div>
+        <div>Cohort: <strong>153 subjects (6 institutions)</strong></div>
       </div>
     </aside>
   );

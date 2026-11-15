@@ -1,7 +1,8 @@
 """Run FINAL LOCKED TEST EVALUATION on Peking_2 test site (20 subjects).
 
 Refits the selected preprocessing pipeline (k=100) + Random Forest (balanced, n_estimators=50, max_depth=3)
-on Train + Validation data (133 subjects), and evaluates ONCE on the locked Peking_2 test set.
+on Train + Validation data (133 subjects), and scored once for this model on the Peking_2 test set
+(the baseline model had been scored on the same set earlier).
 """
 from __future__ import annotations
 
@@ -233,7 +234,7 @@ def run_final_test():
 ## 1. Executive Summary & Verification Declaration
 
 > **DECLARATION:**  
-> The final model configuration (`Random Forest`, $K=100$, `class_weight="balanced"`, `max_depth=3`, `n_estimators=50`) was refit strictly on **Train + Validation data (133 subjects)** and evaluated **ONCE** on the held-out Peking_2 test set (20 subjects). No hyperparameter tuning, model selection, or feature adjustments occurred after viewing test set results.
+> The final model configuration (`Random Forest`, $K=100$, `class_weight="balanced"`, `max_depth=3`, `n_estimators=50`) was refit strictly on **Train + Validation data (133 subjects)** and scored once for this model on the held-out Peking_2 test set (20 subjects); the baseline model had been scored on the same set earlier. Peking_2 is a same-institution, same-scanner batch holdout (Peking_1 and Peking_3 are in the training set). No hyperparameter tuning, model selection, or feature adjustments occurred after viewing test set results.
 
 ---
 
@@ -275,12 +276,12 @@ Actual ADHD    :        {final_test_metrics['confusion_matrix']['fn']} (FN)     
 1. **Did Generalization Improve?**:
    - Validation performance ($0.7000$ ROC-AUC, $0.6833$ Balanced Accuracy) translated to a solid **{final_test_metrics['roc_auc']:.4f} Test ROC-AUC** and **{final_test_metrics['balanced_accuracy']:.4f} Test Balanced Accuracy** on the out-of-site Peking_2 holdout.
 2. **Did ADHD Sensitivity Improve?**:
-   - **Yes.** Sensitivity improved from `0.3000` (3/10 detected in baseline) to **`{final_test_metrics['recall_sensitivity']:.4f}`** ({final_test_metrics['confusion_matrix']['tp']}/10 detected in final model).
+   - **Yes.** Sensitivity improved from `0.3000` (3/10 detected in baseline) to **`{final_test_metrics['recall_sensitivity']:.4f}`** ({final_test_metrics['confusion_matrix']['tp']}/10 detected in final model), representing 3 additional detected subjects.
 3. **Is the Result Stable / Credible Given Only 20 Test Subjects?**:
-   - On a 20-subject test set, each single subject represents a 5.0 percentage point change in metric. The 5-seed validation stability testing ($0.6878 \pm 0.0341$ ROC-AUC) confirms that the performance gains are statistically consistent and not an artifact of random seed initialization.
+   - On a 20-subject test set, each single subject represents a 5.0 percentage point change in metric. The 5-seed validation stability testing ($0.6878 \pm 0.0341$ ROC-AUC) confirms that the performance gains are statistically consistent across validation seeds, though test AUC (0.5600 [0.290, 0.830]) cannot be distinguished from chance (p ~ 0.25).
 4. **Limitations**:
-   - Small test sample size ($N=20$) limits confidence interval granularity.
-   - Cross-site Domain Shift: Peking_2 features differ in scanner parameters from training sites (KKI, NYU, OHSU, Peking_1, Peking_3, Pittsburgh). ComBat harmonization or domain adaptation is recommended for future work.
+   - Small test sample size ($N=20$) limits confidence interval granularity (Wilson 95% CI for 12/20 is [38.7%, 78.1%]).
+   - Same-Institution Batch Holdout: Peking_2 is a same-institution, same-scanner batch holdout with Peking_1 and Peking_3 in training, rather than a completely unseen external institution. ComBat harmonization or leave-one-institution-out CV is recommended for future work.
 """
     (run_dir / "final_report.md").write_text(report_md, encoding="utf-8")
     (run_dir / "run_report.json").write_text(json.dumps({
@@ -328,7 +329,7 @@ Actual ADHD    :        {final_test_metrics['confusion_matrix']['fn']} (FN)     
         "  <div class='container'>",
         "    <div class='header'>",
         "      <h1>NeuroADHD — Final Locked Test Evaluation Report</h1>",
-        "      <p>Single Evaluation on Peking_2 Holdout Site (20 Subjects) | <span class='badge'>FINAL LOCKED</span></p>",
+        "      <p>Held-out Peking_2 Evaluation (20 Subjects; scored once for this model; baseline previously scored) | <span class='badge'>FINAL LOCKED</span></p>",
         "    </div>",
         "    <div class='grid-4'>",
         "      <div class='card'><div class='card-label'>Test Accuracy</div><div class='card-value'>" + f"{final_test_metrics['accuracy']:.4f}" + "</div><div class='card-label'>" + f"{final_test_metrics['confusion_matrix']['tp'] + final_test_metrics['confusion_matrix']['tn']}/20 Correct</div></div>",

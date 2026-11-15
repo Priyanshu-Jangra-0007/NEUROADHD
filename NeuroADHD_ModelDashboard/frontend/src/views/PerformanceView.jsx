@@ -12,7 +12,7 @@ export function PerformanceView({ data }) {
       <div style={{ marginBottom: "20px" }}>
         <h2 style={{ fontSize: "1.4rem", fontWeight: "800", color: "var(--text-primary)" }}>Model Performance Evaluation</h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-          Rigorous dual reporting: Multi-seed repeated cross-validation robustness across the development cohort and one-time locked final evaluation on Peking_2.
+          Rigorous dual reporting: Multi-seed repeated cross-validation robustness across the development cohort and out-of-site batch evaluation on Peking_2.
         </p>
       </div>
 
@@ -22,11 +22,11 @@ export function PerformanceView({ data }) {
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <Activity size={20} color="var(--brand-blue)" />
             <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "var(--text-primary)" }}>
-              Block A: Repeated Cross-Validation Robustness (8 Repetitions)
+              Block A: Random-Fold Cross-Validation (8 Repetitions)
             </h3>
           </div>
           <span style={{ fontSize: "0.75rem", background: "var(--brand-blue-bg)", color: "var(--brand-blue)", padding: "4px 10px", borderRadius: "9999px", fontWeight: "700" }}>
-            5-Fold CV × Seeds 42–49 (N=133)
+            5-Fold CV × Seeds 42–49 (N=133) · Seed Variability (Mean ± SD)
           </span>
         </div>
 
@@ -34,7 +34,7 @@ export function PerformanceView({ data }) {
           <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "8px" }}>
             <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Mean ROC-AUC</div>
             <div style={{ fontSize: "1.3rem", fontWeight: "800", color: "var(--brand-blue)" }}>{rfStats.roc_auc.mean.toFixed(4)}</div>
-            <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>± {rfStats.roc_auc.std.toFixed(4)} [{rfStats.roc_auc.min.toFixed(4)}–{rfStats.roc_auc.max.toFixed(4)}]</div>
+            <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>± {rfStats.roc_auc.std.toFixed(4)} (seed variability; min {rfStats.roc_auc.min.toFixed(4)} – max {rfStats.roc_auc.max.toFixed(4)})</div>
           </div>
           <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "8px" }}>
             <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Mean Accuracy</div>
@@ -99,53 +99,55 @@ export function PerformanceView({ data }) {
         </table>
       </div>
 
-      {/* BLOCK B: LOCKED PEKING_2 TEST */}
+      {/* BLOCK B: HELD-OUT PEKING_2 TEST */}
       <div className="card" style={{ background: "var(--bg-surface)", border: "1px solid #fde68a", borderRadius: "10px", padding: "20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <Lock size={20} color="#b45309" />
             <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#92400e" }}>
-              Block B: Locked Held-Out Site Evaluation (Peking_2)
+              Block B: Held-out Peking_2 test (same institution as two training sites)
             </h3>
           </div>
           <span style={{ fontSize: "0.75rem", background: "#fef3c7", color: "#b45309", padding: "4px 10px", borderRadius: "9999px", fontWeight: "700" }}>
-            Locked Held-out Site: Peking_2 (N=20)
+            Scored once for this model (baseline previously scored; N=20)
           </span>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "20px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "10px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px" }}>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Accuracy</div>
               <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.accuracy ?? 0.6).toFixed(4)}</div>
+              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>
+                95% CI: [{finalTest?.accuracy_ci_95?.[0] ? (finalTest.accuracy_ci_95[0] * 100).toFixed(1) : "38.7"}%, {finalTest?.accuracy_ci_95?.[1] ? (finalTest.accuracy_ci_95[1] * 100).toFixed(1) : "78.1"}%] (Wilson)
+              </div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Balanced Acc</div>
               <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.balanced_accuracy ?? 0.6).toFixed(4)}</div>
+              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>6/10 ADHD, 6/10 Ctrl</div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Sensitivity</div>
               <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.recall_sensitivity ?? finalTest?.sensitivity ?? finalTest?.sensitivity_recall ?? 0.6).toFixed(4)}</div>
+              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>6/10 Detected (+3 vs base)</div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Specificity</div>
               <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.specificity ?? 0.6).toFixed(4)}</div>
-            </div>
-            <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
-              <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Precision</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.precision ?? 0.6).toFixed(4)}</div>
-            </div>
-            <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
-              <div style={{ fontSize: "0.7rem", color: "#92400e" }}>F1 Score</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.f1_score ?? 0.6).toFixed(4)}</div>
+              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>6/10 Control (-2 vs base)</div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>ROC-AUC</div>
               <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.roc_auc ?? 0.56).toFixed(4)}</div>
+              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>
+                95% CI: [{finalTest?.roc_auc_ci_95?.[0] ? finalTest.roc_auc_ci_95[0].toFixed(3) : "0.290"}, {finalTest?.roc_auc_ci_95?.[1] ? finalTest.roc_auc_ci_95[1].toFixed(3) : "0.830"}] (Bootstrap)
+              </div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>PR-AUC</div>
               <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.pr_auc ?? 0.6341).toFixed(4)}</div>
+              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>vs Chance 0.5000</div>
             </div>
           </div>
 

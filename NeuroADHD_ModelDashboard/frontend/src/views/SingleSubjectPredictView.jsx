@@ -92,7 +92,7 @@ export function SingleSubjectPredictView() {
     try {
       const response = await fetchWithFallback("/api/predict/sample");
       const blob = await response.blob();
-      const file = new File([blob], "1017176_session_1_roi_CC200.csv", { type: "text/csv" });
+      const file = new File([blob], "sample_cc200_roi_scan.csv", { type: "text/csv" });
       setSelectedFile(file);
     } catch (err) {
       setError(err.message || "Failed to load sample scan from backend.");
@@ -319,7 +319,7 @@ export function SingleSubjectPredictView() {
                       ) : (
                         <>
                           <FileCheck size={14} />
-                          <span>1-Click: Load Sample Subject 1017176</span>
+                          <span>1-Click: Load Representative Sample Scan</span>
                         </>
                       )}
                     </button>
@@ -352,10 +352,10 @@ export function SingleSubjectPredictView() {
             {/* Action Bar */}
             <div style={{ marginTop: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                <span>Sample available: <strong>Subject 1017176</strong> (261 timepoints)</span>
+                <span>Sample available: <strong>CC200 Test Scan</strong> (261 timepoints)</span>
                 <a
                   href="/api/predict/sample"
-                  download="1017176_roi_CC200.csv"
+                  download="sample_cc200_roi_scan.csv"
                   style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--brand-blue)", textDecoration: "none" }}
                 >
                   <Download size={13} />
@@ -507,9 +507,12 @@ export function SingleSubjectPredictView() {
               </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "6px" }}>
-                <span>0.0 (Pure Typical Control)</span>
+                <span>0.0 (Typical Control)</span>
                 <span>Decision Cut-off: 0.50</span>
-                <span>1.0 (Pure ADHD Pattern)</span>
+                <span>1.0 (ADHD Pattern)</span>
+              </div>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "8px", fontStyle: "italic" }}>
+                Model score, not a diagnosis; probabilities are not calibrated.
               </div>
             </div>
 
@@ -587,9 +590,10 @@ export function SingleSubjectPredictView() {
                 RESEARCH PREDICTION NOTICE — NOT A CLINICAL DIAGNOSIS
               </div>
               <p>
-                The probability displayed above represents the mathematical resemblance of this resting-state fMRI
-                connectome to the patterns observed in the ADHD-200 Consortium training cohort. It is <strong>NOT a clinically
-                calibrated medical risk score, biomarker guarantee, or DSM-5/ICD-11 diagnostic assessment</strong>.
+                <strong>Model score, not a diagnosis; probabilities are not calibrated.</strong> The score displayed
+                above represents the model decision function value of this resting-state fMRI connectome relative to
+                the ADHD-200 Consortium training cohort. It is <strong>NOT a medical risk score, biomarker guarantee,
+                or DSM-5/ICD-11 diagnostic assessment</strong>.
               </p>
               <p style={{ marginTop: "6px" }}>
                 ADHD is a complex neurodevelopmental condition diagnosed exclusively by certified clinicians through

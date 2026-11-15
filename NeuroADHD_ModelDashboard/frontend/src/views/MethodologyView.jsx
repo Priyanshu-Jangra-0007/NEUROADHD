@@ -44,11 +44,11 @@ export function MethodologyView({ data }) {
 
             <div style={{ background: "#fef3c7", padding: "12px", borderRadius: "8px", border: "1px solid #fde68a" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "700", fontSize: "0.85rem", color: "#92400e" }}>
-                <span>3. Locked Final Test Site</span>
+                <span>3. Held-out Peking_2 Batch Partition</span>
                 <span>N = {cohort.test_subjects}</span>
               </div>
               <div style={{ fontSize: "0.75rem", color: "#b45309", marginTop: "4px" }}>
-                10 Control, 10 ADHD from independent site <code>Peking_2</code>. Held completely locked and evaluated strictly ONCE after final model freezing to measure out-of-site generalization.
+                10 Control, 10 ADHD from site <code>Peking_2</code>. Held as a batch partition and scored once for this model; the baseline had been scored on the same set earlier. Note: Peking_2 is a same-institution, same-scanner batch holdout (Peking_1 and Peking_3 are in the training set).
               </div>
             </div>
           </div>
