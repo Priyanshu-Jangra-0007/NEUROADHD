@@ -8,9 +8,11 @@ import json
 import pandas as pd
 from pathlib import Path
 
-BENCHMARK_ROOT = Path("/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark")
-DATA_DIR = Path("/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD/data/adhd200")
-FRONTEND_DATA_DIR = Path("/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data")
+SCRIPT_DIR = Path(__file__).resolve().parent
+WORKSPACE_ROOT = SCRIPT_DIR.parents[1]
+BENCHMARK_ROOT = WORKSPACE_ROOT / "NeuroADHD_ModelBenchmark"
+DATA_DIR = WORKSPACE_ROOT / "NeuroADHD" / "data" / "adhd200"
+FRONTEND_DATA_DIR = SCRIPT_DIR.parent / "frontend" / "src" / "data"
 FRONTEND_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # 1. Final Locked Test Results
