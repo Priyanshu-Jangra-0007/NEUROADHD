@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore research-only ADHD-200 CC200 resting-state fMRI classifier benchmarks, evaluation methodology, model pipeline, and limitations.">
+  <meta name="theme-color" content="#f3f6fa">
+  <title>Overview | NeuroADHD Research Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23e0f4fc'/%3E%3Cpath d='M12 34h10l6-16 9 29 6-17h9' fill='none' stroke='%230879aa' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>
+    :root{color-scheme:light;--page:#f3f6fa;--surface:#fff;--surface2:#edf3f8;--line:#d9e2ec;--ink:#142033;--muted:#40526a;--subtle:#60738c;--accent:#0879aa;--accent-bg:#e0f4fc;--warning:#624807;--warning-bg:#fff6d9;--warning-line:#e9cf72;--good:#145c37;--good-bg:#e4f7eb;--bad:#812e35;--bad-bg:#fff0f0;--radius:16px;--shadow:0 12px 36px #18304a12;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--page);color:var(--ink);font-size:16px;line-height:1.65;min-width:320px;-webkit-font-smoothing:antialiased}body,button,a{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button{color:inherit}a{color:var(--accent);text-underline-offset:3px}a:hover{text-decoration-thickness:2px}button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.shell{width:min(1180px,calc(100% - 48px));margin:auto}
+    .site-header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--page) 91%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.header-inner{height:78px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:inline-flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none;min-width:max-content}.brand-mark{width:40px;height:40px;border-radius:13px;background:var(--accent-bg);display:grid;place-items:center;color:var(--accent);font-weight:900;font-size:1.2rem}.brand-name{font-size:1.05rem;font-weight:700;letter-spacing:-.03em;display:block;line-height:1.2}.brand-caption{font-size:.72rem;color:var(--subtle);display:block;margin-top:3px}.desktop-nav{display:flex;align-items:center;gap:5px}.nav-link{border:0;background:transparent;border-radius:10px;padding:9px 12px;color:var(--muted);font-weight:550;font-size:.9rem;text-decoration:none;white-space:nowrap;cursor:pointer}.nav-link:hover,.nav-link[aria-current="page"]{background:var(--surface2);color:var(--ink)}.nav-link[aria-current="page"]{color:var(--accent)}.header-tools{display:flex;align-items:center;gap:9px}.notice-quick-btn{display:inline-flex;align-items:center;gap:5px;height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--warning-line);background:var(--warning-bg);color:var(--warning);font-size:.8rem;font-weight:650;cursor:pointer;transition:filter .15s}.notice-quick-btn:hover{filter:brightness(.96)}.menu-button{height:40px;width:42px;border-radius:12px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center;font-size:1.05rem;display:none}.mobile-nav{display:none;border-top:1px solid var(--line);padding:8px 0 14px}.mobile-nav.open{display:grid;grid-template-columns:1fr 1fr;gap:5px}.mobile-nav .nav-link{text-align:left;padding:11px 12px}
+    main{min-height:62vh}.view{display:none;padding:48px 0 58px;animation:enter .22s ease}.view.active{display:block}@keyframes enter{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}.eyebrow{color:var(--accent);font-weight:700;text-transform:uppercase;font-size:.76rem;letter-spacing:.11em}.hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(220px,.6fr);align-items:end;gap:28px;margin:0 0 30px}.hero h1{font-size:clamp(1.95rem,3.8vw,2.9rem);font-weight:650;letter-spacing:-.04em;line-height:1.13;margin:10px 0 13px;max-width:760px}.hero p{color:var(--muted);font-size:1rem;line-height:1.7;max-width:780px;margin:0}.hero-aside{background:linear-gradient(145deg,var(--accent-bg),var(--surface));border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;color:var(--muted);font-size:.9rem;line-height:1.55}.hero-aside b{display:block;color:var(--ink);font-size:1rem;margin-bottom:4px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}.card{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}.metric-label{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--subtle)}.metric{font-size:1.9rem;font-weight:700;letter-spacing:-.035em;line-height:1.2;margin:8px 0 4px;font-variant-numeric:tabular-nums}.metric-sub{font-size:.88rem;color:var(--muted)}.chip{display:inline-block;margin-top:12px;padding:4px 8px;border-radius:7px;background:var(--accent-bg);color:var(--accent);font-size:.77rem;font-weight:600;line-height:1.4}.section-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:36px 0 14px}.section-heading h2{font-size:1.18rem;font-weight:650;letter-spacing:-.03em;margin:0}.section-heading p{color:var(--muted);font-size:.86rem;margin:0}.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin:16px 0}.panel h2{font-size:1.3rem;font-weight:650;margin:0 0 10px;letter-spacing:-.025em}.panel h3{font-size:1.18rem;font-weight:650;margin:0 0 10px;letter-spacing:-.025em}.panel p{color:var(--muted);font-size:.95rem;line-height:1.7;margin:0 0 12px}.callout{border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 17px;background:var(--surface2);color:var(--muted);margin:18px 0;font-size:.95rem;line-height:1.7}.callout strong{color:var(--ink)}
+    .table-wrap{width:100%;max-width:100%;overflow:visible}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:.9rem;line-height:1.55}th{text-align:left;text-transform:uppercase;letter-spacing:.07em;font-size:.72rem;font-weight:700;color:var(--subtle);background:var(--surface2);padding:11px 12px}td{padding:13px 12px;border-top:1px solid var(--line);color:var(--muted);vertical-align:top;overflow-wrap:anywhere}td strong{color:var(--ink)}.badge{display:inline-flex;padding:3px 8px;border-radius:99px;background:var(--accent-bg);color:var(--accent);font-weight:600;font-size:.72rem;white-space:normal}.badge.warn{background:var(--warning-bg);color:var(--warning)}
+    .steps{display:grid;gap:11px}.step{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:14px;padding:16px 18px;background:var(--surface);border:1px solid var(--line);border-radius:14px}.step-no{height:32px;width:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent-bg);color:var(--accent);font-weight:800}.step strong{display:block;font-weight:650}.step small{display:block;color:var(--subtle);margin-top:2px;font-size:.86rem;line-height:1.55}.code-pill{padding:5px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.8rem;color:var(--ink);white-space:normal;overflow-wrap:anywhere}.prose-list{padding-left:1.25rem;color:var(--muted)}.prose-list li{padding:.25rem 0}.empty-state{text-align:center;padding:72px 24px}.empty-state h1{font-size:2.4rem;margin:0 0 8px}.empty-state p{color:var(--muted);max-width:540px;margin:0 auto 20px}.primary-button{border:0;border-radius:11px;padding:11px 16px;background:var(--accent);color:#07131d;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary-button:hover{filter:brightness(1.08)}
+    .site-footer{border-top:1px solid var(--line);background:var(--surface);padding:24px 0 28px}.footer-copy{color:var(--subtle);font-size:.84rem;margin:6px 0 0}
+    .disclaimer-section{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}.disclaimer-toggle-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--warning-line);background:var(--warning-bg);color:var(--warning);border-radius:10px;padding:9px 15px;font-size:.84rem;font-weight:650;cursor:pointer;transition:filter .15s}.disclaimer-toggle-btn:hover{filter:brightness(.96)}.disclaimer-box{display:none;background:var(--warning-bg);border:1px solid var(--warning-line);border-radius:12px;padding:14px 18px;color:var(--warning);font-size:.88rem;line-height:1.6;margin-top:12px;animation:enter .2s ease}.disclaimer-box.show{display:block}.disclaimer-inner{display:flex;align-items:flex-start;gap:12px}.disclaimer-inner strong{color:var(--ink)}.footer-bottom{border-top:1px solid var(--line);margin-top:18px;padding-top:14px;color:var(--subtle);font-size:.78rem}
+    .toast{position:fixed;z-index:40;right:20px;bottom:20px;max-width:min(400px,calc(100vw - 40px));border:1px solid var(--line);border-radius:12px;padding:13px 16px;background:var(--surface);box-shadow:var(--shadow);color:var(--ink);font-size:.88rem;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}.toast.error{border-color:var(--warning-line);background:var(--warning-bg);color:var(--warning)}
+    @media(max-width:980px){.desktop-nav{display:none}.menu-button{display:grid}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{grid-template-columns:1fr}.hero-aside{max-width:600px}}
+    @media(max-width:650px){.shell{width:min(100% - 32px,560px)}.header-inner{height:68px;gap:10px}.brand-caption{font-size:.66rem}.brand-mark{width:36px;height:36px}.header-tools{margin-left:auto}.view{padding:32px 0 42px}.hero{gap:18px;margin-bottom:22px}.hero h1{font-size:2.05rem}.hero-aside{padding:15px}.grid{grid-template-columns:1fr 1fr;gap:9px;margin:18px 0}.card{padding:15px 13px;border-radius:13px}.metric{font-size:1.7rem}.metric-label{font-size:.7rem}.metric-sub{font-size:.75rem}.chip{font-size:.66rem}.panel{padding:17px;margin:12px 0}.panel h2{font-size:1.2rem}.panel h3,.section-heading h2{font-size:1.1rem}.section-heading{display:block;margin:28px 0 12px}.section-heading p{margin-top:5px}.table-wrap table,.table-wrap thead,.table-wrap tbody,.table-wrap tr,.table-wrap td{display:block;width:100%}.table-wrap thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.table-wrap tr{padding:8px 0;border-top:1px solid var(--line)}.table-wrap td{display:grid;grid-template-columns:minmax(95px,38%) minmax(0,1fr);gap:9px;padding:6px 2px;border:0;font-size:.82rem}.table-wrap td::before{content:attr(data-label);font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--subtle);overflow-wrap:anywhere}.step{grid-template-columns:32px minmax(0,1fr);gap:10px;padding:14px}.step .code-pill{grid-column:2}.mobile-nav.open{grid-template-columns:1fr 1fr}}
+    @media(max-width:380px){.shell{width:calc(100% - 24px)}.grid{grid-template-columns:1fr}.metric{font-size:1.8rem}.mobile-nav.open{grid-template-columns:1fr}.header-inner{gap:6px}.brand{gap:8px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="#overview" aria-label="NeuroADHD dashboard home"><span class="brand-mark" aria-hidden="true">N</span><span><span class="brand-name">NeuroADHD</span><span class="brand-caption">fMRI classifier research</span></span></a>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a class="nav-link" href="#overview" data-route="overview">Overview</a><a class="nav-link" href="#pipeline" data-route="pipeline">Pipeline</a><a class="nav-link" href="#methodology" data-route="methodology">Methodology</a><a class="nav-link" href="#limitations" data-route="limitations">Limitations</a><a class="nav-link" href="#benchmark" data-route="benchmark">Benchmarks</a>
+      </nav>
+      <div class="header-tools">
+        <button class="notice-quick-btn" id="header-disclaimer-btn" type="button" title="View Research Disclaimer">⚠️ Notice</button>
+        <button class="menu-button" id="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation menu"><span aria-hidden="true">☰</span></button>
+      </div>
+    </div>
+    <nav class="shell mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+      <a class="nav-link" href="#overview" data-route="overview">Overview</a><a class="nav-link" href="#pipeline" data-route="pipeline">Model Pipeline</a><a class="nav-link" href="#methodology" data-route="methodology">Methodology</a><a class="nav-link" href="#limitations" data-route="limitations">Limitations</a><a class="nav-link" href="#benchmark" data-route="benchmark">Benchmark Results</a>
+    </nav>
+  </header>
+  <main id="main-content" class="shell">
+    <section class="view" id="view-overview" data-title="Overview | NeuroADHD Research Dashboard" data-description="Explore key research-only ADHD-200 CC200 fMRI classifier results, site effects, and evaluation caveats.">
+      <div class="hero"><div><div class="eyebrow">Research benchmark · ADHD-200 · CC200</div><h1>Reading the signal, with the caveats in view.</h1><p>Exploratory classification of resting-state functional connectivity. These statistics describe a small research benchmark—not a diagnostic tool or evidence of clinical performance.</p></div><aside class="hero-aside"><b>Study snapshot</b>153 subjects · 6 institutions · 19,900 connectivity edges<br>Site effects and small test samples substantially limit generalization.</aside></div>
+      <div class="grid" aria-label="Headline metrics">
+        <article class="card"><div class="metric-label">Peking_2 holdout accuracy</div><div class="metric">60.0%</div><div class="metric-sub">12 of 20 subjects correct</div><span class="chip">Wilson 95% CI · 38.7–78.1%</span></article>
+        <article class="card"><div class="metric-label">Peking_2 holdout AUC</div><div class="metric">0.580</div><div class="metric-sub">ROC area under curve</div><span class="chip">Bootstrap 95% CI · 0.290–0.830</span></article>
+        <article class="card"><div class="metric-label">Random-fold CV accuracy</div><div class="metric">60.45%</div><div class="metric-sub">8-repetition stratified CV</div><span class="chip">Seed variability ±1.63% · not a CI</span></article>
+        <article class="card"><div class="metric-label">Majority baseline</div><div class="metric">57.6%</div><div class="metric-sub">Prevalence baseline · 68/118</div><span class="chip">Not a clinical threshold</span></article>
+      </div>
+      <div class="section-heading"><h2>Site confound &amp; generalization audit</h2><p>Institution-level holdout results</p></div>
+      <article class="panel"><p>Random folds can allow models to exploit scanner and site patterns shared across train and test data. Leave-One-Institution-Out (LOIO) evaluation offers a more demanding test of cross-site transfer, though estimates remain uncertain with small and imbalanced site samples.</p><div class="callout"><strong>Audit result:</strong> Across all 153 subjects, LOIO AUC is <strong>0.5670 ± 0.158</strong>. Excluding OHSU and Pittsburgh (which had no ADHD cases), LOIO AUC is <strong>0.5846 ± 0.125</strong>. These figures are consistent with substantial uncertainty and site-related confounding.</div>
+        <div class="table-wrap"><table><thead><tr><th>Site / institution</th><th>N total</th><th>ADHD</th><th>Control</th><th>LOIO AUC</th><th>Status</th></tr></thead><tbody>
+          <tr><td data-label="Site / institution"><strong>Peking (1, 2, 3 merged)</strong></td><td data-label="N total">70</td><td data-label="ADHD">26</td><td data-label="Control">44</td><td data-label="LOIO AUC">0.612</td><td data-label="Status"><span class="badge">Balanced</span></td></tr>
+          <tr><td data-label="Site / institution"><strong>KKI (Kennedy Krieger)</strong></td><td data-label="N total">22</td><td data-label="ADHD">8</td><td data-label="Control">14</td><td data-label="LOIO AUC">0.564</td><td data-label="Status"><span class="badge">Balanced</span></td></tr>
+          <tr><td data-label="Site / institution"><strong>NeuroIMAGE</strong></td><td data-label="N total">20</td><td data-label="ADHD">14</td><td data-label="Control">6</td><td data-label="LOIO AUC">0.598</td><td data-label="Status"><span class="badge">Balanced</span></td></tr>
+          <tr><td data-label="Site / institution"><strong>NYU Langone</strong></td><td data-label="N total">6</td><td data-label="ADHD">1</td><td data-label="Control">5</td><td data-label="LOIO AUC">0.500</td><td data-label="Status"><span class="badge warn">Small sample</span></td></tr>
+          <tr><td data-label="Site / institution"><strong>OHSU (Portland)</strong></td><td data-label="N total">23</td><td data-label="ADHD">0</td><td data-label="Control">23</td><td data-label="LOIO AUC">N/A</td><td data-label="Status"><span class="badge warn">0 ADHD cases</span></td></tr>
+          <tr><td data-label="Site / institution"><strong>Pittsburgh</strong></td><td data-label="N total">12</td><td data-label="ADHD">0</td><td data-label="Control">12</td><td data-label="LOIO AUC">N/A</td><td data-label="Status"><span class="badge warn">0 ADHD cases</span></td></tr>
+        </tbody></table></div></article>
+    </section>
+    <section class="view" id="view-pipeline" data-title="Model Pipeline | NeuroADHD Research Dashboard" data-description="Review the in-fold feature preparation and modeling pipeline used for the ADHD-200 CC200 research benchmark.">
+      <div class="hero"><div><div class="eyebrow">From BOLD time series to classifier score</div><h1>Model pipeline</h1><p>All learned transformations and imputations are intended to be fitted within training folds to reduce information leakage.</p></div><aside class="hero-aside"><b>Feature space</b>CC200 connectivity yields up to 19,900 unique undirected ROI-to-ROI edges.</aside></div>
+      <div class="steps">
+        <div class="step"><span class="step-no">1</span><div><strong>Raw BOLD fMRI time series</strong><small>Craddock CC200 ROI-average BOLD timecourses across frames</small></div><span class="code-pill">T × 200</span></div>
+        <div class="step"><span class="step-no">2</span><div><strong>Fisher z-transformed Pearson connectivity</strong><small>Pairwise ROI correlation matrix with variance-stabilizing transform</small></div><span class="code-pill">200 × 200</span></div>
+        <div class="step"><span class="step-no">3</span><div><strong>Upper-triangle edge vectorization</strong><small>Unique undirected connections: (200 × 199) / 2</small></div><span class="code-pill">19,900 edges</span></div>
+        <div class="step"><span class="step-no">4</span><div><strong>In-fold median imputation</strong><small>Median imputer fitted only on the training split</small></div><span class="code-pill">19,900 features</span></div>
+        <div class="step"><span class="step-no">5</span><div><strong>Variance thresholding</strong><small>Prunes zero-variance features in training subjects</small></div><span class="code-pill">Training-fold fit</span></div>
+        <div class="step"><span class="step-no">6</span><div><strong>StandardScaler normalization</strong><small>Z-score parameters calculated within the training fold</small></div><span class="code-pill">μ = 0 · σ = 1</span></div>
+        <div class="step"><span class="step-no">7</span><div><strong>Supervised univariate ANOVA selection</strong><small>SelectKBest with f_classif retains the top 100 features</small></div><span class="code-pill">k = 100</span></div>
+        <div class="step"><span class="step-no">8</span><div><strong>Balanced Random Forest Classifier</strong><small>50 trees, max_depth = 3, class_weight = 'balanced', random_state = 42</small></div><span class="code-pill">Score: P(ADHD)</span></div>
+      </div>
+    </section>
+    <section class="view" id="view-methodology" data-title="Methodology | NeuroADHD Research Dashboard" data-description="Read the site-aware validation approach and Peking_2 holdout protocol for this research benchmark.">
+      <div class="hero"><div><div class="eyebrow">Evaluation protocol</div><h1>Methodology</h1><p>Validation design determines what a benchmark can—and cannot—tell us about generalization.</p></div><aside class="hero-aside"><b>Interpretation</b>A same-institution batch holdout is not an independent external validation.</aside></div>
+      <article class="panel"><h2>Site-aware partitioning vs. random k-fold</h2><p>In multi-site neuroimaging studies, random k-fold splits can place participants from the same scanning site in both training and test folds. The model may then exploit site-specific baseline signals, scanner configurations, or demographic distributions.</p><div class="callout"><strong>LOIO evaluation:</strong> Leave-One-Institution-Out cross-validation holds out an entire site at a time and better probes cross-site transfer. Its estimates remain subject to small sample sizes and site-level class imbalance.</div></article>
+      <article class="panel"><h2>Peking_2 holdout protocol</h2><p>The 20-subject Peking_2 set is described as a held-out test partition. The scope of that holdout matters:</p><ul class="prose-list"><li>Peking_1 and Peking_3 are included in the training partition.</li><li>Peking_1, Peking_2, and Peking_3 were acquired at Peking University on the same 3T Siemens Trio scanner.</li><li>Accordingly, this is a same-institution, same-scanner batch holdout—not an independent out-of-site test.</li></ul></article>
+    </section>
+    <section class="view" id="view-limitations" data-title="Limitations | NeuroADHD Research Dashboard" data-description="Important statistical, dataset, and clinical limitations of the experimental ADHD-200 fMRI benchmark.">
+      <div class="hero"><div><div class="eyebrow">Read before interpreting results</div><h1>Limitations</h1><p>Sample size, site composition, and validation scope place firm boundaries on interpretation.</p></div><aside class="hero-aside"><b>No diagnostic use</b>Model scores are experimental and are not calibrated clinical risks.</aside></div>
+      <article class="panel"><div class="table-wrap"><table><thead><tr><th>Limitation</th><th>Description</th><th>Impact on interpretation</th></tr></thead><tbody>
+        <tr><td data-label="Limitation"><strong>Small test sample (N=20)</strong></td><td data-label="Description">Peking_2 held-out set contains 20 individuals (10 ADHD, 10 control).</td><td data-label="Impact on interpretation">High statistical uncertainty; the 60% accuracy Wilson 95% CI is 38.7–78.1% and includes chance-level performance.</td></tr>
+        <tr><td data-label="Limitation"><strong>Scanner / site confounding</strong></td><td data-label="Description">OHSU (N=23) and Pittsburgh (N=12) samples contain controls only.</td><td data-label="Impact on interpretation">Site identity and diagnosis can be entangled, affecting measured performance.</td></tr>
+        <tr><td data-label="Limitation"><strong>Same-scanner test set</strong></td><td data-label="Description">The held-out set comes from the same Peking University scanner as some training data.</td><td data-label="Impact on interpretation">Does not establish generalization to unseen institutions or scanners.</td></tr>
+        <tr><td data-label="Limitation"><strong>Uncalibrated scores</strong></td><td data-label="Description">Raw logistic-regression scores are not Platt-calibrated.</td><td data-label="Impact on interpretation">Scores should not be treated as individual diagnostic probabilities or clinical risk.</td></tr>
+      </tbody></table></div></article>
+    </section>
+    <section class="view" id="view-benchmark" data-title="Benchmarks | NeuroADHD Research Dashboard" data-description="Compare reported cross-validation results for seven classifier architectures in the ADHD-200 CC200 research benchmark.">
+      <div class="hero"><div><div class="eyebrow">Reported cross-validation comparison</div><h1>Benchmark results</h1><p>Seven classifier architectures compared under the reported in-fold feature pipeline. Seed variability is not a confidence interval.</p></div><aside class="hero-aside"><b>Context matters</b>Random-fold scores can overstate performance when site characteristics cross the split.</aside></div>
+      <article class="panel"><div class="table-wrap"><table><thead><tr><th>Model architecture</th><th>Mean CV accuracy</th><th>Seed variability</th><th>Balanced accuracy</th><th>ROC-AUC</th><th>Sensitivity</th><th>Specificity</th></tr></thead><tbody>
+        <tr><td data-label="Model architecture"><strong>Logistic regression (L2, k=100) ★</strong></td><td data-label="Mean CV accuracy">60.45%</td><td data-label="Seed variability">±1.63%</td><td data-label="Balanced accuracy">57.3%</td><td data-label="ROC-AUC">0.612</td><td data-label="Sensitivity">42.5%</td><td data-label="Specificity">72.1%</td></tr>
+        <tr><td data-label="Model architecture"><strong>Linear SVM (C=0.01)</strong></td><td data-label="Mean CV accuracy">59.80%</td><td data-label="Seed variability">±1.95%</td><td data-label="Balanced accuracy">56.1%</td><td data-label="ROC-AUC">0.598</td><td data-label="Sensitivity">40.0%</td><td data-label="Specificity">72.2%</td></tr>
+        <tr><td data-label="Model architecture"><strong>Random forest (50 trees, d=3)</strong></td><td data-label="Mean CV accuracy">57.50%</td><td data-label="Seed variability">±1.40%</td><td data-label="Balanced accuracy">52.4%</td><td data-label="ROC-AUC">0.575</td><td data-label="Sensitivity">25.0%</td><td data-label="Specificity">79.8%</td></tr>
+        <tr><td data-label="Model architecture"><strong>RBF kernel SVM</strong></td><td data-label="Mean CV accuracy">56.20%</td><td data-label="Seed variability">±2.10%</td><td data-label="Balanced accuracy">51.8%</td><td data-label="ROC-AUC">0.554</td><td data-label="Sensitivity">22.5%</td><td data-label="Specificity">81.0%</td></tr>
+        <tr><td data-label="Model architecture"><strong>Multi-layer perceptron</strong></td><td data-label="Mean CV accuracy">55.10%</td><td data-label="Seed variability">±3.20%</td><td data-label="Balanced accuracy">52.0%</td><td data-label="ROC-AUC">0.548</td><td data-label="Sensitivity">35.0%</td><td data-label="Specificity">69.0%</td></tr>
+        <tr><td data-label="Model architecture"><strong>Gradient boosting (k=50)</strong></td><td data-label="Mean CV accuracy">54.60%</td><td data-label="Seed variability">±2.80%</td><td data-label="Balanced accuracy">51.2%</td><td data-label="ROC-AUC">0.536</td><td data-label="Sensitivity">30.0%</td><td data-label="Specificity">72.5%</td></tr>
+        <tr><td data-label="Model architecture"><strong>Majority class baseline</strong></td><td data-label="Mean CV accuracy">57.60%</td><td data-label="Seed variability">±0.00%</td><td data-label="Balanced accuracy">50.0%</td><td data-label="ROC-AUC">0.500</td><td data-label="Sensitivity">0.0%</td><td data-label="Specificity">100.0%</td></tr>
+      </tbody></table></div></article>
+    </section>
+    <section class="view" id="view-not-found" data-title="Page not found | NeuroADHD Research Dashboard" data-description="The requested dashboard view could not be found."><div class="empty-state"><div class="eyebrow">404 · View not found</div><h1>That page isn't here.</h1><p>The address may be outdated, or the requested dashboard section does not exist. Use the button below to return to the overview.</p><a class="primary-button" href="#overview">Back to overview</a></div></section>
+  </main>
+  <footer class="site-footer">
+    <div class="shell">
+      <div>
+        <a class="brand" href="#overview" aria-label="NeuroADHD dashboard home"><span class="brand-mark" aria-hidden="true">N</span><span><span class="brand-name">NeuroADHD</span><span class="brand-caption">Research dashboard</span></span></a>
+        <p class="footer-copy">Experimental research results only. Not for diagnosis or treatment decisions.</p>
+      </div>
+
+      <!-- Expandable Research Disclaimer Button and Content at the End of the Page -->
+      <div class="disclaimer-section">
+        <button type="button" class="disclaimer-toggle-btn" id="disclaimer-toggle-btn" aria-expanded="false" aria-controls="disclaimer-box">
+          <span aria-hidden="true">⚠️</span> <span id="disclaimer-btn-text">Show Research Disclaimer</span>
+        </button>
+        <div id="disclaimer-box" class="disclaimer-box" role="region" aria-label="Research Disclaimer">
+          <div class="disclaimer-inner">
+            <span aria-hidden="true" style="font-size: 1.15rem;">⚠️</span>
+            <span><strong>Research use only — not a clinical diagnosis.</strong> This dashboard summarizes experimental ADHD-200 CC200 resting-state fMRI classifier results. It is not a medical device; held-out evaluations are same-institution batch holdouts.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">© <span id="copyright-year">2026</span> NeuroADHD Research Dashboard · Research use only</div>
+    </div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    (()=>{
+      const routes=['overview','pipeline','methodology','limitations','benchmark'];
+      const views=[...document.querySelectorAll('.view')];
+      const titleEl=document.querySelector('title');
+      const description=document.querySelector('meta[name="description"]');
+      const menu=document.getElementById('mobile-nav');
+      const menuButton=document.getElementById('menu-toggle');
+      const toast=document.getElementById('toast');
+      const disclaimerBtn=document.getElementById('disclaimer-toggle-btn');
+      const disclaimerBox=document.getElementById('disclaimer-box');
+      const disclaimerBtnText=document.getElementById('disclaimer-btn-text');
+      const headerDisclaimerBtn=document.getElementById('header-disclaimer-btn');
+      let toastTimer;
+
+      function message(text,isError=false){clearTimeout(toastTimer);toast.textContent=text;toast.classList.toggle('error',isError);toast.classList.add('show');toastTimer=setTimeout(()=>toast.classList.remove('show'),2800)}
+
+      function toggleDisclaimer(forceOpen=false){
+        const isShown=disclaimerBox.classList.contains('show');
+        const shouldShow=forceOpen||!isShown;
+        disclaimerBox.classList.toggle('show',shouldShow);
+        disclaimerBtn.setAttribute('aria-expanded',String(shouldShow));
+        disclaimerBtnText.textContent=shouldShow?'Hide Research Disclaimer':'Show Research Disclaimer';
+        if(shouldShow){
+          disclaimerBox.scrollIntoView({behavior:'smooth',block:'nearest'});
+        }
+      }
+
+      disclaimerBtn.addEventListener('click',()=>toggleDisclaimer());
+      if(headerDisclaimerBtn){
+        headerDisclaimerBtn.addEventListener('click',()=>{
+          toggleDisclaimer(true);
+          disclaimerBox.scrollIntoView({behavior:'smooth',block:'center'});
+        });
+      }
+
+      function renderRoute(){
+        let route=decodeURIComponent(location.hash.slice(1)||'overview');
+        const found=routes.includes(route);
+        if(!found)route='not-found';
+        views.forEach(v=>v.classList.toggle('active',v.id==='view-'+route));
+        document.querySelectorAll('[data-route]').forEach(a=>{if(a.dataset.route===route)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+        const active=document.getElementById('view-'+route);
+        titleEl.textContent=active?.dataset.title||'NeuroADHD Research Dashboard';
+        description.setAttribute('content',active?.dataset.description||'NeuroADHD research dashboard.');
+        menu.classList.remove('open');menuButton.setAttribute('aria-expanded','false');menuButton.setAttribute('aria-label','Open navigation menu');
+        if(!found){message('Page not found. Choose a dashboard section or return to Overview.',true);window.scrollTo(0,0)}
+      }
+      window.addEventListener('hashchange',renderRoute);
+      document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',()=>{if(a.closest('#mobile-nav')){menu.classList.remove('open');menuButton.setAttribute('aria-expanded','false')}}));
+      menuButton.addEventListener('click',()=>{const open=menu.classList.toggle('open');menuButton.setAttribute('aria-expanded',String(open));menuButton.setAttribute('aria-label',open?'Close navigation menu':'Open navigation menu');menuButton.querySelector('span').textContent=open?'✕':'☰'});
+      document.getElementById('copyright-year').textContent=new Date().getFullYear();
+      renderRoute();
+    })();
+  </script>
+</body>
+</html>
