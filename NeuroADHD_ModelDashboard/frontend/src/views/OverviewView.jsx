@@ -101,7 +101,7 @@ export function OverviewView({ data }) {
           </div>
 
           <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
-            *Note: Random-fold CV mixes subjects from the same acquisition site across training and validation folds. Performance may be inflated by site-correlated demographic and scanner distributions.
+            *Note: Random-fold CV mixes subjects from the same acquisition site across training and validation folds; random k-fold CV can inflate performance estimates by allowing models to exploit site-correlated demographic and scanner distributions.
           </p>
         </div>
 
@@ -145,8 +145,8 @@ export function OverviewView({ data }) {
         </div>
 
         <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: "16px" }}>
-          In resting-state fMRI, scanner differences create artificial statistical shortcuts that inflate standard cross-validation. 
-          Below are the empirical leave-one-institution-out (LOIO) cross-validation results from the follow-up study (nested CV, inner 3-fold selection) comparing full cohort data against the clean cohort:
+          In multi-site resting-state fMRI, random k-fold CV can inflate performance estimates by allowing models to exploit site-correlated demographic and scanner distributions.
+          Below are the empirical Leave-One-Institution-Out (LOIO) cross-validation results from the follow-up study (nested CV, inner 3-fold selection) evaluating generalization to unseen clinical sites alongside explicit majority-class, site-only, and age/sex-only baselines:
         </p>
 
         <div className="table-container">
@@ -156,9 +156,10 @@ export function OverviewView({ data }) {
                 <th>Cohort Configuration</th>
                 <th>Majority Class Baseline</th>
                 <th>Site-Only Baseline AUC</th>
+                <th>Age/Sex Covariates LOIO AUC</th>
                 <th>LOIO Connectivity AUC [95% CI]</th>
                 <th>LOIO Accuracy [95% CI]</th>
-                <th>LOIO + Age/Sex AUC</th>
+                <th>Permutation Test p-value</th>
               </tr>
             </thead>
             <tbody>
@@ -172,6 +173,10 @@ export function OverviewView({ data }) {
                   {siteConfoundData.config1_153.site_only_insample_auc.toFixed(4)} (Fit)<br />
                   <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config1_153.site_only_stratified_auc.toFixed(4)} (CV)</span>
                 </td>
+                <td className="tabular-nums">
+                  {siteConfoundData.config1_153.covariates_only_baseline?.loio_auc?.toFixed(4) ?? "0.4457"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config1_153.covariates_only_baseline?.loio_auc_ci?.join(", ") ?? "0.359, 0.547"}]</span>
+                </td>
                 <td className="tabular-nums" style={{ fontWeight: "700" }}>
                   {siteConfoundData.config1_153.loio_connectivity_only.roc_auc.toFixed(4)}<br />
                   <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config1_153.loio_connectivity_only.roc_auc_ci.join(", ")}]</span>
@@ -180,8 +185,9 @@ export function OverviewView({ data }) {
                   {(siteConfoundData.config1_153.loio_connectivity_only.accuracy * 100).toFixed(1)}%<br />
                   <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config1_153.loio_connectivity_only.accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
                 </td>
-                <td className="tabular-nums">
-                  {siteConfoundData.config1_153.loio_connectivity_plus_covariates.roc_auc.toFixed(4)}
+                <td className="tabular-nums" style={{ fontWeight: "600", color: "var(--text-muted)" }}>
+                  p = {siteConfoundData.config1_153.loio_connectivity_only?.p_value?.toFixed(4) ?? "0.0859"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--accent-warning)" }}>Not significant</span>
                 </td>
               </tr>
               <tr style={{ background: "var(--bg-subtle)" }}>
@@ -191,7 +197,12 @@ export function OverviewView({ data }) {
                 </td>
                 <td className="tabular-nums">{(siteConfoundData.config2_118.majority_accuracy * 100).toFixed(1)}%</td>
                 <td className="tabular-nums" style={{ fontWeight: "600" }}>
-                  {siteConfoundData.config2_118.site_only_insample_auc.toFixed(4)} (Fit)
+                  {siteConfoundData.config2_118.site_only_insample_auc.toFixed(4)} (Fit)<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config2_118.site_only_stratified_auc.toFixed(4)} (CV)</span>
+                </td>
+                <td className="tabular-nums">
+                  {siteConfoundData.config2_118.covariates_only_baseline?.loio_auc?.toFixed(4) ?? "0.5976"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config2_118.covariates_only_baseline?.loio_auc_ci?.join(", ") ?? "0.492, 0.702"}]</span>
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--brand-blue)" }}>
                   {siteConfoundData.config2_118.loio_connectivity_only.roc_auc.toFixed(4)}<br />
@@ -201,8 +212,9 @@ export function OverviewView({ data }) {
                   {(siteConfoundData.config2_118.loio_connectivity_only.accuracy * 100).toFixed(1)}%<br />
                   <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config2_118.loio_connectivity_only.accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
                 </td>
-                <td className="tabular-nums">
-                  {siteConfoundData.config2_118.loio_connectivity_plus_covariates.roc_auc.toFixed(4)}
+                <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--accent-success)" }}>
+                  p = {siteConfoundData.config2_118.loio_connectivity_only?.p_value?.toFixed(4) ?? "0.0210"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--accent-success)" }}>Significant (α=0.05)</span>
                 </td>
               </tr>
             </tbody>
@@ -212,7 +224,7 @@ export function OverviewView({ data }) {
         <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", fontSize: "0.78rem", color: "var(--text-muted)" }}>
           <Info size={16} color="var(--brand-blue)" style={{ flexShrink: 0, marginTop: "2px" }} />
           <span>
-            <strong>Key Scientific Takeaway:</strong> In Config 1, site alone predicts diagnosis with AUC 0.7221 because OHSU and Pittsburgh contain zero ADHD cases. Under honest Leave-One-Institution-Out evaluation, connectivity collapses to near-chance (AUC 0.5342). In Config 2, removing zero-ADHD sites eliminates this shortcut, restoring honest LOIO generalization to 0.6221.
+            <strong>What the data show:</strong> In Config 1 (153 subjects), site identity alone predicts diagnosis with an in-sample ROC-AUC of 0.7221 because OHSU and Pittsburgh contain zero ADHD cases in this release. Under Leave-One-Institution-Out evaluation where site shortcuts cannot be exploited, functional connectivity drops to near-chance (LOIO AUC 0.5342 [0.439, 0.633]), and non-parametric within-institution label permutation testing confirms this is not statistically significant (p = 0.0859). When zero-ADHD sites are excluded (Config 2, 118 subjects), cross-site generalization achieves AUC 0.6221 [0.515, 0.724] and reaches statistical significance (p = 0.0210).
           </span>
         </div>
       </div>

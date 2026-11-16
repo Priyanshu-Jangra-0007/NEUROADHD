@@ -5,7 +5,7 @@ export function LimitationsView() {
   const limitations = [
     {
       title: "Site Confounding & Zero-ADHD Sites (OHSU & Pittsburgh)",
-      desc: "In the CC200 release of ADHD-200, OHSU (N=14) and Pittsburgh (N=21) contain exclusively typically developing controls with zero ADHD cases. In standard random-fold cross-validation, models can learn site-specific scanner artifacts as an artificial classification shortcut. In fact, site identity alone achieves an in-sample ROC-AUC of 0.7221 and a 5-fold CV AUC of 0.6745 on the 153-subject cohort. When evaluated under honest leave-one-institution-out CV (where site shortcuts cannot be exploited), functional connectivity collapses to chance (AUC 0.5342 [0.439, 0.633]). Only when zero-ADHD sites are excluded (Config 2, N=118) does honest cross-site generalization reach AUC 0.6221.",
+      desc: "In multi-site resting-state fMRI, random k-fold CV can inflate performance estimates by allowing models to exploit site-correlated demographic and scanner distributions. What the data show: in the CC200 release of ADHD-200, OHSU (N=14) and Pittsburgh (N=21) contain exclusively typically developing controls with zero ADHD cases. In fact, site identity alone achieves an in-sample ROC-AUC of 0.7221 and a 5-fold CV AUC of 0.6745 on the 153-subject cohort. When evaluated under Leave-One-Institution-Out CV (where site shortcuts cannot be exploited), functional connectivity drops to near-chance (LOIO AUC 0.5342 [0.439, 0.633], permutation p=0.0859). Only when zero-ADHD sites are excluded (Config 2, N=118) does cross-site generalization achieve AUC 0.6221 [0.515, 0.724] (permutation p=0.0210).",
       icon: ShieldAlert,
       color: "var(--accent-danger)"
     },

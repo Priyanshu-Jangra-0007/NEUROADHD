@@ -1,12 +1,51 @@
 {
-  "source": "NeuroADHD_ModelBenchmark/experiments/followup_study/followup_study_results.json",
+  "_metadata": {
+    "source": "NeuroADHD_ModelBenchmark/experiments/followup_study/followup_study_results.json",
+    "description": "Systematic follow-up evaluation on site confounding, Leave-One-Institution-Out CV, demographic covariates, and within-institution permutation tests."
+  },
   "config1_153": {
     "title": "Full Cohort (153 Subjects, 6 Institutions)",
+    "n_subjects": 153,
     "note": "Includes OHSU (N=14) and Pittsburgh (N=21) which contain zero ADHD cases in CC200 release",
     "majority_accuracy": 0.6732,
-    "site_only_stratified_auc": 0.6745,
+    "majority_class_baseline": {
+      "accuracy": 0.6732,
+      "description": "Predicting majority class (Control: 103/153 = 67.32%)"
+    },
     "site_only_insample_auc": 0.7221,
+    "site_only_stratified_auc": 0.6745,
     "site_only_loio_auc": 0.3326,
+    "site_only_baseline": {
+      "insample_auc": 0.7221,
+      "stratified_5fold_auc": 0.6745,
+      "loio_auc": 0.3326,
+      "description": "Logistic regression on site indicator one-hot features only"
+    },
+    "covariates_only_baseline": {
+      "loio_auc": 0.4457,
+      "loio_auc_ci": [
+        0.359,
+        0.547
+      ],
+      "loio_accuracy": 0.5033,
+      "loio_accuracy_ci": [
+        0.418,
+        0.582
+      ],
+      "description": "Standardized age + sex demographic covariates only"
+    },
+    "loio_covariates_only": {
+      "roc_auc": 0.4457,
+      "roc_auc_ci": [
+        0.359,
+        0.547
+      ],
+      "accuracy": 0.5033,
+      "accuracy_ci": [
+        0.418,
+        0.582
+      ]
+    },
     "loio_connectivity_only": {
       "roc_auc": 0.5342,
       "roc_auc_ci": [
@@ -17,28 +56,74 @@
       "accuracy_ci": [
         0.51,
         0.667
-      ]
+      ],
+      "p_value": 0.0859,
+      "description": "Pairwise resting-state functional connectivity (19,900 Fisher-z edges, SelectKBest k=100)"
     },
     "loio_connectivity_plus_covariates": {
       "roc_auc": 0.5025,
       "roc_auc_ci": [
         0.412,
         0.6
+      ],
+      "accuracy": 0.5752,
+      "accuracy_ci": [
+        0.497,
+        0.647
       ]
     },
-    "loio_covariates_only": {
-      "roc_auc": 0.4457,
-      "roc_auc_ci": [
-        0.359,
-        0.547
-      ]
+    "permutation_test": {
+      "observed_auc": 0.5122,
+      "perm_mean": 0.4231,
+      "perm_std": 0.0641,
+      "perm_95th": 0.5261,
+      "p_value": 0.0859,
+      "is_significant": false
     }
   },
   "config2_118": {
     "title": "Clean Cohort (118 Subjects, 4 Institutions)",
+    "n_subjects": 118,
     "note": "Excludes zero-ADHD sites (OHSU, Pittsburgh); merges Peking 1/2/3 into Peking",
     "majority_accuracy": 0.5763,
+    "majority_class_baseline": {
+      "accuracy": 0.5763,
+      "description": "Predicting majority class (Control: 68/118 = 57.63%)"
+    },
     "site_only_insample_auc": 0.5791,
+    "site_only_stratified_auc": 0.501,
+    "site_only_loio_auc": 0.4609,
+    "site_only_baseline": {
+      "insample_auc": 0.5791,
+      "stratified_5fold_auc": 0.501,
+      "loio_auc": 0.4609,
+      "description": "Logistic regression on site indicator one-hot features only"
+    },
+    "covariates_only_baseline": {
+      "loio_auc": 0.5976,
+      "loio_auc_ci": [
+        0.492,
+        0.702
+      ],
+      "loio_accuracy": 0.5763,
+      "loio_accuracy_ci": [
+        0.492,
+        0.661
+      ],
+      "description": "Standardized age + sex demographic covariates only"
+    },
+    "loio_covariates_only": {
+      "roc_auc": 0.5976,
+      "roc_auc_ci": [
+        0.492,
+        0.702
+      ],
+      "accuracy": 0.5763,
+      "accuracy_ci": [
+        0.492,
+        0.661
+      ]
+    },
     "loio_connectivity_only": {
       "roc_auc": 0.6221,
       "roc_auc_ci": [
@@ -49,21 +134,29 @@
       "accuracy_ci": [
         0.534,
         0.703
-      ]
+      ],
+      "p_value": 0.021,
+      "description": "Pairwise resting-state functional connectivity (19,900 Fisher-z edges, SelectKBest k=100)"
     },
     "loio_connectivity_plus_covariates": {
       "roc_auc": 0.6218,
       "roc_auc_ci": [
         0.516,
         0.724
+      ],
+      "accuracy": 0.6271,
+      "accuracy_ci": [
+        0.542,
+        0.712
       ]
     },
-    "loio_covariates_only": {
-      "roc_auc": 0.5976,
-      "roc_auc_ci": [
-        0.492,
-        0.702
-      ]
+    "permutation_test": {
+      "observed_auc": 0.6282,
+      "perm_mean": 0.4866,
+      "perm_std": 0.0673,
+      "perm_95th": 0.5974,
+      "p_value": 0.021,
+      "is_significant": true
     }
   }
 }
