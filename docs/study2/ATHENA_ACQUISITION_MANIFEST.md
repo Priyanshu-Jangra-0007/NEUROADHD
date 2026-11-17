@@ -43,7 +43,7 @@ All requirements in this section are extracted directly from the binding OSF pre
 
 ### 3.1. Distribution Packages
 On NITRC, Athena derivatives are distributed as compressed tarballs:
-1. **Consolidated Time-Series Archive:** `ADHD200_CC200TCs_filtfix.tar.gz` (contains Craddock 200 regional time series across all sites).
+1. **Consolidated Time-Series Archive:** `ADHD200_CC200_TCs_filtfix.tar.gz` (NITRC Release 1600 package title "CC200 Time Courses Corrected Filtering", also referenced historically without underscore as `ADHD200_CC200TCs_filtfix.tar.gz`; contains Craddock 200 regional time series across all sites).
 2. **Per-Site Full Derivative Archives:** `Athena_<Site>.tar.gz` (e.g., `Athena_NYU.tar.gz`, `Athena_Peking_1.tar.gz`, `Athena_KKI.tar.gz`, `Athena_OHSU.tar.gz`, `Athena_NeuroIMAGE.tar.gz`).
 
 ### 3.2. Expected Directory Hierarchy
@@ -163,7 +163,7 @@ To guarantee untainted external confirmation, the NYU site ($N \approx 216$) is 
 | :--- | :--- | :--- | :--- |
 | **Pipeline Origin** | Athena AFNI/FSL preprocessed derivatives | Available on NITRC (`group_id=383`) | Aligned. |
 | **Atlas Parcellation** | Craddock 200 (CC200) | Available directly as `.1D` time series | Aligned. |
-| **Preprocessing Variant** | Band-pass filtered, non-GSR (`filtfix`) | Available on NITRC (`ADHD200_CC200TCs_filtfix.tar.gz`) | Aligned; fallback rule specified if variant missing. |
+| **Preprocessing Variant** | Band-pass filtered, non-GSR (`filtfix`) | Available on NITRC (`ADHD200_CC200_TCs_filtfix.tar.gz`) | Aligned; fallback rule specified if variant missing. |
 | **Motion Parameters** | 6-parameter motion files (`_motion.1D`) | Available in site packages | Aligned; column order verified prior to FD calculation. |
 | **Download Access** | Direct download | Requires authenticated NITRC login | Staged for manual browser download to local directory. |
 | **Sample Counts** | $N=404$ dev, $N=216$ NYU ($N=620$ total) | Unverified until physical file extraction | Mechanical recomputation rule formally registered in Section 4.2. |
