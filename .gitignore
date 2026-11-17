@@ -28,6 +28,9 @@ Thumbs.db
 # Heavy raw dataset downloads (BIDS mirrors & raw time series)
 outputs/
 NeuroADHD/data/adhd200/raw/
+NeuroADHD/data/athena/
+data/athena/
+**/athena/
 
 # Large transfer archives (4.7GB+ each - exceed GitHub 100MB limit)
 NeuroADHD_NewPC_Transfer.zip
