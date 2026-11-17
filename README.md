@@ -158,3 +158,13 @@ Run the full validation suite to verify zero-leakage constraints, API functional
 # 4. Verify frontend production build
 cd NeuroADHD_ModelDashboard/frontend && npm run build
 ```
+
+---
+
+## 📚 Data and Citation
+
+- **ADHD-200 Sample**: ADHD-200 Consortium, shared via INDI/NITRC (https://fcon_1000.projects.nitrc.org/indi/adhd200/).
+- **Preprocessed Data**: Neuro Bureau (CC200 via C-PAC).
+- **Access and Usage**: Non-commercial research use. A free NITRC account is needed to download.
+- **Redistribution Policy**: No raw data or derived features are redistributed in this repo.
+- **Citation**: Please cite the ADHD-200 Consortium and the Neuro Bureau.
