@@ -43,16 +43,13 @@ export const BENCHMARK_DATA = {
     "test_site": "Peking_2",
     "final_test_metrics": {
       "accuracy": 0.6,
-      "accuracy_ci_95": [0.387, 0.781],
-      "accuracy_ci_method": "Wilson score 95% CI (12/20)",
       "balanced_accuracy": 0.6,
       "precision": 0.6,
       "recall_sensitivity": 0.6,
       "specificity": 0.6,
       "f1_score": 0.6,
       "roc_auc": 0.56,
-      "roc_auc_ci_95": [0.290, 0.830],
-      "roc_auc_ci_method": "Stratified bootstrap 95% CI (2000 resamples)",
+      "pr_auc": 0.634112926547137,
       "confusion_matrix": {
         "tp": 6,
         "tn": 6,
@@ -75,25 +72,57 @@ export const BENCHMARK_DATA = {
     "test_subject_count": 20,
     "metrics": {
       "accuracy": 0.6,
-      "accuracy_ci_95": [0.387, 0.781],
-      "accuracy_ci_method": "Wilson score 95% CI (12/20)",
       "balanced_accuracy": 0.6,
       "precision": 0.6,
       "recall_sensitivity": 0.6,
       "specificity": 0.6,
       "f1_score": 0.6,
       "roc_auc": 0.56,
-      "roc_auc_ci_95": [0.290, 0.830],
-      "roc_auc_ci_method": "Stratified bootstrap 95% CI (2000 resamples)",
       "pr_auc": 0.634112926547137,
       "confusion_matrix": {
         "tp": 6,
         "tn": 6,
         "fp": 4,
         "fn": 4
-      }
+      },
+      "accuracy_ci_95": [
+        0.387,
+        0.781
+      ],
+      "accuracy_ci_method": "Wilson score 95% CI (12/20)",
+      "roc_auc_ci_95": [
+        0.29,
+        0.83
+      ],
+      "roc_auc_ci_method": "Stratified bootstrap 95% CI (2000 resamples)"
     },
     "evaluation_timestamp": "2026-10-04T18:23:20.274625+00:00"
+  },
+  "final_test_metrics": {
+    "accuracy": 0.6,
+    "balanced_accuracy": 0.6,
+    "precision": 0.6,
+    "recall_sensitivity": 0.6,
+    "specificity": 0.6,
+    "f1_score": 0.6,
+    "roc_auc": 0.56,
+    "pr_auc": 0.634112926547137,
+    "confusion_matrix": {
+      "tp": 6,
+      "tn": 6,
+      "fp": 4,
+      "fn": 4
+    },
+    "accuracy_ci_95": [
+      0.387,
+      0.781
+    ],
+    "accuracy_ci_method": "Wilson score 95% CI (12/20)",
+    "roc_auc_ci_95": [
+      0.29,
+      0.83
+    ],
+    "roc_auc_ci_method": "Stratified bootstrap 95% CI (2000 resamples)"
   },
   "final_confusion_matrix": {
     "tp": 6,
@@ -1224,7 +1253,7 @@ export const BENCHMARK_DATA = {
       {
         "category": "True Positive (High-Confidence ADHD)",
         "cohort": "Development",
-        "subject_id": 3310328,
+        "subject_id": "Case A",
         "site": "KKI",
         "actual_diagnosis": "ADHD",
         "predicted_class": "ADHD",
@@ -1235,7 +1264,7 @@ export const BENCHMARK_DATA = {
       {
         "category": "Lowest-Margin ADHD (Near-Boundary Prediction)",
         "cohort": "Development",
-        "subject_id": 27003,
+        "subject_id": "Case B",
         "site": "NeuroIMAGE",
         "actual_diagnosis": "ADHD",
         "predicted_class": "ADHD",
@@ -1246,7 +1275,7 @@ export const BENCHMARK_DATA = {
       {
         "category": "True Negative (High-Confidence Control)",
         "cohort": "Development",
-        "subject_id": 2081754,
+        "subject_id": "Case C",
         "site": "Peking_1",
         "actual_diagnosis": "Control",
         "predicted_class": "Control",
@@ -1257,7 +1286,7 @@ export const BENCHMARK_DATA = {
       {
         "category": "False Positive (Misclassified Control)",
         "cohort": "Development",
-        "subject_id": 16034,
+        "subject_id": "Case D",
         "site": "Pittsburgh",
         "actual_diagnosis": "Control",
         "predicted_class": "ADHD",
@@ -1268,7 +1297,7 @@ export const BENCHMARK_DATA = {
       {
         "category": "Peking_2 Test: True Positive",
         "cohort": "Peking_2 Test",
-        "subject_id": 3827352,
+        "subject_id": "Case E",
         "site": "Peking_2",
         "actual_diagnosis": "ADHD",
         "predicted_class": "ADHD",
@@ -1279,7 +1308,7 @@ export const BENCHMARK_DATA = {
       {
         "category": "Peking_2 Test: False Negative",
         "cohort": "Peking_2 Test",
-        "subject_id": 1809715,
+        "subject_id": "Case F",
         "site": "Peking_2",
         "actual_diagnosis": "ADHD",
         "predicted_class": "Control",
@@ -1290,7 +1319,7 @@ export const BENCHMARK_DATA = {
       {
         "category": "Peking_2 Test: True Negative",
         "cohort": "Peking_2 Test",
-        "subject_id": 1068505,
+        "subject_id": "Case G",
         "site": "Peking_2",
         "actual_diagnosis": "Control",
         "predicted_class": "Control",
@@ -1301,7 +1330,7 @@ export const BENCHMARK_DATA = {
       {
         "category": "Peking_2 Test: False Positive",
         "cohort": "Peking_2 Test",
-        "subject_id": 2296326,
+        "subject_id": "Case H",
         "site": "Peking_2",
         "actual_diagnosis": "Control",
         "predicted_class": "ADHD",

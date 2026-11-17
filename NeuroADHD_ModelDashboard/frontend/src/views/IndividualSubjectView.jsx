@@ -53,7 +53,7 @@ export function IndividualSubjectView({ data }) {
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
                     <span style={{ fontWeight: "700", fontSize: "0.85rem", color: "var(--text-primary)" }}>
-                      Subject {s.subject_id}
+                      {typeof s.subject_id === "string" && s.subject_id.startsWith("Case") ? s.subject_id : `Case ${String.fromCharCode(65 + idx)}`}
                     </span>
                     <span style={{ fontSize: "0.7rem", background: isPeking ? "#fef3c7" : "#e2e8f0", color: isPeking ? "#b45309" : "#475569", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
                       {s.site}
@@ -76,7 +76,7 @@ export function IndividualSubjectView({ data }) {
                 {curSub.cohort} Case Study
               </span>
               <h3 style={{ fontSize: "1.25rem", fontWeight: "800", color: "var(--text-primary)", marginTop: "2px" }}>
-                Subject {curSub.subject_id} ({curSub.category})
+                {typeof curSub.subject_id === "string" && curSub.subject_id.startsWith("Case") ? curSub.subject_id : `Case ${String.fromCharCode(65 + selectedIdx)}`} ({curSub.category})
               </h3>
             </div>
             <div style={{ textAlign: "right" }}>
