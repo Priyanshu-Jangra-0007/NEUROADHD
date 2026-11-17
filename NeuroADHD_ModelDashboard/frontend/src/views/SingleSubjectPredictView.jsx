@@ -14,6 +14,7 @@ import {
 
 export function SingleSubjectPredictView() {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isSample, setIsSample] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sampleLoading, setSampleLoading] = useState(false);
@@ -82,6 +83,7 @@ export function SingleSubjectPredictView() {
       return;
     }
 
+    setIsSample(nameLower.includes("sample"));
     setSelectedFile(file);
   };
 
@@ -93,6 +95,7 @@ export function SingleSubjectPredictView() {
       const response = await fetchWithFallback("/api/predict/sample");
       const blob = await response.blob();
       const file = new File([blob], "sample_cc200_roi_scan.csv", { type: "text/csv" });
+      setIsSample(true);
       setSelectedFile(file);
     } catch (err) {
       setError(err.message || "Failed to load sample scan from backend.");
@@ -138,6 +141,7 @@ export function SingleSubjectPredictView() {
 
   const handleReset = () => {
     setSelectedFile(null);
+    setIsSample(false);
     setError(null);
     setResult(null);
   };
@@ -416,7 +420,7 @@ export function SingleSubjectPredictView() {
                 <span style={{ fontSize: "0.75rem", fontWeight: "700", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.05em" }}>
                   CLASSIFICATION OUTCOME
                 </span>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "4px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "4px", flexWrap: "wrap" }}>
                   <h3 style={{ fontSize: "1.75rem", fontWeight: "800", color: "var(--text-primary)" }}>
                     {result.prediction.class_label.toUpperCase()}
                   </h3>
@@ -432,6 +436,21 @@ export function SingleSubjectPredictView() {
                   >
                     Class {result.prediction.predicted_class}
                   </span>
+                  {(isSample || result.filename?.toLowerCase().includes("sample")) && (
+                    <span
+                      style={{
+                        background: "var(--accent-amber-bg)",
+                        color: "#92400e",
+                        border: "1px solid #fde68a",
+                        fontSize: "0.75rem",
+                        fontWeight: "600",
+                        padding: "4px 10px",
+                        borderRadius: "6px"
+                      }}
+                    >
+                      This sample was part of the data used to build the model, so this prediction is not an independent test.
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -529,7 +548,7 @@ export function SingleSubjectPredictView() {
               <div style={{ background: "var(--bg-app)", padding: "12px", borderRadius: "var(--radius-md)" }}>
                 <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Source Filename</div>
                 <div style={{ fontWeight: "700", color: "var(--text-primary)", fontSize: "0.9rem", marginTop: "2px" }}>
-                  {result.filename}
+                  {(isSample || result.filename?.toLowerCase().includes("sample")) ? "sample_cc200_roi_scan.csv" : result.filename}
                 </div>
               </div>
 
@@ -591,7 +610,7 @@ export function SingleSubjectPredictView() {
               </div>
               <p>
                 <strong>Model score, not a diagnosis; probabilities are not calibrated.</strong> The score displayed
-                above represents the model decision function value of this resting-state fMRI connectome relative to
+                above represents the Random Forest's predicted probability for the ADHD class based on this resting-state fMRI connectome relative to
                 the ADHD-200 Consortium training cohort. It is <strong>NOT a medical risk score, biomarker guarantee,
                 or DSM-5/ICD-11 diagnostic assessment</strong>.
               </p>

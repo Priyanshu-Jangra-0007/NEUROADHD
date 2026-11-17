@@ -256,7 +256,7 @@ def get_sample_subject():
         raise HTTPException(status_code=404, detail="Sample subject file not found on disk.")
     return FileResponse(
         path=str(sample_path),
-        filename="1017176_session_1_roi_CC200.csv",
+        filename="sample_cc200_roi_scan.csv",
         media_type="text/csv"
     )
 
