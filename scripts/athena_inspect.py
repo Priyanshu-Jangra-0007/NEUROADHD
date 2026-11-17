@@ -2,35 +2,71 @@
 """
 Athena Derivative Inspection Tool (Read-Only)
 
-Inspects manually downloaded Athena derivative directories and reports:
-- Detected file naming patterns
-- Total subject and file counts
-- Rows (timepoints) and columns (ROIs) distribution across time-series files
-- Paired motion parameter file availability counts
-- Diagnosis counts by site after joining with phenotype records
+Inspects a directory of downloaded neuroimaging derivatives and reports:
+- File extensions actually present and their frequencies
+- Discovered file name and directory path patterns (with numeric IDs masked)
+- Total unique subjects discovered
+- Matrix dimension distributions (timepoints x ROI columns)
+- Motion parameter file pairing rate
+- Diagnostic and institutional breakdown after joining with phenotypic records
 
 STRICT PRIVACY GUARDRAIL:
-This tool reports aggregate counts only. It never prints individual subject IDs.
+This tool reports aggregate counts and masked templates only.
+It NEVER prints individual subject identifiers.
 """
 
 import argparse
 import csv
+import io
 import re
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 
-def sanitize_filename_pattern(name: str) -> str:
-    """Replace subject ID numbers (4 to 8 digits) with a generic placeholder."""
-    return re.sub(r"\b\d{4,8}\b", "<SUBJECT_ID>", name)
+def mask_numeric_identifiers(text: str) -> str:
+    """Mask any sequence of 4 to 8 consecutive digits with '<ID>' (handles underscores, hyphens, etc.)."""
+    return re.sub(r"(?<!\d)\d{4,8}(?!\d)", "<ID>", text)
 
 
-def extract_subject_id_from_name(name: str) -> Optional[str]:
-    """Extract candidate subject numeric identifier for internal dictionary lookup only."""
-    m = re.search(r"(\d{4,8})", name)
+def extract_numeric_id(text: str) -> Optional[str]:
+    """Extract candidate subject numeric identifier for internal dictionary pairing only."""
+    m = re.search(r"(\d{4,8})", text)
     return m.group(1).lstrip("0") if m else None
+
+
+def get_file_extension(p: Path) -> str:
+    """Extract full file extension, accounting for compound extensions like .tar.gz."""
+    name_lower = p.name.lower()
+    for compound in [".tar.gz", ".tar.bz2", ".nii.gz", ".1d.gz"]:
+        if name_lower.endswith(compound):
+            return compound
+    return p.suffix.lower() if p.suffix else "[no extension]"
+
+
+def read_matrix_shape(file_path: Path) -> Optional[Tuple[int, int]]:
+    """Determine number of rows and columns in a numeric data file without loading entire array into memory."""
+    try:
+        with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+            lines = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+            if not lines:
+                return None
+            num_rows = len(lines)
+            # Probe first non-empty line for columns
+            first_line = lines[0]
+            delims = [",", "\t", " "]
+            cols = None
+            for d in delims:
+                parts = [p for p in first_line.split(d) if p]
+                if len(parts) > 1:
+                    cols = len(parts)
+                    break
+            if cols is None:
+                cols = 1
+            return (num_rows, cols)
+    except Exception:
+        return None
 
 
 def load_phenotypes(pheno_dir: Path) -> Dict[str, Dict[str, str]]:
@@ -39,7 +75,7 @@ def load_phenotypes(pheno_dir: Path) -> Dict[str, Dict[str, str]]:
     if not pheno_dir.is_dir():
         return pheno_map
 
-    for p_file in pheno_dir.glob("*phenotypic*.csv"):
+    for p_file in pheno_dir.glob("*.csv"):
         try:
             with open(p_file, mode="r", encoding="utf-8-sig", errors="replace") as f:
                 reader = csv.DictReader(f)
@@ -53,8 +89,6 @@ def load_phenotypes(pheno_dir: Path) -> Dict[str, Dict[str, str]]:
 
                 dx_col = "DX" if reader.fieldnames and "DX" in reader.fieldnames else None
                 site_col = "Site" if reader.fieldnames and "Site" in reader.fieldnames else None
-
-                # Infer site from filename if not in columns
                 site_from_name = p_file.stem.split("_")[0]
 
                 for row in reader:
@@ -66,7 +100,6 @@ def load_phenotypes(pheno_dir: Path) -> Dict[str, Dict[str, str]]:
                     dx_val = row.get(dx_col, "").strip() if dx_col else ""
                     site_val = row.get(site_col, "").strip() if site_col else site_from_name
 
-                    # Map DX: 0 -> TDC, 1/2/3 -> ADHD, other -> Unknown
                     if dx_val == "0":
                         dx_label = "TDC (Control)"
                     elif dx_val in ["1", "2", "3"]:
@@ -79,172 +112,168 @@ def load_phenotypes(pheno_dir: Path) -> Dict[str, Dict[str, str]]:
                         "dx": dx_val,
                         "dx_label": dx_label,
                     }
-        except Exception as e:
-            print(f"[WARN] Error reading phenotype file {p_file.name}: {e}", file=sys.stderr)
+        except Exception:
+            continue
 
     return pheno_map
 
 
-def inspect_athena_directory(data_dir: Path, pheno_dir: Path) -> int:
-    """Inspect the downloaded folder and print count-only summary report."""
+def inspect_athena_directory(
+    data_dir: Path,
+    pheno_dir: Path,
+    output_stream: Optional[io.TextIOBase] = None,
+) -> Dict[str, Any]:
+    """
+    Inspect the directory and return structured metrics dictionary.
+    Prints an aggregate-only summary report to output_stream.
+    """
+    out = output_stream or sys.stdout
+
     if not data_dir.is_dir():
-        print(f"\n[INFO] Data directory not found: {data_dir}")
-        print("This script is ready for inspection once Athena derivatives are downloaded.\n")
-        return 1
+        out.write(f"\n[INFO] Data directory not found: {data_dir}\n")
+        out.write("Inspection tool is ready for manual download folder.\n\n")
+        return {"status": "DIRECTORY_NOT_FOUND", "data_dir": str(data_dir)}
 
-    print("======================================================================")
-    print("ATHENA DERIVATIVES INSPECTION REPORT (COUNTS ONLY)")
-    print("======================================================================")
-    print(f"Target Directory : {data_dir.resolve()}")
-    print("Privacy Protocol : Aggregate metrics only (Zero Subject IDs printed)")
-    print("----------------------------------------------------------------------")
+    out.write("======================================================================\n")
+    out.write("ATHENA DERIVATIVES INSPECTION REPORT (COUNTS & PATTERNS ONLY)\n")
+    out.write("======================================================================\n")
+    out.write(f"Target Directory : {data_dir.resolve()}\n")
+    out.write("Privacy Protocol : Aggregate counts only (Zero Subject IDs printed)\n")
+    out.write("----------------------------------------------------------------------\n")
 
-    # 1. Discover Time-Series & Motion Files
-    ts_files = []
-    motion_files = []
+    # 1. Collect all files and count file extensions actually present
+    all_files = [p for p in data_dir.rglob("*") if p.is_file()]
+    extension_counts = Counter()
+    filename_patterns = Counter()
+    relative_path_patterns = Counter()
 
-    # Common extensions/patterns in Athena distribution
-    all_files = list(data_dir.rglob("*"))
-    file_patterns = Counter()
+    for p in all_files:
+        ext = get_file_extension(p)
+        extension_counts[ext] += 1
+        masked_fname = mask_numeric_identifiers(p.name)
+        filename_patterns[masked_fname] += 1
+        try:
+            rel_path = p.relative_to(data_dir)
+            masked_rel = mask_numeric_identifiers(str(rel_path))
+            relative_path_patterns[masked_rel] += 1
+        except ValueError:
+            pass
 
-    for f in all_files:
-        if not f.is_file():
-            continue
-        pat = sanitize_filename_pattern(f.name)
-        file_patterns[pat] += 1
+    out.write(f"\n[1] File Extensions Actually Discovered ({len(all_files)} total files):\n")
+    for ext, cnt in sorted(extension_counts.items(), key=lambda x: -x[1]):
+        out.write(f"    • {ext:<15} : {cnt:>6} files\n")
 
-        name_lower = f.name.lower()
-        if "rois" in name_lower or "tc" in name_lower or name_lower.endswith(".1d") or name_lower.endswith(".csv"):
-            if "motion" not in name_lower and "fd" not in name_lower:
-                ts_files.append(f)
-        if "motion" in name_lower or "fd" in name_lower:
-            motion_files.append(f)
+    out.write(f"\n[2] Discovered File Name Pattern Shapes (IDs Masked):\n")
+    for pat, cnt in filename_patterns.most_common(8):
+        out.write(f"    • Pattern: {pat:<45} Count: {cnt:>5}\n")
 
-    # 2. File Pattern Summary
-    print(f"\n[1] File Naming Patterns Discovered (Top 10 Patterns):")
-    for pat, count in file_patterns.most_common(10):
-        print(f"    - Pattern: {pat:<45} Count: {count:>4}")
+    # 2. Discern Time-Series Files vs Motion Files by Structure & Content
+    subject_ts_files = defaultdict(list)
+    subject_motion_files = defaultdict(list)
+    time_series_shapes = Counter()
 
-    # Map files by subject ID
-    subject_ts_map = defaultdict(list)
-    for f in ts_files:
-        sid = extract_subject_id_from_name(f.name) or extract_subject_id_from_name(f.parent.name)
-        if sid:
-            subject_ts_map[sid].append(f)
-
-    subject_motion_map = defaultdict(list)
-    for f in motion_files:
-        sid = extract_subject_id_from_name(f.name) or extract_subject_id_from_name(f.parent.name)
-        if sid:
-            subject_motion_map[sid].append(f)
-
-    total_ts_subjects = len(subject_ts_map)
-    total_motion_subjects = len(subject_motion_map)
-    paired_subjects = len(set(subject_ts_map.keys()) & set(subject_motion_map.keys()))
-
-    print(f"\n[2] Subject & File Totals:")
-    print(f"    Total Unique Subjects with Time Series : {total_ts_subjects}")
-    print(f"    Total Unique Subjects with Motion Data : {total_motion_subjects}")
-    print(f"    Paired Subjects (Time Series + Motion) : {paired_subjects}")
-    if total_ts_subjects > 0:
-        pct_paired = (paired_subjects / total_ts_subjects) * 100
-        print(f"    Motion Coverage Rate                   : {pct_paired:.1f}%")
-
-    # 3. Shape Analysis (Rows = Timepoints, Columns = ROIs)
-    print(f"\n[3] Matrix Dimensions Across Time Series Files:")
-    row_counts = []
-    col_counts = []
-
-    for sid, flist in subject_ts_map.items():
-        for f in flist:
-            try:
-                # Read sample dimensions without printing contents
-                with open(f, "r", encoding="utf-8", errors="replace") as fh:
-                    lines = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
-                    if not lines:
-                        continue
-                    n_rows = len(lines)
-                    # Sample first non-empty line for column count
-                    first_line = lines[0]
-                    delims = [",", "\t", " "]
-                    cols = None
-                    for d in delims:
-                        parts = [p for p in first_line.split(d) if p]
-                        if len(parts) > 1:
-                            cols = len(parts)
-                            break
-                    if cols is None:
-                        cols = 1
-                    row_counts.append(n_rows)
-                    col_counts.append(cols)
-            except Exception:
+    for p in all_files:
+        ext = get_file_extension(p)
+        # Check text/matrix formats
+        if ext in [".1d", ".csv", ".tsv", ".txt"]:
+            shape = read_matrix_shape(p)
+            if not shape:
+                continue
+            rows, cols = shape
+            sid = extract_numeric_id(p.name) or extract_numeric_id(p.parent.name)
+            if not sid:
                 continue
 
-    if row_counts and col_counts:
-        row_dist = Counter(row_counts)
-        col_dist = Counter(col_counts)
+            name_lower = p.name.lower()
+            # Motion files typically have 6 columns or explicit 'motion'/'fd' in name
+            if cols == 6 or "motion" in name_lower or "fd" in name_lower:
+                subject_motion_files[sid].append((p, shape))
+            elif cols >= 10 and rows >= 10:
+                subject_ts_files[sid].append((p, shape))
+                time_series_shapes[shape] += 1
 
-        print(f"    Total Time Series Files Measured : {len(row_counts)}")
-        print(f"    Timepoints (Rows) Distribution  :")
-        for r_val, count in sorted(row_dist.items()):
-            print(f"      • {r_val:>4} timepoints : {count:>4} files")
+    unique_ts_subjects = len(subject_ts_files)
+    unique_motion_subjects = len(subject_motion_files)
+    paired_subjects = len(set(subject_ts_files.keys()) & set(subject_motion_files.keys()))
 
-        print(f"    ROI Columns Distribution        :")
-        for c_val, count in sorted(col_dist.items()):
-            print(f"      • {c_val:>4} ROIs       : {count:>4} files")
+    out.write(f"\n[3] Subject & File Discovery Counts:\n")
+    out.write(f"    Total Unique Subjects with Time Series : {unique_ts_subjects}\n")
+    out.write(f"    Total Unique Subjects with Motion Data : {unique_motion_subjects}\n")
+    out.write(f"    Paired Subjects (Time Series + Motion) : {paired_subjects}\n")
+    if unique_ts_subjects > 0:
+        pairing_pct = (paired_subjects / unique_ts_subjects) * 100
+        out.write(f"    Motion File Pairing Rate               : {pairing_pct:.1f}%\n")
+
+    out.write(f"\n[4] Matrix Dimensions Across Discovered Time-Series Files:\n")
+    if time_series_shapes:
+        out.write(f"    Total Time Series Files Measured : {sum(time_series_shapes.values())}\n")
+        out.write(f"    Distinct Matrix Dimensions (Timepoints x ROIs):\n")
+        for (r, c), cnt in sorted(time_series_shapes.items(), key=lambda x: -x[1]):
+            out.write(f"      • {r:>4} timepoints  x  {c:>4} ROIs  : {cnt:>4} files\n")
     else:
-        print("    [NOTICE] No readable time-series data files could be parsed.")
+        out.write("    [NOTICE] No multi-column ROI time-series files found.\n")
 
-    # 4. Phenotype Matching & Diagnosis Breakdown
-    print(f"\n[4] Phenotypic Matching & Diagnostic Breakdown by Site:")
+    # 3. Phenotypic Matching & Site Breakdown
+    out.write(f"\n[5] Phenotype Record Cross-Tabulation:\n")
     pheno_map = load_phenotypes(pheno_dir)
+    site_dx_breakdown = defaultdict(lambda: Counter())
 
-    if not pheno_map:
-        print(f"    [WARN] No phenotype records loaded from: {pheno_dir}")
-    else:
-        site_dx_counts = defaultdict(lambda: Counter())
-        matched_count = 0
-        unmatched_count = 0
+    matched_subjects = 0
+    unmatched_subjects = 0
 
-        for sid in subject_ts_map.keys():
-            if sid in pheno_map:
-                info = pheno_map[sid]
-                site_dx_counts[info["site"]][info["dx_label"]] += 1
-                matched_count += 1
-            else:
-                site_dx_counts["Unmatched / External"]["Unknown"] += 1
-                unmatched_count += 1
+    for sid in subject_ts_files.keys():
+        if sid in pheno_map:
+            info = pheno_map[sid]
+            site_dx_breakdown[info["site"]][info["dx_label"]] += 1
+            matched_subjects += 1
+        else:
+            site_dx_breakdown["Unmatched / Unknown"]["Unmatched"] += 1
+            unmatched_subjects += 1
 
-        print(f"    Phenotype Match Rate : {matched_count}/{total_ts_subjects} subjects "
-              f"({(matched_count / total_ts_subjects * 100) if total_ts_subjects else 0:.1f}%)")
-        print(f"    Unmatched Subjects   : {unmatched_count}")
-        print("\n    Site-by-Site Cohort Distribution:")
-        print(f"    {'Site / Institution':<22} | {'TDC (Control)':<14} | {'ADHD':<8} | {'Other / Unk':<12} | {'Total':<6}")
-        print("    " + "-" * 72)
+    out.write(f"    Phenotype Match Rate : {matched_subjects}/{unique_ts_subjects} "
+              f"({(matched_subjects / unique_ts_subjects * 100) if unique_ts_subjects else 0:.1f}%)\n")
+    if unmatched_subjects > 0:
+        out.write(f"    Unmatched Subjects   : {unmatched_subjects}\n")
 
-        grand_tdc = 0
-        grand_adhd = 0
-        grand_other = 0
+    out.write("\n    Site-by-Site Diagnosis Distribution:\n")
+    out.write(f"    {'Site / Institution':<22} | {'TDC (Control)':<14} | {'ADHD':<8} | {'Other/Unk':<10} | {'Total':<6}\n")
+    out.write("    " + "-" * 70 + "\n")
 
-        for site_name, counts in sorted(site_dx_counts.items()):
-            tdc = counts["TDC (Control)"]
-            adhd = counts["ADHD"]
-            other = sum(v for k, v in counts.items() if k not in ["TDC (Control)", "ADHD"])
-            total = tdc + adhd + other
+    total_tdc = 0
+    total_adhd = 0
+    total_other = 0
 
-            grand_tdc += tdc
-            grand_adhd += adhd
-            grand_other += other
+    for site, counts in sorted(site_dx_breakdown.items()):
+        tdc = counts["TDC (Control)"]
+        adhd = counts["ADHD"]
+        other = sum(v for k, v in counts.items() if k not in ["TDC (Control)", "ADHD"])
+        tot = tdc + adhd + other
 
-            print(f"    {site_name:<22} | {tdc:<14} | {adhd:<8} | {other:<12} | {total:<6}")
+        total_tdc += tdc
+        total_adhd += adhd
+        total_other += other
+        out.write(f"    {site:<22} | {tdc:<14} | {adhd:<8} | {other:<10} | {tot:<6}\n")
 
-        print("    " + "-" * 72)
-        print(f"    {'TOTAL':<22} | {grand_tdc:<14} | {grand_adhd:<8} | {grand_other:<12} | {grand_tdc + grand_adhd + grand_other:<6}")
+    out.write("    " + "-" * 70 + "\n")
+    out.write(f"    {'TOTAL':<22} | {total_tdc:<14} | {total_adhd:<8} | {total_other:<10} | {total_tdc + total_adhd + total_other:<6}\n")
+    out.write("\n======================================================================\n")
+    out.write("INSPECTION COMPLETE (ALL OUTPUTS COMPLIANT WITH ZERO-ID POLICY)\n")
+    out.write("======================================================================\n\n")
 
-    print("\n======================================================================")
-    print("INSPECTION COMPLETE (ALL OUTPUTS COMPLIANT WITH ZERO-ID POLICY)")
-    print("======================================================================\n")
-    return 0
+    return {
+        "status": "SUCCESS",
+        "total_files": len(all_files),
+        "extension_counts": dict(extension_counts),
+        "filename_patterns": dict(filename_patterns.most_common(10)),
+        "unique_ts_subjects": unique_ts_subjects,
+        "unique_motion_subjects": unique_motion_subjects,
+        "paired_subjects": paired_subjects,
+        "time_series_shapes": {f"{r}x{c}": cnt for (r, c), cnt in time_series_shapes.items()},
+        "site_dx_breakdown": {s: dict(c) for s, c in site_dx_breakdown.items()},
+        "total_tdc": total_tdc,
+        "total_adhd": total_adhd,
+        "total_other": total_other,
+    }
 
 
 def main():
@@ -268,7 +297,8 @@ def main():
     )
     args = parser.parse_args()
 
-    sys.exit(inspect_athena_directory(args.data_dir, args.pheno_dir))
+    results = inspect_athena_directory(args.data_dir, args.pheno_dir)
+    sys.exit(0 if results.get("status") == "SUCCESS" else 1)
 
 
 if __name__ == "__main__":
