@@ -41,14 +41,11 @@ DEFAULT_MODEL = BENCHMARK_ROOT / "results/final_locked/final_model.joblib"
 
 CLINICAL_DISCLAIMER = (
     "======================================================================\n"
-    "RESEARCH PREDICTION NOTICE - NOT A CLINICAL DIAGNOSIS\n"
+    "Research use only: not a medical device or diagnostic tool\n"
     "======================================================================\n"
     "This software generates an exploratory resting-state fMRI connectivity\n"
-    "prediction for neuroscience research purposes only. It is NOT an FDA-cleared\n"
-    "or CE-marked medical diagnostic device. Attention-Deficit/Hyperactivity\n"
-    "Disorder (ADHD) is a complex neurodevelopmental condition diagnosed solely\n"
-    "by qualified healthcare professionals using comprehensive clinical evaluations\n"
-    "and standardized diagnostic criteria (DSM-5 / ICD-11).\n"
+    "score for neuroscience research purposes only. It is not a medical\n"
+    "device or diagnostic tool; model scores are not calibrated probabilities.\n"
     "======================================================================"
 )
 
