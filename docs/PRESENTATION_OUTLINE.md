@@ -40,7 +40,7 @@ This document provides a slide-by-slide presentation outline for a technical def
 ---
 
 ### Slide 4: Validation Strategy: Why Random Folds Lie
-* **Title**: Cross-Validation Design: Random Folds vs. Multi-Site Generalization
+* **Title**: Why random folds can inflate results
 * **Key Points**:
   - Standard random $k$-fold cross-validation mixes subjects from the same scanning site across training and validation folds.
   - When scanner sites differ in baseline noise, coil characteristics, or demographic composition, classifiers inadvertently learn to classify *scanner site* rather than ADHD pathology.
@@ -97,7 +97,6 @@ This document provides a slide-by-slide presentation outline for a technical def
   - **Class Balancing**: SMOTE and RandomUnderSampler led to decision boundary distortion and failed to beat scikit-learn's native `class_weight='balanced'` under LOIO.
   - **Model Families**: Linear SVM, RBF SVM, ExtraTrees, and XGBoost suffered severe variance and failed to outperform a simple depth-3 Random Forest.
   - **Precision & Covariance Representations**: Ledoit-Wolf shrinkage partial correlation and Riemannian tangent space projections yielded negligible changes over flat Fisher $z$-Pearson matrices.
-  - **NeuroComBat Harmonization**: In-fold ComBat site harmonization eliminated site variance in training folds, but did not improve holdout institution classification.
   - **126-Configuration Nested CV Search**: Exhaustive inner-loop optimization across correlation types, feature cutoffs, and classifiers converged to simple trees and showed zero statistical gain over the locked RF ($\Delta \text{AUC} = +0.0003, p = 0.4960$).
 * **Source Reference**: [experiments/balancing_study/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/balancing_study/REPORT.md), [experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)
 
@@ -134,11 +133,12 @@ This document provides a slide-by-slide presentation outline for a technical def
 * **Key Points**:
   - Publishing negative results and null findings is essential to counter the reproducibility crisis in computational psychiatry and neuroimaging.
   - Without Leave-One-Institution-Out cross-validation and rigorous demographic baselines, machine learning models frequently report inflated performance driven by non-neural artifacts.
-  - *Future directions*:
-    - Large prospective cohorts with standardized acquisition protocols (e.g., ABCD Study, $N > 10,000$).
-    - Multimodal fusion integrating T1-weighted structural volumetrics, diffusion tensor imaging (DTI), and rich cognitive batteries.
-    - Prospective pre-registration of pipelines before test set acquisition.
-* **Source Reference**: [archive/audit_reports/NEUROADHD_SYSTEMATIC_AUDIT_REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/archive/audit_reports/NEUROADHD_SYSTEMATIC_AUDIT_REPORT.md), [README.md](file:///Users/apple/Documents/Codex/2026-09-29/down/README.md)
+  - *Future directions & next steps*:
+    - **Scanner Harmonization (ComBat / neuroCombat)**: Empirically evaluating empirical Bayes harmonization on multi-site cohorts with balanced site distributions (untested in this benchmark due to out-of-site CV constraints).
+    - **Large Prospective Cohorts**: Standardized multi-site acquisition protocols with large samples (e.g., ABCD Study, $N > 10,000$).
+    - **Multimodal Integration**: Fusing resting-state functional connectivity with T1w structural volumetrics, DTI tractography, and cognitive batteries.
+    - **Prospective Pre-Registration**: Pre-registering analysis pipelines before held-out test data acquisition.
+* **Source Reference**: [README.md](file:///Users/apple/Documents/Codex/2026-09-29/down/README.md), [archive/audit_reports/](file:///Users/apple/Documents/Codex/2026-09-29/down/archive/audit_reports/)
 
 ---
 
@@ -146,7 +146,7 @@ This document provides a slide-by-slide presentation outline for a technical def
 * **Title**: Viva Defense Q&A: Addressing Critical Methodological Inquiries
 
 1. **Q: Was the held-out Peking_2 test set really untouched?**
-   - **A**: *The locked Random Forest checkpoint was evaluated on Peking_2 strictly once.* However, in the spirit of scientific transparency, an earlier baseline model was evaluated on Peking_2 during preliminary pipeline prototyping. Furthermore, Peking_2 is a same-institution, same-scanner split (Peking_1 and Peking_3 were in the training set). Therefore, our primary claims of generalizability rest on the Leave-One-Institution-Out (LOIO) cross-validation, not solely on Peking_2.
+   - **A**: *The locked Random Forest checkpoint was evaluated on Peking_2 strictly once.* However, in the spirit of scientific transparency, an earlier baseline model was evaluated on Peking_2 during preliminary pipeline prototyping (10 evaluations total: 9 baseline runs with identical results, 1 final model run; no hyperparameter tuning used the test set). Furthermore, Peking_2 is a same-institution, same-scanner split (Peking_1 and Peking_3 were in the training set). Therefore, our primary claims of generalizability rest on the Leave-One-Institution-Out (LOIO) cross-validation, not solely on Peking_2.
    - *Reference*: [NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json)
 
 2. **Q: Why did you exclude OHSU and Pittsburgh from the 118-subject clean cohort?**
@@ -157,6 +157,6 @@ This document provides a slide-by-slide presentation outline for a technical def
    - **A**: *No.* The locked model achieves an LOIO AUC of $0.6250$ and accuracy of $61.86\%$. When compared against a simple model using only age and sex (AUC $0.5857$), the paired permutation test shows no statistically significant improvement ($p = 0.2670$). A model that does not beat basic demographic covariates cannot be claimed to have clinical diagnostic utility.
    - *Reference*: [NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json)
 
-4. **Q: Why didn't advanced harmonization (NeuroComBat) or manifold learning (Tangent Space) improve performance?**
-   - **A**: In multi-site datasets where site is partially correlated with clinical labels and demographics, NeuroComBat's adjustment can inadvertently attenuate biological variance along with scanner variance. Riemannian tangent space projection assumes high-quality empirical covariance estimates; in fMRI time series with limited timepoints ($T \approx 120\text{--}240$), covariance matrix estimation noise propagates into the Riemannian metric.
-   - *Reference*: [experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)
+4. **Q: Why wasn't ComBat evaluated on this data, and why did Tangent Space not help?**
+   - **A**: ComBat estimates location and scale parameters per site. In strict Leave-One-Institution-Out CV, the held-out institution is completely unseen at training time, so standard training-set ComBat cannot estimate parameters for the held-out site without test-site data (verified via unit test in `test_candidate_leakage.py`). Riemannian tangent space was evaluated across the 118 subjects, but noisy empirical covariance estimates on short time series ($T \approx 120\text{--}240$) prevented it from improving over Fisher $z$-Pearson connectivity.
+   - *Reference*: [NeuroADHD_ModelBenchmark/experiments/final_candidate/test_candidate_leakage.py](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/test_candidate_leakage.py), [experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)
