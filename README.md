@@ -3,7 +3,7 @@
 An academic machine learning benchmark and exploration dashboard investigating functional connectivity patterns in Attention-Deficit/Hyperactivity Disorder (ADHD) using the ADHD-200 CC200 resting-state fMRI dataset.
 
 > [!WARNING]
-> Research use only: not an FDA-cleared medical device; model scores are not calibrated diagnostic probabilities.
+> Research use only: not a medical device or diagnostic tool; model scores are not calibrated probabilities.
 
 ---
 

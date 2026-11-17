@@ -68,7 +68,7 @@ export function LimitationsView({ data }) {
     },
     {
       title: "Academic Research Prototype — Not for Clinical Use",
-      desc: "NeuroADHD is strictly an academic methodology benchmark designed to explore machine learning robustness, site confounding, and feature attribution in resting-state fMRI. It is NOT cleared by any medical regulatory authority (such as the US FDA or EMA) and must never be used for clinical psychiatric diagnosis, triage, or treatment planning.",
+      desc: "NeuroADHD is strictly an academic methodology benchmark designed to explore machine learning robustness, site confounding, and feature attribution in resting-state fMRI. Research use only: not a medical device or diagnostic tool; model scores are not calibrated probabilities. It must never be used for clinical psychiatric diagnosis, triage, or treatment planning.",
       icon: AlertTriangle,
       color: "var(--accent-danger)"
     }
