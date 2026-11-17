@@ -1,8 +1,8 @@
 # Pre-Registration: Study 2 - Multi-Site Generalization on Athena Derivatives
 
-**Registration Status:** Frozen Pre-Registration Protocol (incorporating Amendment 1)  
+**Registration Status:** Frozen Pre-Registration Protocol (incorporating Amendment 2)  
 **Date:** November 17, 2026  
-**Execution Condition:** This amended protocol is committed to version control *prior* to downloading, inspecting, or analyzing any Athena derivative files.  
+**Execution Condition:** This protocol is committed to version control *prior* to downloading, inspecting, or analyzing any Athena derivative files.  
 
 ---
 
@@ -46,33 +46,34 @@ All hyperparameters, random seeds, and filtering criteria are strictly locked. N
 
 ---
 
-## 4. Cohort Definition, Pre-Registered Partitions, and Sealing Rule
+## 4. Cohort Inclusion Rule, Sealing Procedure & Mechanical Recomputation
 
-### 4.1. Written Rule for Sealing an Institution
+### 4.1. Comprehensive Cohort Inclusion Rule
+* **Rule:** Include **every subject with a valid diagnostic label (TDC or ADHD) and a usable `rest_1` scan**, pooling across both the competition training cohort and the released-label test cohort if the Athena release contains them.
+* **Excluded Categories:** Subjects with unreleased/missing diagnoses, uninterpretable scans, or scans failing file integrity checks. Single-class institutions (e.g., WashU and Pittsburgh, containing 100% controls and 0% ADHD in the competition release) are excluded a priori from classification folds.
+
+### 4.2. Mechanical Recomputation Rule
+* Preliminary counts ($N = 404$ development, $N = 216$ NYU sealed, $N = 620$ total) are cited from competition training tables and remain unverified until physical files are audited.
+* **Mechanical Recomputation:** After physical archive inspection via `scripts/athena_inspect.py`, exact sample counts, the designated sealed institution, and the development cross-validation folds will be **recomputed mechanically strictly from the pre-registered written sealing rule**.
+* *Protocol Clarification:* Mechanical recomputation of sample counts and folds based on physical file availability is a planned procedural step and is **explicitly not a protocol deviation**.
+* **Audit Trail:** The final verified subject and site counts will be committed to a dated file (e.g., `docs/study2/COHORT_COUNTS_<DATE>.md`) prior to model training.
+
+### 4.3. Written Rule for Sealing an Institution
 To ensure an untainted external validation test, one institution must be completely sealed until all development models, motion thresholds, and baseline comparisons are finalized. The sealed institution is selected according to the following pre-registered rule:
 > *The sealed institution must have balanced representation of both diagnostic classes (>5% ADHD), standard pediatric acquisition parameters, and minimal or zero exposure during historical pipeline exploration.*
 
-* **Selected Sealed Institution:** **NYU** ([UNVERIFIED] phenotypic count: $N = 216$: 98 TDC, 118 ADHD). Only 6 NYU subjects were included in the historical 153-subject C-PAC cohort.
-* **Evaluation Condition:** NYU will be evaluated **strictly once**, after the LOIO development protocol and all statistical tests on the remaining sites are completely executed and frozen.
+* **Candidate Sealed Institution:** **NYU** ([UNVERIFIED] phenotypic count: $N = 216$: 98 TDC, 118 ADHD). Only 6 NYU subjects were included in the historical 153-subject C-PAC cohort.
+* **Sealed-Site Execution Procedure:**
+  1. The locked 4-step pipeline and Random Forest estimator are refitted **exactly once** on the pooled data of all development institutions combined.
+  2. The frozen refitted model is scored **exactly once** on the sealed institution.
+  3. **Nothing is re-selected, re-tuned, or modified afterwards.**
 
-### 4.2. Leave-One-Institution-Out (LOIO) Development Cohort
-Cross-validation will be conducted using Leave-One-Institution-Out (LOIO) across the remaining 4 multi-class institutions:
+### 4.4. Leave-One-Institution-Out (LOIO) Development Cohort
+Cross-validation will be conducted using Leave-One-Institution-Out (LOIO) across the remaining multi-class institutions:
 * **KKI:** [UNVERIFIED] $N = 83$ (61 TDC, 22 ADHD)
 * **NeuroIMAGE:** [UNVERIFIED] $N = 48$ (23 TDC, 25 ADHD)
 * **OHSU:** [UNVERIFIED] $N = 79$ (42 TDC, 37 ADHD). *Note: 14 OHSU controls were present in historical C-PAC exploration.*
 * **Peking:** [UNVERIFIED] $N = 194$ (116 TDC, 78 ADHD across Peking 1, 2, 3)
-
-**Cohort Counts Notice:**
-* Development Cohort: **[UNVERIFIED] $N = 404$**
-* Sealed Validation Cohort (NYU): **[UNVERIFIED] $N = 216$**
-* Total Analyzed Cohort: **[UNVERIFIED] $N = 620$** (not 640)
-* *All subject counts are cited from the ADHD-200 competition training release phenotype tables and remain strictly UNVERIFIED until physical archive files on disk are inspected and verified.*
-
-### 4.3. Excluded Sites
-Institutions lacking multi-class diagnostic representation in the training release are excluded a priori:
-* **Pittsburgh:** [UNVERIFIED] $N = 89$ (100% TDC, 0% ADHD; excluded)
-* **WashU:** [UNVERIFIED] $N = 59$ (100% TDC, 0% ADHD; excluded)
-* **Brown:** [UNVERIFIED] $N = 8$ (Diagnostic labels unreleased in competition training set; excluded)
 
 ---
 
@@ -80,7 +81,7 @@ Institutions lacking multi-class diagnostic representation in the training relea
 
 ### 5.1. A Priori ROI Set Definition & Sealed Site Handling Rule
 1. **Development ROI Set Definition:** The valid set of ROIs is determined **strictly from the four development institutions** (KKI, NeuroIMAGE, OHSU, Peking). An ROI must exhibit non-zero variance across **100% of analyzed subjects in the development cohort**. Any ROI that is constant or empty in even one development subject is dropped prior to computing connectivity edges.
-2. **Pre-Specified Sealed Site Rule:** The sealed site (NYU) cannot alter the trained feature space. If an ROI included in the development feature set happens to be missing or constant across one or more subjects in the sealed NYU site:
+2. **Pre-Specified Sealed Site Rule:** The sealed site cannot alter the trained feature space. If an ROI included in the development feature set happens to be missing or constant across one or more subjects in the sealed site:
    - That ROI's connectivity values for the affected subject(s) will be set to zero (representing prior mean correlation $r=0, z=0$).
    - The trained feature set, selected top-100 ANOVA edges, and model weights will **not** be re-selected or modified.
 
@@ -89,7 +90,7 @@ Before computing framewise displacement, the exact column ordering and measureme
 * Expected AFNI `3dvolreg` format: three rotational displacements in degrees ($roll, pitch, yaw$) followed by three translational displacements in millimeters ($dS, dL, dP$).
 * *Protocol Clarification:* Verifying column order and unit scale prior to running numerical calculations is a standard data sanity verification and is **not a protocol deviation**.
 
-### 5.3. Power's Framewise Displacement (FD) Formula & Exclusion Threshold
+### 5.3. Power's Framewise Displacement (FD) Formula & Primary Exclusion Threshold
 Head motion will be quantified from the verified 6 rigid-body motion parameters using Power et al. (2012) Framewise Displacement:
 1. Rotations are converted to arc-length displacements on the surface of a sphere of radius $r = 50\,\text{mm}$:
    $$d_{\theta, i} = \theta_i \times \frac{\pi}{180} \times 50\,\text{mm}$$
@@ -97,9 +98,15 @@ Head motion will be quantified from the verified 6 rigid-body motion parameters 
    $$\text{FD}_i = |\Delta t_{x,i}| + |\Delta t_{y,i}| + |\Delta t_{z,i}| + |\Delta d_{roll,i}| + |\Delta d_{pitch,i}| + |\Delta d_{yaw,i}|$$
    where $\Delta x_i = x_i - x_{i-1}$ and $\text{FD}_0 = 0$.
 
-* **Exclusion Threshold:** A scan is excluded if:
+* **Primary Exclusion Threshold:** A scan is excluded if:
   $$\text{Mean FD} > 0.50\,\text{mm} \quad \text{OR} \quad \text{Percentage of frames with } \text{FD} > 0.50\,\text{mm} > 20\%$$
-* **Attrition Reporting Rule:** The number of excluded participants must be reported broken down by site and diagnosis (TDC vs. ADHD) to verify that motion exclusion does not introduce differential attrition bias.
+* **Attrition Reporting Rule:** The number of excluded participants must be reported broken down by site and diagnosis (TDC vs. ADHD) to verify whether motion exclusion introduces differential attrition bias.
+
+### 5.4. Exploratory Sensitivity Analyses for Motion
+To evaluate the impact of motion filtering on model performance and class attrition, two pre-registered exploratory sensitivity analyses will be conducted:
+1. **Stricter Motion Threshold:** $\text{Mean FD} > 0.20\,\text{mm}$ or $> 10\%$ of frames with $\text{FD} > 0.20\,\text{mm}$ excluded.
+2. **No Motion Exclusion:** All participants with complete time series retained regardless of motion parameters.
+* For both sensitivity analyses, exact participant counts excluded per site and per diagnosis (TDC vs. ADHD) will be tabulated alongside model ROC-AUC to assess stability.
 
 ---
 
@@ -111,6 +118,10 @@ To prevent deceptive conclusions arising from confounding variables, the locked 
    ```python
    StandardScaler() -> LogisticRegression(C=1.0, class_weight='balanced')
    ```
+
+* **Definition of Outperforming the Motion Baseline:**
+  The functional connectivity pipeline is defined as statistically outperforming the motion baseline if the **paired bootstrap difference in LOIO ROC-AUC** ($B = 2,000$ resamples) yields a **lower 95% confidence interval bound strictly greater than zero**:
+  $$\Delta\text{AUC}_{\text{motion}} = \text{AUC}_{\text{fMRI}} - \text{AUC}_{\text{motion}}, \quad \text{CI}_{95\%}[\Delta\text{AUC}_{\text{motion}}] > 0$$
 
 ---
 
@@ -132,21 +143,21 @@ To prevent deceptive conclusions arising from confounding variables, the locked 
 
 ---
 
-## 8. Success Criteria, Inconclusive Zone & Interpretation
+## 8. Success Criteria, Outcome Zones & Interpretation
 
 ### 8.1. Development Success Criteria
 The locked pipeline demonstrates positive development signal if:
 1. Primary pooled LOIO ROC-AUC significantly exceeds chance ($p_{\text{perm}} < 0.05$).
-2. Primary pooled LOIO ROC-AUC exceeds the motion-only baseline.
+2. Primary pooled LOIO ROC-AUC statistically outperforms the motion-only baseline (paired bootstrap $\text{CI}_{95\%}[\Delta\text{AUC}_{\text{motion}}] > 0$).
 
 ### 8.2. Sealed Site Outcome Zones & Explicit Conclusions
-When evaluated strictly once on the sealed NYU cohort ($N = 216$), results will fall into one of three pre-defined interpretive zones:
+When evaluated strictly once on the sealed institution (candidate: NYU, $N \approx 216$), results will fall into one of three pre-defined interpretive zones. The **95% bootstrap confidence interval lower bound governs** all definitive claims:
 
-| Outcome Zone | Numerical Condition | Scientific Conclusion |
+| Outcome Zone | Statistical Condition | Scientific Conclusion |
 | :--- | :--- | :--- |
-| **Confirmed Generalization (Success)** | $\text{AUC}_{\text{NYU}} > 0.55$ **AND** 95% bootstrap CI lower bound $> 0.50$ | **Out-of-site generalization is confirmed.** Resting-state connectivity provides reproducible predictive signal on a completely unseen, sealed institution without site-specific re-tuning. |
-| **Inconclusive Zone** | $0.50 < \text{AUC}_{\text{NYU}} \le 0.55$, **OR** $\text{AUC}_{\text{NYU}} > 0.55$ with 95% CI lower bound $\le 0.50$ | **Results are statistically ambiguous.** While slight positive discrimination may exist, the confidence interval cannot rule out chance performance ($0.50$). Due to sample size limits, external validity cannot be confirmed; conclusions remain unverified. |
-| **Definitive Null (Failure)** | $\text{AUC}_{\text{NYU}} \le 0.50$ | **Definitive failure of external generalization.** Functional connectivity under this pipeline does not transfer to an unseen clinical institution. Any apparent signal in smaller cross-validation folds reflects site-specific artifacts, demographic confounding, or sampling noise. |
+| **Confirmed Generalization (Success)** | 95% bootstrap CI lower bound $> 0.50$ | **Out-of-site generalization is confirmed.** Resting-state functional connectivity provides statistically reproducible predictive signal on a completely unseen, sealed institution without site-specific re-tuning. |
+| **Inconclusive Zone** | Point estimate $> 0.50$, but 95% bootstrap CI lower bound $\le 0.50$ | **Results are statistically ambiguous.** While a positive discrimination point estimate is observed, the confidence interval spans chance ($0.50$). Due to the sample size constraint (the 95% CI half-width is approximately $\pm 0.07$ at $N \approx 216$), statistical power is insufficient to confirm discrimination, and external validity cannot be claimed. |
+| **No Evidence of Transfer** | Point estimate $\le 0.50$ | **No evidence of out-of-site transfer.** The model performs at or below chance on the unseen clinical institution. Because the 95% CI half-width is about $\pm 0.07$ at $N = 216$, a point estimate at or below 0.50 does not strictly rule out a tiny population effect, but demonstrates that resting-state connectivity under this pipeline provides no usable diagnostic transfer. |
 
 ---
 
