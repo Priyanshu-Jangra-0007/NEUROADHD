@@ -1,8 +1,8 @@
 # Pre-Registration: Study 2 - Multi-Site Generalization on Athena Derivatives
 
-**Registration Status:** Frozen & Committed Pre-Registration Protocol  
+**Registration Status:** Frozen Pre-Registration Protocol (incorporating Amendment 1)  
 **Date:** November 17, 2026  
-**Execution Condition:** This document is committed to version control *prior* to downloading, inspecting, or processing any Athena derivative files.  
+**Execution Condition:** This amended protocol is committed to version control *prior* to downloading, inspecting, or analyzing any Athena derivative files.  
 
 ---
 
@@ -16,9 +16,9 @@ The primary objective of Study 2 is to evaluate whether the locked functional co
 
 The classification pipeline is frozen a priori and refitted from scratch within each training fold (no pre-fitted scalers, imputers, or feature selectors):
 
-1. **Input Features:** Upper-triangle pairwise Fisher $z$-transformed Pearson correlation coefficients computed from regional BOLD time series:
-   $$z = \frac{1}{2} \ln\left(\frac{1 + r}{1 - r}\right)$$
-   For $K$ valid ROIs, this yields $P = \frac{K(K - 1)}{2}$ functional connectivity edges (e.g., 19,900 edges for $K = 200$).
+1. **Feature Extraction:** Pairwise Pearson correlation followed by Fisher $z$-transformation, exactly as implemented in Study 1:
+   $$r_{jk} = \frac{\sum_{t=1}^T (x_{jt} - \bar{x}_j)(x_{kt} - \bar{x}_k)}{\sqrt{\sum_{t=1}^T (x_{jt} - \bar{x}_j)^2 \sum_{t=1}^T (x_{kt} - \bar{x}_k)^2}}, \quad z_{jk} = \frac{1}{2} \ln\left(\frac{1 + r_{jk}}{1 - r_{jk}}\right)$$
+   For $K$ valid ROIs, this yields $P = \frac{K(K - 1)}{2}$ functional connectivity edges from the upper triangle.
 2. **Step 1 - Missing Value Imputation:** `SimpleImputer(strategy='median')`
 3. **Step 2 - Zero-Variance Filter:** `VarianceThreshold(threshold=0.0)`
 4. **Step 3 - Feature Standardization:** `StandardScaler()`
@@ -37,16 +37,25 @@ All hyperparameters, random seeds, and filtering criteria are strictly locked. N
 
 ---
 
-## 3. Cohort Definition, Pre-Registered Partitions, and Sealing Rule
+## 3. Data File Selection & Preprocessing Variant Hierarchy
 
-### 3.1. Written Rule for Sealing an Institution
+1. **Primary File Variant:** 200-region, band-pass filtered, no global signal regression, acquisition run 1 (`rest_1`).
+   - *Example convention:* files matching `*rois_cc200*` from the filtered/no-GSR package.
+2. **Fallback Variant Rule:** If the specific band-pass filtered, non-GSR 200-region variant does not exist in the distribution, the pipeline will utilize the **only available 200-region variant**.
+3. **Exploratory Status of Other Variants:** All other atlas scales (e.g., AAL, CC400), global signal regressed (GSR) series, or alternative runs (`rest_2`) are designated strictly exploratory and will not be evaluated as primary endpoints.
+
+---
+
+## 4. Cohort Definition, Pre-Registered Partitions, and Sealing Rule
+
+### 4.1. Written Rule for Sealing an Institution
 To ensure an untainted external validation test, one institution must be completely sealed until all development models, motion thresholds, and baseline comparisons are finalized. The sealed institution is selected according to the following pre-registered rule:
 > *The sealed institution must have balanced representation of both diagnostic classes (>5% ADHD), standard pediatric acquisition parameters, and minimal or zero exposure during historical pipeline exploration.*
 
 * **Selected Sealed Institution:** **NYU** ([UNVERIFIED] phenotypic count: $N = 216$: 98 TDC, 118 ADHD). Only 6 NYU subjects were included in the historical 153-subject C-PAC cohort.
 * **Evaluation Condition:** NYU will be evaluated **strictly once**, after the LOIO development protocol and all statistical tests on the remaining sites are completely executed and frozen.
 
-### 3.2. Leave-One-Institution-Out (LOIO) Development Cohort
+### 4.2. Leave-One-Institution-Out (LOIO) Development Cohort
 Cross-validation will be conducted using Leave-One-Institution-Out (LOIO) across the remaining 4 multi-class institutions:
 * **KKI:** [UNVERIFIED] $N = 83$ (61 TDC, 22 ADHD)
 * **NeuroIMAGE:** [UNVERIFIED] $N = 48$ (23 TDC, 25 ADHD)
@@ -59,7 +68,7 @@ Cross-validation will be conducted using Leave-One-Institution-Out (LOIO) across
 * Total Analyzed Cohort: **[UNVERIFIED] $N = 620$** (not 640)
 * *All subject counts are cited from the ADHD-200 competition training release phenotype tables and remain strictly UNVERIFIED until physical archive files on disk are inspected and verified.*
 
-### 3.3. Excluded Sites
+### 4.3. Excluded Sites
 Institutions lacking multi-class diagnostic representation in the training release are excluded a priori:
 * **Pittsburgh:** [UNVERIFIED] $N = 89$ (100% TDC, 0% ADHD; excluded)
 * **WashU:** [UNVERIFIED] $N = 59$ (100% TDC, 0% ADHD; excluded)
@@ -67,18 +76,25 @@ Institutions lacking multi-class diagnostic representation in the training relea
 
 ---
 
-## 4. Quality Control & Motion Handling Rules
+## 5. Quality Control, Motion Handling & ROI Rules
 
-### 4.1. A Priori ROI Inclusion Rule
-Because parcellation masks may not cover 100% of brain volume across all subjects, some ROIs may contain constant zero or missing signals:
-* **Rule:** An ROI must possess non-zero variance across **100% of subjects** in the analyzed cohort. Any ROI that is constant or empty in even one subject is discarded across all subjects prior to computing the correlation matrix.
+### 5.1. A Priori ROI Set Definition & Sealed Site Handling Rule
+1. **Development ROI Set Definition:** The valid set of ROIs is determined **strictly from the four development institutions** (KKI, NeuroIMAGE, OHSU, Peking). An ROI must exhibit non-zero variance across **100% of analyzed subjects in the development cohort**. Any ROI that is constant or empty in even one development subject is dropped prior to computing connectivity edges.
+2. **Pre-Specified Sealed Site Rule:** The sealed site (NYU) cannot alter the trained feature space. If an ROI included in the development feature set happens to be missing or constant across one or more subjects in the sealed NYU site:
+   - That ROI's connectivity values for the affected subject(s) will be set to zero (representing prior mean correlation $r=0, z=0$).
+   - The trained feature set, selected top-100 ANOVA edges, and model weights will **not** be re-selected or modified.
 
-### 4.2. Power's Framewise Displacement (FD) Formula & Exclusion Threshold
-Head motion will be quantified from the 6 rigid-body motion parameters ($r_x, r_y, r_z$ rotations in degrees; $t_x, t_y, t_z$ translations in millimeters) using Power et al. (2012) Framewise Displacement:
+### 5.2. Motion File Verification Rule
+Before computing framewise displacement, the exact column ordering and measurement units will be verified from one representative motion file header/documentation:
+* Expected AFNI `3dvolreg` format: three rotational displacements in degrees ($roll, pitch, yaw$) followed by three translational displacements in millimeters ($dS, dL, dP$).
+* *Protocol Clarification:* Verifying column order and unit scale prior to running numerical calculations is a standard data sanity verification and is **not a protocol deviation**.
+
+### 5.3. Power's Framewise Displacement (FD) Formula & Exclusion Threshold
+Head motion will be quantified from the verified 6 rigid-body motion parameters using Power et al. (2012) Framewise Displacement:
 1. Rotations are converted to arc-length displacements on the surface of a sphere of radius $r = 50\,\text{mm}$:
    $$d_{\theta, i} = \theta_i \times \frac{\pi}{180} \times 50\,\text{mm}$$
 2. Frame-to-frame displacement for frame $i$ is calculated as:
-   $$\text{FD}_i = |\Delta t_{x,i}| + |\Delta t_{y,i}| + |\Delta t_{z,i}| + |\Delta d_{r_x,i}| + |\Delta d_{r_y,i}| + |\Delta d_{r_z,i}|$$
+   $$\text{FD}_i = |\Delta t_{x,i}| + |\Delta t_{y,i}| + |\Delta t_{z,i}| + |\Delta d_{roll,i}| + |\Delta d_{pitch,i}| + |\Delta d_{yaw,i}|$$
    where $\Delta x_i = x_i - x_{i-1}$ and $\text{FD}_0 = 0$.
 
 * **Exclusion Threshold:** A scan is excluded if:
@@ -87,7 +103,7 @@ Head motion will be quantified from the 6 rigid-body motion parameters ($r_x, r_
 
 ---
 
-## 5. Baselines & Benchmark Comparators
+## 6. Baselines & Benchmark Comparators
 
 To prevent deceptive conclusions arising from confounding variables, the locked pipeline will be compared against two non-imaging baselines evaluated under the exact same LOIO folds:
 1. **Motion-Only Baseline:** A logistic regression classifier trained exclusively on head motion metrics ($\text{Mean FD}$ and $\text{Max Displacement}$) with balanced class weighting.
@@ -98,35 +114,42 @@ To prevent deceptive conclusions arising from confounding variables, the locked 
 
 ---
 
-## 6. Statistical Analysis & Endpoints
+## 7. Statistical Analysis & Endpoints
 
-### 6.1. Primary Endpoint
-* **Metric:** Leave-One-Institution-Out (LOIO) ROC-AUC across the development cohort ($N = 404$).
-* **Significance Testing:** Non-parametric permutation test ($B = 1,000$ iterations). To preserve site-specific marginal prevalence and demographic structures, labels will be permuted **strictly within each institution**:
+### 7.1. Primary Endpoint: Pooled LOIO AUC
+* **Primary Metric:** **Pooled Leave-One-Institution-Out (LOIO) ROC-AUC** computed across all pooled out-of-fold predictions on the development cohort ($N = 404$).
+* **Secondary Breakdowns:** Per-institution ROC-AUCs (KKI, NeuroIMAGE, OHSU, Peking) will also be reported to characterize cross-scanner variability. However, the **pooled LOIO AUC is the single designated primary endpoint**.
+* **Significance Testing:** Non-parametric permutation test ($B = 1,000$ iterations). Labels are permuted **strictly within each institution** to preserve site-specific base rates and demographic structures:
   $$p_{\text{perm}} = \frac{1 + \sum_{b=1}^B \mathbb{I}(\text{AUC}_b \ge \text{AUC}_{\text{observed}})}{1 + B}$$
 * **Confidence Interval:** Stratified bootstrap 95% confidence interval ($B = 2,000$ resamples).
 
-### 6.2. Secondary Endpoint & Statistical Power Caveat
+### 7.2. Secondary Endpoint & Statistical Power Caveat
 * **Metric:** Incremental diagnostic value over non-imaging demographic covariates:
   $$\Delta\text{AUC} = \text{AUC}_{\text{fMRI}} - \text{AUC}_{\text{Age/Sex}}$$
   evaluated via paired stratified bootstrap.
 * **Power Caveat:**
-  > Assuming a true moderate increment of $\Delta\text{AUC} = +0.03\text{--}0.04$, statistical power to reject $H_0: \Delta\text{AUC} \le 0$ at two-sided $\alpha = 0.05$ is only **about 18% at $N = 404$** and **about 26% at $N = 620$**, due to substantial covariance between fMRI connectivity predictions and demographic characteristics. A non-significant $\Delta\text{AUC}$ cannot be interpreted as proof that functional connectivity carries no signal, but rather reflects the sample size constraints of the dataset.
+  > Assuming a true moderate increment of $\Delta\text{AUC} = \mathbf{+0.04}$, statistical power to reject $H_0: \Delta\text{AUC} \le 0$ at two-sided $\alpha = 0.05$ is only **about 18% at $N = 404$** and **about 26% at $N = 620$**, due to substantial covariance between fMRI connectivity predictions and demographic characteristics. A non-significant $\Delta\text{AUC}$ cannot be interpreted as proof that functional connectivity carries no signal, but rather reflects the sample size constraints of the dataset.
 
 ---
 
-## 7. Success Criteria & Scientific Interpretation
+## 8. Success Criteria, Inconclusive Zone & Interpretation
 
-* **Development Success:** The locked pipeline is deemed promising in development if:
-  1. LOIO ROC-AUC significantly exceeds chance ($p_{\text{perm}} < 0.05$).
-  2. LOIO ROC-AUC exceeds the motion-only baseline.
-* **Sealed External Confirmation:** The locked pipeline achieves confirmed generalization if:
-  1. NYU sealed ROC-AUC exceeds $0.55$, with a 95% bootstrap confidence interval lower bound $> 0.50$.
-* **Conclusion if Sealed NYU AUC is Near 0.50:**
-  > *If the locked model achieves near-chance performance ($\text{AUC} \approx 0.50$) on the sealed NYU cohort, we will explicitly conclude that resting-state fMRI functional connectivity under this pipeline does not provide generalizable out-of-site classification of ADHD. Any apparent cross-validation signal observed in smaller cohorts will be reported as reflecting site-specific scanner artifacts, demographic confounding, or sampling variability, rather than reproducible neurobiological markers.*
+### 8.1. Development Success Criteria
+The locked pipeline demonstrates positive development signal if:
+1. Primary pooled LOIO ROC-AUC significantly exceeds chance ($p_{\text{perm}} < 0.05$).
+2. Primary pooled LOIO ROC-AUC exceeds the motion-only baseline.
+
+### 8.2. Sealed Site Outcome Zones & Explicit Conclusions
+When evaluated strictly once on the sealed NYU cohort ($N = 216$), results will fall into one of three pre-defined interpretive zones:
+
+| Outcome Zone | Numerical Condition | Scientific Conclusion |
+| :--- | :--- | :--- |
+| **Confirmed Generalization (Success)** | $\text{AUC}_{\text{NYU}} > 0.55$ **AND** 95% bootstrap CI lower bound $> 0.50$ | **Out-of-site generalization is confirmed.** Resting-state connectivity provides reproducible predictive signal on a completely unseen, sealed institution without site-specific re-tuning. |
+| **Inconclusive Zone** | $0.50 < \text{AUC}_{\text{NYU}} \le 0.55$, **OR** $\text{AUC}_{\text{NYU}} > 0.55$ with 95% CI lower bound $\le 0.50$ | **Results are statistically ambiguous.** While slight positive discrimination may exist, the confidence interval cannot rule out chance performance ($0.50$). Due to sample size limits, external validity cannot be confirmed; conclusions remain unverified. |
+| **Definitive Null (Failure)** | $\text{AUC}_{\text{NYU}} \le 0.50$ | **Definitive failure of external generalization.** Functional connectivity under this pipeline does not transfer to an unseen clinical institution. Any apparent signal in smaller cross-validation folds reflects site-specific artifacts, demographic confounding, or sampling noise. |
 
 ---
 
-## 8. Atlas Divergence Acknowledgment
+## 9. Atlas Divergence Acknowledgment
 
 The Athena pipeline derivatives were generated via AFNI using an AFNI MNI template space, whereas Study 1 utilized C-PAC derivatives coregistered to the Craddock 2012 CC200 NIfTI template in FSL space. Due to potential discrepancies in coordinate grids, bounding boxes, and ROI indexing, **the Athena CC200 atlas cannot be assumed identical to the Study 1 CC200 atlas**. Study 2 is an independent multi-site evaluation, and quantitative results are not directly comparable to Study 1.
