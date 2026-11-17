@@ -2,6 +2,8 @@
 
 **Status:** Feasibility Assessment & Verification Notes  
 **Date:** November 17, 2026  
+**Preregistration:** OSF Preregistration Completed (Primary DOI: [10.17605/OSF.IO/GRBT2](https://doi.org/10.17605/OSF.IO/GRBT2), Date: 2026-11-17)  
+**Next Milestone:** Athena dataset acquisition (manual download and inspection via `scripts/athena_inspect.py`)  
 **Recommended Strategy:** Manual download and local evaluation of pre-computed Athena derivatives from NITRC (Cloud pilot is explicitly dropped).
 
 ---
