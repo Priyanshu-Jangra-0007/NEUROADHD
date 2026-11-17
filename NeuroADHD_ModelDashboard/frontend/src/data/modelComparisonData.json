@@ -1,0 +1,140 @@
+{
+  "_metadata": {
+    "source": "NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json",
+    "study": "Apples-to-Apples Model Comparison (118-Subject Clean Cohort)",
+    "n_subjects": 118,
+    "majority_accuracy": 0.576271186440678
+  },
+  "models": [
+    {
+      "id": "majority",
+      "name": "Majority Class Baseline",
+      "architecture": "Naive majority label prediction (Control)",
+      "loio_roc_auc": 0.5,
+      "loio_roc_auc_ci": null,
+      "loio_accuracy": 0.576271186440678,
+      "loio_accuracy_ci": null,
+      "loio_balanced_accuracy": 0.5,
+      "loio_balanced_accuracy_ci": null,
+      "permutation_p": 1.0,
+      "note": "Predicting majority Control (68/118 = 57.63%)"
+    },
+    {
+      "id": "demographics_followup",
+      "name": "Demographics Baseline (followup_study)",
+      "architecture": "followup_study: nested model selection on age+sex, LOIO AUC 0.5976",
+      "method_label": "followup_study: nested model selection on age+sex, LOIO AUC 0.5976",
+      "loio_roc_auc": 0.5976470588235294,
+      "loio_roc_auc_ci": [
+        0.49227044148380356,
+        0.701599500739404
+      ],
+      "loio_accuracy": 0.576271186440678,
+      "loio_accuracy_ci": [
+        0.4915254237288136,
+        0.6610169491525424
+      ],
+      "loio_balanced_accuracy": 0.5767647058823528,
+      "loio_balanced_accuracy_ci": [
+        0.4889051226551226,
+        0.6643807412100095
+      ],
+      "permutation_p": null,
+      "note": "Nested CV selecting RF/SVM/LogReg per fold on standardized age + raw sex"
+    },
+    {
+      "id": "demographics_candidate",
+      "name": "Demographics Baseline (final_candidate)",
+      "architecture": "final_candidate: fixed logistic regression, LOIO AUC 0.5857",
+      "method_label": "final_candidate: fixed logistic regression, LOIO AUC 0.5857",
+      "loio_roc_auc": 0.5857352941176471,
+      "loio_roc_auc_ci": [
+        0.4888748051262925,
+        0.6850619325040678
+      ],
+      "loio_accuracy": 0.6101694915254238,
+      "loio_accuracy_ci": [
+        0.5254237288135594,
+        0.6949152542372882
+      ],
+      "loio_balanced_accuracy": 0.6326470588235295,
+      "loio_balanced_accuracy_ci": [
+        0.5508928571428572,
+        0.7104564257329861
+      ],
+      "permutation_p": 0.04975124378109453,
+      "note": "Fixed LogisticRegression(C=1.0, balanced) on standardized age and sex"
+    },
+    {
+      "id": "locked_rf",
+      "name": "Locked Production Pipeline (Random Forest)",
+      "architecture": "SelectKBest(k=100) + Balanced RF(50 trees, depth 3)",
+      "loio_roc_auc": 0.625,
+      "loio_roc_auc_ci": [
+        0.5178931898846495,
+        0.7258475469908033
+      ],
+      "loio_accuracy": 0.6186440677966102,
+      "loio_accuracy_ci": [
+        0.5338983050847458,
+        0.7033898305084746
+      ],
+      "loio_balanced_accuracy": 0.6082352941176471,
+      "loio_balanced_accuracy_ci": [
+        0.5175822356678803,
+        0.698577172669932
+      ],
+      "permutation_p": 0.009950248756218905,
+      "note": "Refitted inside each fold from scratch on Pearson connectivity"
+    },
+    {
+      "id": "final_candidate",
+      "name": "Final Candidate Pipeline (Nested Ensemble)",
+      "architecture": "Nested Grid Selection (126 configs: Pearson/Partial/Tangent + K + Classifiers)",
+      "loio_roc_auc": 0.6252941176470589,
+      "loio_roc_auc_ci": [
+        0.5211365118899366,
+        0.727605897581924
+      ],
+      "loio_accuracy": 0.5847457627118644,
+      "loio_accuracy_ci": [
+        0.4830508474576271,
+        0.6779661016949152
+      ],
+      "loio_balanced_accuracy": 0.5602941176470588,
+      "loio_balanced_accuracy_ci": [
+        0.46790573089701,
+        0.6473724951937296
+      ],
+      "permutation_p": 0.004975124378109453,
+      "note": "Fold-specific winners; minimum possible p-value with 200 permutations"
+    }
+  ],
+  "statistical_tests": {
+    "locked_vs_demographics": {
+      "delta_mean": 0.03970195887408138,
+      "delta_ci_95": [
+        -0.1061097970803544,
+        0.1694658170384872
+      ],
+      "p_value": 0.267
+    },
+    "candidate_vs_demographics": {
+      "delta_mean": 0.03995769519502884,
+      "delta_ci_95": [
+        -0.10381594775471902,
+        0.17137132064123337
+      ],
+      "p_value": 0.2685
+    },
+    "candidate_vs_locked": {
+      "delta_mean": 0.0002557363209474617,
+      "delta_ci_95": [
+        -0.06327348510773931,
+        0.06387873427672938
+      ],
+      "p_value": 0.496
+    }
+  },
+  "critical_takeaway": "Connectivity did not significantly outperform age/sex alone (Locked RF \u0394AUC = +0.0397, p = 0.2670; Candidate Ensemble \u0394AUC = +0.0400, p = 0.2685). Both pipelines were tuned with knowledge of these subjects."
+}

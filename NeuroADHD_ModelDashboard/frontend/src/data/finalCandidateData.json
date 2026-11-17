@@ -1,0 +1,117 @@
+{
+  "_metadata": {
+    "source": "NeuroADHD_ModelBenchmark/experiments/final_candidate/candidate_study_results.json",
+    "study": "Comprehensive Final Candidate Benchmark (126-Configuration Space)",
+    "cohort": "118_filtered (Excluding OHSU & Pittsburgh)",
+    "n_subjects": 118
+  },
+  "majority_accuracy": 0.576271186440678,
+  "loio": {
+    "roc_auc": 0.6252941176470589,
+    "roc_auc_ci": [
+      0.5211365118899366,
+      0.727605897581924
+    ],
+    "accuracy": 0.5847457627118644,
+    "accuracy_ci": [
+      0.4830508474576271,
+      0.6779661016949152
+    ],
+    "balanced_accuracy": 0.5602941176470588,
+    "balanced_accuracy_ci": [
+      0.46790573089701,
+      0.6473724951937296
+    ],
+    "sensitivity": 0.4,
+    "sensitivity_ci": [
+      0.2631265664160401,
+      0.5333720930232557
+    ],
+    "specificity": 0.7205882352941176,
+    "specificity_ci": [
+      0.6027397260273972,
+      0.8245822890559733
+    ],
+    "precision": 0.5128205128205128,
+    "mcc": 0.12667722731039086,
+    "confusion_matrix": {
+      "tp": 20,
+      "tn": 49,
+      "fp": 19,
+      "fn": 30
+    }
+  },
+  "permutation_test": {
+    "n_permutations": 200,
+    "observed_auc": 0.6252941176470589,
+    "null_mean": 0.48812352941176473,
+    "null_std": 0.05466893961361889,
+    "p_value": 0.004975124378109453,
+    "p_value_display": "p = 0.0050",
+    "is_minimum_possible": true,
+    "formula_explanation": "Minimum possible p-value with 200 permutations: (0 + 1) / (200 + 1) = 0.004975 (~0.0050), indicating zero null iterations exceeded the observed AUC."
+  },
+  "covariates_only_model": {
+    "description": "Standardized age and sex demographic covariates alone (Logistic Regression)",
+    "loio_auc": 0.5857352941176471,
+    "loio_auc_ci": [
+      0.4888748051262925,
+      0.6850619325040678
+    ],
+    "loio_accuracy": 0.6101694915254238,
+    "loio_accuracy_ci": [
+      0.5254237288135594,
+      0.6949152542372882
+    ],
+    "p_value": 0.04975124378109453
+  },
+  "paired_bootstrap_vs_covars": {
+    "delta_mean": 0.03995769519502884,
+    "delta_ci_95": [
+      -0.10381594775471902,
+      0.17137132064123337
+    ],
+    "p_value": 0.2685,
+    "is_significant": false,
+    "conclusion": "Non-significant (p = 0.2685, 95% CI spans zero: [-0.1038, +0.1714]). Functional connectivity does not statistically outperform demographic covariates alone."
+  },
+  "selected_configurations": {
+    "differ_by_fold": true,
+    "folds": [
+      {
+        "held_out": "KKI",
+        "winner": "Ensemble_Top3",
+        "inner_auc": 0.6771978021978022
+      },
+      {
+        "held_out": "NYU",
+        "winner": "pearson__k50__covTrue__LogReg(C=0.1, cw=balanced)",
+        "inner_auc": 0.6472332015810276
+      },
+      {
+        "held_out": "NeuroIMAGE",
+        "winner": "Ensemble_Top3",
+        "inner_auc": 0.6694915254237288
+      },
+      {
+        "held_out": "Peking",
+        "winner": "pearson__k50__covFalse__LinearSVM(C=0.01, cw=balanced)",
+        "inner_auc": 0.6111111111111112
+      }
+    ]
+  },
+  "limitations": [
+    {
+      "title": "Meta-Selection Confound",
+      "detail": "The 118-subject clean subset and hyperparameter search space (Pearson/Partial/Tangent, k in {50, 100, 200}) were curated after exploratory analyses on the same data."
+    },
+    {
+      "title": "Permutation Test Conditions on Narrowed Grid",
+      "detail": "The permutation test validates that the selected pipeline beats chance for the narrowed 126-configuration grid, but does not repeat the initial space exploration or cohort selection."
+    },
+    {
+      "title": "Non-Significant Separation from Demographics",
+      "detail": "While the final candidate achieves LOIO AUC 0.6253 (p=0.0050), the paired bootstrap difference against the Age/Sex-only baseline (\u0394AUC = +0.0400 [-0.1038, +0.1714], p=0.2685) is not statistically significant."
+    }
+  ]
+}
