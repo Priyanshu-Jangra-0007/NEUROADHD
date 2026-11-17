@@ -146,7 +146,7 @@ This document provides a slide-by-slide presentation outline for a technical def
 * **Title**: Viva Defense Q&A: Addressing Critical Methodological Inquiries
 
 1. **Q: Was the held-out Peking_2 test set really untouched?**
-   - **A**: *The locked Random Forest checkpoint was evaluated on Peking_2 strictly once.* However, in the spirit of scientific transparency, an earlier baseline model was evaluated on Peking_2 during preliminary pipeline prototyping (10 evaluations total: 9 baseline runs with identical results, 1 final model run; no hyperparameter tuning used the test set). Furthermore, Peking_2 is a same-institution, same-scanner split (Peking_1 and Peking_3 were in the training set). Therefore, our primary claims of generalizability rest on the Leave-One-Institution-Out (LOIO) cross-validation, not solely on Peking_2.
+   - **A**: The final model was scored once on Peking_2; the Peking_2 set was scored 10 times in total (9 baseline runs, 1 final); no tuning used it; same institution and scanner as Peking_1/3. Therefore, our primary claims of generalizability rest on the Leave-One-Institution-Out (LOIO) cross-validation (where Peking_1, Peking_2, and Peking_3 are unified into a single institution fold), not on Peking_2.
    - *Reference*: [NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json)
 
 2. **Q: Why did you exclude OHSU and Pittsburgh from the 118-subject clean cohort?**
