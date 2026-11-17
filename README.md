@@ -166,5 +166,5 @@ cd NeuroADHD_ModelDashboard/frontend && npm run build
 - **ADHD-200 Sample**: ADHD-200 Consortium, shared via INDI/NITRC (https://fcon_1000.projects.nitrc.org/indi/adhd200/).
 - **Preprocessed Data**: Neuro Bureau (CC200 via C-PAC).
 - **Access and Usage**: Non-commercial research use. A free NITRC account is needed to download.
-- **Redistribution Policy**: No raw data or derived features are redistributed in this repo.
+- **Redistribution Policy**: No raw scans, ROI time series, or connectivity feature matrices are included; per-subject model outputs (predictions and attributions) keyed by public ADHD-200 IDs are included for reproducibility.
 - **Citation**: Please cite the ADHD-200 Consortium and the Neuro Bureau.
