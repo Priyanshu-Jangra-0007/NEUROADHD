@@ -54,3 +54,14 @@ ADHD200_Official/metadata/raw_bids_object_inventory.csv
 # Large zip archives
 NeuroADHD_Portable_Backup_FINAL.zip
 *.zip
+
+# Standalone static dashboard prototype (untracked, preserved locally on disk)
+dashboard.html
+NeuroADHD_ModelDashboard/dashboard.html
+
+# Experiment feature caches, logs and serialized joblib artifacts
+final_candidate/cache/
+**/experiments/**/cache/
+experiments/**/*.joblib
+**/experiments/**/*.joblib
+**/experiments/**/*.log

@@ -32,7 +32,7 @@ The project is structured into three primary packages alongside centralized docu
 │   └── tests/                     # Test-set locking unit tests (enforcing double-gated eval)
 │
 ├── NeuroADHD_ModelDashboard/      # Visualization & interactive exploration dashboard
-│   ├── dashboard.html             # Standalone, zero-dependency HTML dashboard
+│   ├── dashboard.html             # Local standalone HTML preview (gitignored, preserved on disk)
 │   ├── backend/                   # FastAPI server (:8000) for runs, metrics, and inference
 │   │   ├── compile_dashboard_data.py # Portable script compiling frontend data
 │   │   ├── server.py              # Sole backend application entry point
@@ -76,8 +76,8 @@ npm run dev
 * **Dev Server**: `http://localhost:5173`
 * **Build for Production**: `npm run build`
 
-### 3. Standalone Dashboard (No Dev Server Needed)
-You can also open the standalone single-file dashboard directly in any browser:
+### 3. Standalone Dashboard (Optional Local Preview)
+The primary dashboard is the React Vite app (`http://localhost:5173`). An optional standalone static preview is preserved locally on disk (gitignored):
 ```bash
 open NeuroADHD_ModelDashboard/dashboard.html
 ```
