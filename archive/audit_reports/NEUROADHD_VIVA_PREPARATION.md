@@ -1,3 +1,20 @@
+# [SUPERSEDED] Historical Audit Report
+
+> [!WARNING]
+> **SUPERSEDED / HISTORICAL AUDIT DOCUMENTATION**
+> This report has been archived to `archive/audit_reports/` for historical reference and audit trail provenance.
+> Key corrections to superseded claims in this document:
+> 1. **Audit score superseded**: The preliminary rating of 81.8/100 is superseded by the follow-up site confound and generalization audit.
+> 2. **"Evaluated strictly once" superseded**: The Peking_2 test set was scored 10 times in total across preliminary runs, locking iterations, and baseline comparisons.
+> 3. **Probability baseline corrected**: The claimed 0.35–0.48 baseline probability range was incorrect; the empirical prediction probability range is 0.05–0.67.
+> 4. **Batch holdout scope**: Peking_2 is a same-institution, same-scanner batch holdout (Peking_1 and Peking_3 are in the training split).
+> 5. **Site confound collapse**: On the full 153-subject cohort under Leave-One-Institution-Out (LOIO) cross-validation, connectivity drops to near-chance (AUC 0.5342, p = 0.0859, not statistically significant).
+> 6. **Exploratory subset**: The 118-subject clean subset (excluding zero-ADHD sites OHSU and Pittsburgh) was chosen after the full cohort showed no signal (exploratory). Demographic covariates (age and sex alone) achieve LOIO AUC 0.5976 [0.492, 0.702], while connectivity achieves 0.6221 [0.515, 0.724] (p = 0.021); the difference was not statistically tested.
+> 
+> Note: Corrected findings and viva defense notes are provided in `NEUROADHD_AUDIT_CORRECTIONS_AND_VIVA.md` in this directory.
+
+---
+
 # NEUROADHD: COMPREHENSIVE VIVA VOCE DEFENSE & EXAM PREPARATION GUIDE
 
 **Document ID:** `NEUROADHD-AUDIT-006`  
