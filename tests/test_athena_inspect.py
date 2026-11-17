@@ -91,6 +91,40 @@ class TestAthenaInspectSynthetic(unittest.TestCase):
         self.assertIn("<id>_rest_1_rois_cc200.1d", report_text.lower())
         self.assertIn("120 timepoints  x   200 rois", report_text.lower())
 
+    def test_site_level_motion_csv_support(self):
+        """Verify that consolidated site-level motion CSVs (e.g. KKI_motion.csv) are properly parsed."""
+        # Create a fresh subdirectory with only time series and a single site motion CSV
+        site_data_dir = self.base_path / "mock_site_athena"
+        site_data_dir.mkdir(parents=True, exist_ok=True)
+
+        for sid in self.synthetic_ids:
+            ts_file = site_data_dir / f"{sid}_rest_1_rois_cc200.1D"
+            ts_content = "\n".join([" ".join(["0.123"] * 200) for _ in range(120)]) + "\n"
+            ts_file.write_text(ts_content, encoding="utf-8")
+
+        # Consolidated site motion CSV
+        site_mot_csv = site_data_dir / "KKI_motion.csv"
+        csv_lines = [
+            "ScanDir ID,TR,roll,pitch,yaw,dS,dL,dP",
+            f"{self.synthetic_ids[0]},0,0.01,0.02,0.01,0.05,0.03,0.02",
+            f"{self.synthetic_ids[1]},0,0.01,0.02,0.01,0.05,0.03,0.02",
+            f"{self.synthetic_ids[2]},0,0.01,0.02,0.01,0.05,0.03,0.02",
+            f"{self.synthetic_ids[3]},0,0.01,0.02,0.01,0.05,0.03,0.02",
+        ]
+        site_mot_csv.write_text("\n".join(csv_lines) + "\n", encoding="utf-8")
+
+        output_buffer = io.StringIO()
+        result = inspect_athena_directory(site_data_dir, self.pheno_dir, output_stream=output_buffer)
+
+        self.assertEqual(result.get("status"), "SUCCESS")
+        self.assertEqual(result["unique_ts_subjects"], 4)
+        self.assertEqual(result["unique_motion_subjects"], 4)
+        self.assertEqual(result["paired_subjects"], 4)
+
+        report_text = output_buffer.getvalue()
+        for sid in self.synthetic_ids:
+            self.assertNotIn(sid, report_text)
+
 
 if __name__ == "__main__":
     unittest.main()

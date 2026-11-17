@@ -45,6 +45,37 @@ def get_file_extension(p: Path) -> str:
     return p.suffix.lower() if p.suffix else "[no extension]"
 
 
+def parse_site_level_motion_csv(file_path: Path) -> Set[str]:
+    """Extract normalized subject IDs from a consolidated site-level motion CSV."""
+    subjects = set()
+    try:
+        with open(file_path, mode="r", encoding="utf-8-sig", errors="replace") as f:
+            reader = csv.DictReader(f)
+            id_col = None
+            if reader.fieldnames:
+                for candidate in ["ScanDir ID", "ScanDirID", "SubjectID", "ID", "Subject", "subject_id", "ScanDir"]:
+                    if candidate in reader.fieldnames:
+                        id_col = candidate
+                        break
+            if id_col:
+                for row in reader:
+                    val = row.get(id_col, "").strip()
+                    sid = extract_numeric_id(val)
+                    if sid:
+                        subjects.add(sid)
+            else:
+                f.seek(0)
+                for line in f:
+                    parts = re.split(r"[,;\t\s]+", line.strip())
+                    if parts:
+                        sid = extract_numeric_id(parts[0])
+                        if sid:
+                            subjects.add(sid)
+    except Exception:
+        pass
+    return subjects
+
+
 def read_matrix_shape(file_path: Path) -> Optional[Tuple[int, int]]:
     """Determine number of rows and columns in a numeric data file without loading entire array into memory."""
     try:
@@ -174,17 +205,24 @@ def inspect_athena_directory(
 
     for p in all_files:
         ext = get_file_extension(p)
+        name_lower = p.name.lower()
         # Check text/matrix formats
         if ext in [".1d", ".csv", ".tsv", ".txt"]:
             shape = read_matrix_shape(p)
+            sid = extract_numeric_id(p.name) or extract_numeric_id(p.parent.name)
+
+            if not sid:
+                # Check if this is a consolidated site-level motion CSV (e.g. NYU_motion.csv, KKI_motion.csv)
+                if "motion" in name_lower or "fd" in name_lower:
+                    site_sids = parse_site_level_motion_csv(p)
+                    for s in site_sids:
+                        subject_motion_files[s].append((p, (0, 6)))
+                continue
+
             if not shape:
                 continue
             rows, cols = shape
-            sid = extract_numeric_id(p.name) or extract_numeric_id(p.parent.name)
-            if not sid:
-                continue
 
-            name_lower = p.name.lower()
             # Motion files typically have 6 columns or explicit 'motion'/'fd' in name
             if cols == 6 or "motion" in name_lower or "fd" in name_lower:
                 subject_motion_files[sid].append((p, shape))
