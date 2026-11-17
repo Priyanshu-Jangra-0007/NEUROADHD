@@ -3,8 +3,7 @@
 An academic machine learning benchmark and exploration dashboard investigating functional connectivity patterns in Attention-Deficit/Hyperactivity Disorder (ADHD) using the ADHD-200 CC200 resting-state fMRI dataset.
 
 > [!WARNING]
-> **Research Use Only — Not a Clinical Diagnosis:**
-> This software is an exploratory research benchmark for neuroimaging and machine learning methodologies. It is **not** an FDA-cleared or CE-marked medical diagnostic device. Model outputs reflect statistical pattern rankings and are **not calibrated clinical diagnostic probabilities**.
+> Research use only: not an FDA-cleared medical device; model scores are not calibrated diagnostic probabilities.
 
 ---
 
@@ -128,7 +127,7 @@ Every metric reported below is derived directly from reproducibility artifacts a
 *Source Files: [NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json), [final_confusion_matrix.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/final_confusion_matrix.json), [benchmarkData.js](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/benchmarkData.js)*
 
 * **Sample Size & Split**: 20 subjects (10 ADHD, 10 Typically Developing Controls) from Peking University (`Peking_2`).
-* **Evaluation Protocol Context**: This held-out test set represents a **same-institution, same-scanner holdout** (scanned on the same 3T Siemens Trio scanner as Peking_1 and Peking_3 training partitions). It was **scored strictly once** for this locked Random Forest model after an early baseline model had previously been scored on it during initial pipeline exploration.
+* **Evaluation Protocol Context**: This held-out test set represents a **same-institution, same-scanner holdout** (scanned on the same 3T Siemens Trio scanner as Peking_1 and Peking_3 training partitions). The test set was scored 10 times in total across project history (9 baseline development runs with identical results, 1 final model run); no hyperparameter tuning used it.
 * **Accuracy**: **`60.00%`** (12/20 correct), Wilson score 95% CI: **`[38.7%, 78.1%]`**.
 * **ROC-AUC**: **`0.5600`**, Stratified bootstrap 95% CI: **`[0.290, 0.830]`** (2,000 resamples).
 * **PR-AUC**: **`0.6341`** (vs chance baseline of `0.5000`).
@@ -193,8 +192,7 @@ Extensive ablation studies and architectural alternatives were systematically be
 2. **Alternative Model Families**: Linear SVM, RBF-kernel SVM, ExtraTrees, and gradient boosted trees (XGBoost) did not outperform a simple shallow Random Forest under multi-site cross-validation ([runs/full_benchmark_01/run_report.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/full_benchmark_01/run_report.json)).
 3. **Partial Correlation Matrices**: Precision matrix estimation using Ledoit-Wolf shrinkage failed to outperform standard Fisher $z$-transformed Pearson correlation matrices under LOIO evaluation ([experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
 4. **Riemannian Tangent Space Embeddings**: Projecting symmetric positive-definite covariance matrices onto the Riemannian manifold tangent space yielded negligible performance changes relative to flat Pearson connectivity ([experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
-5. **NeuroComBat In-Fold Site Harmonization**: Applying ComBat harmonization inside each LOIO training fold successfully eliminated scanner variance in training data but failed to improve classification performance on unseen holdout institutions ([experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
-6. **Nested Hyperparameter Grid Search**: Exhaustive inner-loop optimization over 126 pipeline configurations (varying correlation metric, feature selection cutoff $k \in \{50, 100, 200, 300\}$, and classifier depth) converged to parsimonious depth-3 trees and did not statistically improve generalization over the locked baseline ($\Delta \text{AUC} = +0.0003, p = 0.4960$) ([experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
+5. **Nested Hyperparameter Grid Search**: Exhaustive inner-loop optimization over 126 pipeline configurations (varying correlation metric, feature selection cutoff $k \in \{50, 100, 200, 300\}$, and classifier depth) converged to parsimonious depth-3 trees and did not statistically improve generalization over the locked baseline ($\Delta \text{AUC} = +0.0003, p = 0.4960$) ([experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
 
 ---
 
@@ -213,6 +211,13 @@ Extensive ablation studies and architectural alternatives were systematically be
 > - It does **not** demonstrate that ADHD cannot be classified from functional neuroimaging.
 > - It indicates only that this specific sample ($N=118\text{--}153$), preprocessing pipeline (C-PAC CC200 atlas), and feature representation do not establish generalizable diagnostic signal beyond basic demographics.
 > - This software is strictly an academic research exploration and is **not** a clinical diagnostic tool.
+
+---
+
+### 6. Recommended Next Steps
+- **Scanner Harmonization (ComBat / neuroCombat)**: Empirically evaluate empirical Bayes harmonization on multi-site cohorts with balanced site distributions (untested in this benchmark due to out-of-site CV constraints where held-out sites are unseen).
+- **Large Prospective Cohorts**: Standardized multi-site acquisition protocols with larger samples (e.g., ABCD Study, $N > 10,000$).
+- **Multimodal Integration**: Combining resting-state connectivity with structural T1w volumetrics, DTI white-matter tractography, and cognitive assessments.
 
 ---
 
