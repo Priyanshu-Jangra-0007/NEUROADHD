@@ -355,6 +355,13 @@ table.data-table tr:hover td {
   animation: spin 1s linear infinite;
 }
 
+/* Responsive container for wide data tables */
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ==========================================================================
    Responsive Breakpoints
    ========================================================================== */
@@ -372,6 +379,19 @@ table.data-table tr:hover td {
 }
 
 @media (max-width: 768px) {
+  .responsive-two-col {
+    grid-template-columns: 1fr !important;
+  }
+  .responsive-two-col > * {
+    min-width: 0;
+  }
+  .responsive-three-col {
+    grid-template-columns: 1fr !important;
+  }
+  .responsive-three-col > * {
+    min-width: 0;
+  }
+
   .sidebar {
     transform: translateX(-100%);
     box-shadow: var(--shadow-lg);

@@ -58,34 +58,36 @@ export function HybridComparisonView({ data }) {
       </div>
 
       <div className="card" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-color)", borderRadius: "10px", padding: "20px", marginBottom: "20px" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)" }}>
-              <th style={{ padding: "10px" }}>Model Architecture</th>
-              <th style={{ padding: "10px" }}>Type</th>
-              <th style={{ padding: "10px" }}>Protocol</th>
-              <th style={{ padding: "10px" }}>ROC-AUC (Mean ± SD)</th>
-              <th style={{ padding: "10px" }}>Balanced Accuracy</th>
-              <th style={{ padding: "10px" }}>Sensitivity</th>
-              <th style={{ padding: "10px" }}>F1 Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {comparisonRows.map((r, i) => (
-              <tr key={i} style={{ borderBottom: "1px solid var(--border-color)", background: r.isBest ? "var(--bg-subtle)" : "transparent" }}>
-                <td style={{ padding: "10px", fontWeight: r.isBest ? "700" : "500", color: r.isBest ? "var(--brand-blue)" : "var(--text-primary)" }}>
-                  {r.name} {r.isBest && <span style={{ fontSize: "0.7rem", background: "var(--accent-green-bg)", color: "var(--accent-green)", padding: "2px 6px", borderRadius: "4px", marginLeft: "6px" }}>SELECTED</span>}
-                </td>
-                <td style={{ padding: "10px", color: "var(--text-muted)", fontSize: "0.75rem" }}>{r.type}</td>
-                <td style={{ padding: "10px", color: "var(--text-muted)", fontSize: "0.75rem" }}>{r.protocol}</td>
-                <td style={{ padding: "10px", fontWeight: "700" }}>{r.roc_auc}</td>
-                <td style={{ padding: "10px" }}>{r.bal_acc}</td>
-                <td style={{ padding: "10px" }}>{r.sensitivity}</td>
-                <td style={{ padding: "10px" }}>{r.f1}</td>
+        <div className="table-responsive-container">
+          <table style={{ width: "100%", minWidth: "560px", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)" }}>
+                <th style={{ padding: "10px" }}>Model Architecture</th>
+                <th style={{ padding: "10px" }}>Type</th>
+                <th style={{ padding: "10px" }}>Protocol</th>
+                <th style={{ padding: "10px" }}>ROC-AUC (Mean ± SD)</th>
+                <th style={{ padding: "10px" }}>Balanced Accuracy</th>
+                <th style={{ padding: "10px" }}>Sensitivity</th>
+                <th style={{ padding: "10px" }}>F1 Score</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {comparisonRows.map((r, i) => (
+                <tr key={i} style={{ borderBottom: "1px solid var(--border-color)", background: r.isBest ? "var(--bg-subtle)" : "transparent" }}>
+                  <td style={{ padding: "10px", fontWeight: r.isBest ? "700" : "500", color: r.isBest ? "var(--brand-blue)" : "var(--text-primary)" }}>
+                    {r.name} {r.isBest && <span style={{ fontSize: "0.7rem", background: "var(--accent-green-bg)", color: "var(--accent-green)", padding: "2px 6px", borderRadius: "4px", marginLeft: "6px" }}>SELECTED</span>}
+                  </td>
+                  <td style={{ padding: "10px", color: "var(--text-muted)", fontSize: "0.75rem" }}>{r.type}</td>
+                  <td style={{ padding: "10px", color: "var(--text-muted)", fontSize: "0.75rem" }}>{r.protocol}</td>
+                  <td style={{ padding: "10px", fontWeight: "700" }}>{r.roc_auc}</td>
+                  <td style={{ padding: "10px" }}>{r.bal_acc}</td>
+                  <td style={{ padding: "10px" }}>{r.sensitivity}</td>
+                  <td style={{ padding: "10px" }}>{r.f1}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div style={{ background: "#f8fafc", border: "1px solid var(--border-color)", borderRadius: "8px", padding: "16px", display: "flex", alignItems: "flex-start", gap: "12px" }}>

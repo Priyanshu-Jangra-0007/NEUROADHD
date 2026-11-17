@@ -73,38 +73,40 @@ export function PerformanceView({ data }) {
 
         {/* Repetition Table */}
         <h4 style={{ fontSize: "0.85rem", fontWeight: "700", marginBottom: "8px", color: "var(--text-secondary)" }}>Repetition-by-Repetition Log</h4>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)" }}>
-              <th style={{ padding: "6px" }}>Rep</th>
-              <th style={{ padding: "6px" }}>Seed</th>
-              <th style={{ padding: "6px" }}>Group</th>
-              <th style={{ padding: "6px" }}>ROC-AUC</th>
-              <th style={{ padding: "6px" }}>PR-AUC</th>
-              <th style={{ padding: "6px" }}>Accuracy</th>
-              <th style={{ padding: "6px" }}>Bal Acc</th>
-              <th style={{ padding: "6px" }}>Sensitivity</th>
-              <th style={{ padding: "6px" }}>Specificity</th>
-              <th style={{ padding: "6px" }}>F1</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reps.map((r, i) => (
-              <tr key={i} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                <td style={{ padding: "6px" }}><strong>{r.repetition}</strong></td>
-                <td style={{ padding: "6px" }}><code>{r.seed}</code></td>
-                <td style={{ padding: "6px" }}>{r.group}</td>
-                <td style={{ padding: "6px", fontWeight: "700", color: "var(--brand-blue)" }}>{r.roc_auc.toFixed(4)}</td>
-                <td style={{ padding: "6px" }}>{r.pr_auc.toFixed(4)}</td>
-                <td style={{ padding: "6px" }}>{r.accuracy.toFixed(4)}</td>
-                <td style={{ padding: "6px" }}>{r.balanced_accuracy.toFixed(4)}</td>
-                <td style={{ padding: "6px" }}>{r.recall_sensitivity.toFixed(4)}</td>
-                <td style={{ padding: "6px" }}>{r.specificity.toFixed(4)}</td>
-                <td style={{ padding: "6px" }}>{r.f1_score.toFixed(4)}</td>
+        <div className="table-responsive-container">
+          <table style={{ width: "100%", minWidth: "560px", borderCollapse: "collapse", fontSize: "0.8rem" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)" }}>
+                <th style={{ padding: "6px" }}>Rep</th>
+                <th style={{ padding: "6px" }}>Seed</th>
+                <th style={{ padding: "6px" }}>Group</th>
+                <th style={{ padding: "6px" }}>ROC-AUC</th>
+                <th style={{ padding: "6px" }}>PR-AUC</th>
+                <th style={{ padding: "6px" }}>Accuracy</th>
+                <th style={{ padding: "6px" }}>Bal Acc</th>
+                <th style={{ padding: "6px" }}>Sensitivity</th>
+                <th style={{ padding: "6px" }}>Specificity</th>
+                <th style={{ padding: "6px" }}>F1</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {reps.map((r, i) => (
+                <tr key={i} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                  <td style={{ padding: "6px" }}><strong>{r.repetition}</strong></td>
+                  <td style={{ padding: "6px" }}><code>{r.seed}</code></td>
+                  <td style={{ padding: "6px" }}>{r.group}</td>
+                  <td style={{ padding: "6px", fontWeight: "700", color: "var(--brand-blue)" }}>{r.roc_auc.toFixed(4)}</td>
+                  <td style={{ padding: "6px" }}>{r.pr_auc.toFixed(4)}</td>
+                  <td style={{ padding: "6px" }}>{r.accuracy.toFixed(4)}</td>
+                  <td style={{ padding: "6px" }}>{r.balanced_accuracy.toFixed(4)}</td>
+                  <td style={{ padding: "6px" }}>{r.recall_sensitivity.toFixed(4)}</td>
+                  <td style={{ padding: "6px" }}>{r.specificity.toFixed(4)}</td>
+                  <td style={{ padding: "6px" }}>{r.f1_score.toFixed(4)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* BLOCK B: HELD-OUT PEKING_2 TEST */}
@@ -121,7 +123,7 @@ export function PerformanceView({ data }) {
           </span>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "20px" }}>
+        <div className="responsive-two-col" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "20px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px" }}>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Accuracy</div>

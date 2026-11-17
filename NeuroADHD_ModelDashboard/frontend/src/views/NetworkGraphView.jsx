@@ -48,7 +48,7 @@ export function NetworkGraphView({ data }) {
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: "20px", marginBottom: "20px" }}>
+      <div className="responsive-two-col" style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: "20px", marginBottom: "20px" }}>
         {/* SVG Network Graph */}
         <div className="card" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-color)", borderRadius: "10px", padding: "16px", textAlign: "center" }}>
           <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "12px", textAlign: "left" }}>

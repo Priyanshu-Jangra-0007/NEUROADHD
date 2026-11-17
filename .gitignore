@@ -65,3 +65,6 @@ final_candidate/cache/
 experiments/**/*.joblib
 **/experiments/**/*.joblib
 **/experiments/**/*.log
+
+# QA screenshots
+NeuroADHD_ModelDashboard/output/qa_screenshots/

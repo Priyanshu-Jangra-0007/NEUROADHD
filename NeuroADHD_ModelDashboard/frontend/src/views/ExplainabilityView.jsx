@@ -77,40 +77,42 @@ export function ExplainabilityView({ data }) {
           </div>
         </div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)" }}>
-              <th style={{ padding: "8px", cursor: "pointer" }} onClick={() => handleSort("shap_rank")}>
-                Rank <ArrowUpDown size={12} style={{ display: "inline" }} />
-              </th>
-              <th style={{ padding: "8px" }}>Edge Name</th>
-              <th style={{ padding: "8px" }}>ROI A (Cluster)</th>
-              <th style={{ padding: "8px" }}>ROI B (Cluster)</th>
-              <th style={{ padding: "8px", cursor: "pointer" }} onClick={() => handleSort("mean_abs_shap")}>
-                Mean |SHAP| <ArrowUpDown size={12} style={{ display: "inline" }} />
-              </th>
-              <th style={{ padding: "8px", cursor: "pointer" }} onClick={() => handleSort("permutation_importance_mean")}>
-                Perm. ΔAUC <ArrowUpDown size={12} style={{ display: "inline" }} />
-              </th>
-              <th style={{ padding: "8px" }}>Predictive Association Direction</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredEdges.map((e, i) => (
-              <tr key={i} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                <td style={{ padding: "8px", fontWeight: "700" }}>{e.shap_rank}</td>
-                <td style={{ padding: "8px" }}><code>{e.feature_name}</code></td>
-                <td style={{ padding: "8px" }}>CC200 Node {e.roi_a_id}</td>
-                <td style={{ padding: "8px" }}>CC200 Node {e.roi_b_id}</td>
-                <td style={{ padding: "8px", fontWeight: "700", color: "var(--brand-blue)" }}>{e.mean_abs_shap.toFixed(4)}</td>
-                <td style={{ padding: "8px" }}>+{e.permutation_importance_mean.toFixed(4)}</td>
-                <td style={{ padding: "8px", fontSize: "0.8rem", color: e.direction.includes("ADHD") ? "var(--accent-red)" : "var(--brand-blue)" }}>
-                  {e.direction}
-                </td>
+        <div className="table-responsive-container">
+          <table style={{ width: "100%", minWidth: "560px", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)" }}>
+                <th style={{ padding: "8px", cursor: "pointer" }} onClick={() => handleSort("shap_rank")}>
+                  Rank <ArrowUpDown size={12} style={{ display: "inline" }} />
+                </th>
+                <th style={{ padding: "8px" }}>Edge Name</th>
+                <th style={{ padding: "8px" }}>ROI A (Cluster)</th>
+                <th style={{ padding: "8px" }}>ROI B (Cluster)</th>
+                <th style={{ padding: "8px", cursor: "pointer" }} onClick={() => handleSort("mean_abs_shap")}>
+                  Mean |SHAP| <ArrowUpDown size={12} style={{ display: "inline" }} />
+                </th>
+                <th style={{ padding: "8px", cursor: "pointer" }} onClick={() => handleSort("permutation_importance_mean")}>
+                  Perm. ΔAUC <ArrowUpDown size={12} style={{ display: "inline" }} />
+                </th>
+                <th style={{ padding: "8px" }}>Predictive Association Direction</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredEdges.map((e, i) => (
+                <tr key={i} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                  <td style={{ padding: "8px", fontWeight: "700" }}>{e.shap_rank}</td>
+                  <td style={{ padding: "8px" }}><code>{e.feature_name}</code></td>
+                  <td style={{ padding: "8px" }}>CC200 Node {e.roi_a_id}</td>
+                  <td style={{ padding: "8px" }}>CC200 Node {e.roi_b_id}</td>
+                  <td style={{ padding: "8px", fontWeight: "700", color: "var(--brand-blue)" }}>{e.mean_abs_shap.toFixed(4)}</td>
+                  <td style={{ padding: "8px" }}>+{e.permutation_importance_mean.toFixed(4)}</td>
+                  <td style={{ padding: "8px", fontSize: "0.8rem", color: e.direction.includes("ADHD") ? "var(--accent-red)" : "var(--brand-blue)" }}>
+                    {e.direction}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div style={{ marginTop: "12px", display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", color: "var(--text-muted)" }}>
           <Info size={14} />

@@ -24,7 +24,7 @@ export function IndividualSubjectView({ data }) {
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "20px", marginBottom: "24px" }}>
+      <div className="responsive-two-col" style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "20px", marginBottom: "24px" }}>
         {/* Subject Selector Sidebar */}
         <div className="card" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-color)", borderRadius: "10px", padding: "16px" }}>
           <h3 style={{ fontSize: "0.9rem", fontWeight: "700", marginBottom: "12px", color: "var(--text-primary)" }}>
@@ -87,7 +87,7 @@ export function IndividualSubjectView({ data }) {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", background: "var(--bg-subtle)", padding: "12px", borderRadius: "8px", marginBottom: "20px" }}>
+          <div className="responsive-three-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", background: "var(--bg-subtle)", padding: "12px", borderRadius: "8px", marginBottom: "20px" }}>
             <div>
               <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Actual Diagnosis:</span>
               <div style={{ fontWeight: "700", color: curSub.actual_diagnosis === "ADHD" ? "var(--accent-red)" : "var(--brand-blue)" }}>
@@ -107,7 +107,7 @@ export function IndividualSubjectView({ data }) {
           </div>
 
           {/* Attribution Breakdown */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div className="responsive-two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             {/* Positive Contributors (+ADHD) */}
             <div style={{ background: "#fef2f2", border: "1px solid #fee2e2", borderRadius: "8px", padding: "14px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#991b1b", fontWeight: "700", fontSize: "0.85rem", marginBottom: "8px" }}>
