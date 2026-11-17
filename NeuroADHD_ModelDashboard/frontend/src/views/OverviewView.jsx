@@ -230,6 +230,9 @@ export function OverviewView({ data }) {
                     <span style={{ fontWeight: "600", color: "var(--brand-blue)" }}>final_candidate:</span> fixed logistic regression, LOIO AUC <strong>{finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "0.5857"}</strong><br />
                     <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>{finalCandidateData?.covariates_only_model?.loio_auc_ci ? `[${finalCandidateData.covariates_only_model.loio_auc_ci[0].toFixed(3)}, ${finalCandidateData.covariates_only_model.loio_auc_ci[1].toFixed(3)}]` : "N/A"}</span>
                   </div>
+                  <div style={{ fontSize: "0.68rem", color: "var(--accent-warning)", marginTop: "4px", fontStyle: "italic" }}>
+                    Age/sex alone carries information about the label in this cohort; this is not an ADHD-specific neural signal.
+                  </div>
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--brand-blue)" }}>
                   {siteConfoundData.config2_118.loio_connectivity_only?.roc_auc != null ? siteConfoundData.config2_118.loio_connectivity_only.roc_auc.toFixed(4) : "N/A"}<br />
@@ -343,6 +346,13 @@ export function OverviewView({ data }) {
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "600", color: "var(--accent-success)" }}>
                   p = {modelComparisonData.models[2].permutation_p.toFixed(4)}
+                </td>
+              </tr>
+
+              {/* Note under the age/sex rows */}
+              <tr style={{ background: "var(--bg-subtle)" }}>
+                <td colSpan={5} style={{ padding: "6px 12px", fontSize: "0.72rem", color: "var(--accent-warning)", fontStyle: "italic", borderTop: "1px dashed var(--border-color)" }}>
+                  Age/sex alone carries information about the label in this cohort; this is not an ADHD-specific neural signal.
                 </td>
               </tr>
 
