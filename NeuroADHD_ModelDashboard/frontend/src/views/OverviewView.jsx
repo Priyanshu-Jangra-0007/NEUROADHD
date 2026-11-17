@@ -1,43 +1,68 @@
 import React from "react";
-import { Database, Network, Users, Cpu, Lock, CheckCircle2, ShieldAlert, Info } from "lucide-react";
+import { Database, Network, Users, Cpu, Lock, CheckCircle2, ShieldAlert, Info, Sparkles, Scale, BarChart3 } from "lucide-react";
 import siteConfoundData from "../data/siteConfoundData.json";
+import finalCandidateData from "../data/finalCandidateData.json";
+import modelComparisonData from "../data/modelComparisonData.json";
 
 export function OverviewView({ data }) {
-  const cohort = data.cohort_breakdown;
-  const rfStats = data.rf_robustness.summary.all_8_repetitions;
-  const finalTest = data.final_test_results;
+  const cohort = data?.cohort_breakdown;
+  const rfStats = data?.rf_robustness?.summary?.all_8_repetitions;
+  const finalTest = data?.final_test_results;
 
-  const testAcc = finalTest?.metrics?.accuracy ?? 0.6;
-  const testAccCi = finalTest?.metrics?.accuracy_ci_95 ?? [0.387, 0.781];
-  const testAuc = finalTest?.metrics?.roc_auc ?? 0.56;
-  const testAucCi = finalTest?.metrics?.roc_auc_ci_95 ?? [0.290, 0.830];
+  const cm = finalTest?.metrics?.confusion_matrix;
+  const correctCount = (cm && typeof cm.tp === "number" && typeof cm.tn === "number") ? (cm.tp + cm.tn) : null;
+  const totalCount = finalTest?.test_subject_count ?? cohort?.test_subjects ?? null;
+  const countStr = (correctCount !== null && totalCount !== null) ? `${correctCount}/${totalCount}` : "N/A";
+
+  const testAcc = finalTest?.metrics?.accuracy ?? null;
+  const testAccCi = finalTest?.metrics?.accuracy_ci_95 ?? finalTest?.metrics?.accuracy_wilson_ci_95 ?? null;
+  const testAuc = finalTest?.metrics?.roc_auc ?? null;
+  const testAucCi = finalTest?.metrics?.roc_auc_ci_95 ?? finalTest?.metrics?.auc_bootstrap_ci_95 ?? null;
+
+  const testAccDisplay = testAcc !== null ? `${(testAcc * 100).toFixed(1)}%` : "N/A";
+  const testAccCardDisplay = testAcc !== null ? `${(testAcc * 100).toFixed(1)}% Acc (${countStr})` : "N/A";
+  const testAccCiDisplay = (testAccCi && Array.isArray(testAccCi) && testAccCi.length === 2 && testAccCi[0] !== null && testAccCi[1] !== null)
+    ? `[${(testAccCi[0] * 100).toFixed(1)}%, ${(testAccCi[1] * 100).toFixed(1)}%]`
+    : "N/A";
+
+  const testAucDisplay = testAuc !== null ? testAuc.toFixed(4) : "N/A";
+  const testAucCiDisplay = (testAucCi && Array.isArray(testAucCi) && testAucCi.length === 2 && testAucCi[0] !== null && testAucCi[1] !== null)
+    ? `[${testAucCi[0].toFixed(3)}, ${testAucCi[1].toFixed(3)}]`
+    : "N/A";
+
+  const testSubDisplay = (testAuc !== null && testAucCiDisplay !== "N/A")
+    ? `AUC: ${testAucDisplay} ${testAucCiDisplay}`
+    : (testAuc !== null ? `AUC: ${testAucDisplay}` : "N/A");
+
+  const kMatch = data?.final_model_metadata?.feature_selection?.match(/k=(\d+)/);
+  const kVal = kMatch ? kMatch[1] : null;
 
   const statCards = [
     { 
       title: "Dataset & Atlas", 
-      value: "153 Subjects", 
+      value: cohort?.total_subjects != null ? `${cohort.total_subjects} Subjects` : "N/A", 
       sub: "ADHD-200 · CC200 Atlas (200 ROIs)", 
       icon: Database, 
       color: "var(--brand-blue)" 
     },
     { 
       title: "Selected Subnetwork", 
-      value: "100 Connections", 
+      value: kVal != null ? `${kVal} Connections` : "N/A", 
       sub: "From 19,900 Fisher-z edges (ANOVA)", 
       icon: Cpu, 
       color: "var(--accent-success)" 
     },
     { 
       title: "Random-Fold CV (8 Seeds)", 
-      value: `${rfStats.roc_auc.mean.toFixed(4)} AUC`, 
-      sub: `± ${rfStats.roc_auc.std.toFixed(4)} seed variability (N=133)`, 
+      value: rfStats?.roc_auc?.mean != null ? `${rfStats.roc_auc.mean.toFixed(4)} AUC` : "N/A", 
+      sub: rfStats?.roc_auc?.std != null ? `± ${rfStats.roc_auc.std.toFixed(4)} seed variability (N=${cohort?.train_subjects != null ? cohort.train_subjects : "133"})` : "N/A", 
       icon: CheckCircle2, 
       color: "var(--brand-blue)" 
     },
     { 
       title: "Peking_2 Batch Holdout", 
-      value: `${(testAcc * 100).toFixed(1)}% Acc (12/20)`, 
-      sub: `AUC: ${testAuc.toFixed(4)} [${testAucCi[0].toFixed(3)}, ${testAucCi[1].toFixed(3)}]`, 
+      value: testAccCardDisplay, 
+      sub: testSubDisplay, 
       icon: Lock, 
       color: "var(--accent-warning)" 
     }
@@ -52,8 +77,8 @@ export function OverviewView({ data }) {
         </h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6, marginTop: "6px", maxWidth: "980px" }}>
           This platform benchmarks machine learning algorithms classifying Attention-Deficit/Hyperactivity Disorder from pairwise resting-state functional connectivity (Craddock 200 parcellation). 
-          <strong> What the model does:</strong> Identifies statistical cross-network correlations and discriminative functional edge weights across subjects. 
-          <strong> What the model cannot do:</strong> It cannot make medical or psychiatric diagnoses, guarantee individual neurobiological biomarkers, or generalize reliably across external scanners without site-aware harmonization.
+          <strong> What the model does:</strong> Identifies statistical functional edge correlations and discriminative connectivity weights across subjects. 
+          <strong> What the model cannot do:</strong> It cannot make medical or psychiatric diagnoses, guarantee individual neurobiological biomarkers, or generalize reliably across external scanners; the difference between connectivity and age/sex alone was not statistically tested.
         </p>
       </div>
 
@@ -81,7 +106,7 @@ export function OverviewView({ data }) {
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
             <CheckCircle2 size={18} color="var(--brand-blue)" />
             <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)" }}>
-              Development Partition: Random-Fold CV (N=133)
+              Development Partition: Random-Fold CV (N={cohort?.train_subjects != null ? cohort.train_subjects : "133"})
             </h3>
           </div>
 
@@ -89,14 +114,14 @@ export function OverviewView({ data }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
               <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Mean ROC-AUC across 8 random seeds</span>
               <span className="tabular-nums" style={{ fontSize: "1.2rem", fontWeight: "800", color: "var(--brand-blue)" }}>
-                {rfStats.roc_auc.mean.toFixed(4)}
+                {rfStats?.roc_auc?.mean != null ? rfStats.roc_auc.mean.toFixed(4) : "N/A"}
               </span>
             </div>
             <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px" }}>
-              Seed variability: ± {rfStats.roc_auc.std.toFixed(4)} (range: {rfStats.roc_auc.min.toFixed(4)} – {rfStats.roc_auc.max.toFixed(4)})
+              Seed variability: ± {rfStats?.roc_auc?.std != null ? rfStats.roc_auc.std.toFixed(4) : "N/A"} (range: {rfStats?.roc_auc?.min != null ? rfStats.roc_auc.min.toFixed(4) : "N/A"} – {rfStats?.roc_auc?.max != null ? rfStats.roc_auc.max.toFixed(4) : "N/A"})
             </div>
             <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "6px" }}>
-              Balanced Acc: <strong className="tabular-nums">{rfStats.balanced_accuracy.mean.toFixed(4)}</strong> · Sensitivity: <strong className="tabular-nums">{rfStats.recall_sensitivity.mean.toFixed(4)}</strong>
+              Balanced Acc: <strong className="tabular-nums">{rfStats?.balanced_accuracy?.mean != null ? rfStats.balanced_accuracy.mean.toFixed(4) : "N/A"}</strong> · Sensitivity: <strong className="tabular-nums">{rfStats?.recall_sensitivity?.mean != null ? rfStats.recall_sensitivity.mean.toFixed(4) : "N/A"}</strong>
             </div>
           </div>
 
@@ -110,27 +135,27 @@ export function OverviewView({ data }) {
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
             <Lock size={18} color="var(--accent-warning)" />
             <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--accent-warning)" }}>
-              Held-out Peking_2 Evaluation (N=20)
+              Held-out Peking_2 Evaluation (N={totalCount ?? "N/A"})
             </h3>
           </div>
 
           <div style={{ background: "var(--accent-warning-subtle)", padding: "14px", borderRadius: "var(--radius-md)", marginBottom: "12px", border: "1px solid rgba(217, 119, 6, 0.2)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-              <span style={{ fontSize: "0.8rem", color: "var(--accent-warning)" }}>Test Accuracy (12/20 correct)</span>
+              <span style={{ fontSize: "0.8rem", color: "var(--accent-warning)" }}>Test Accuracy ({countStr} correct)</span>
               <span className="tabular-nums" style={{ fontSize: "1.2rem", fontWeight: "800", color: "var(--accent-warning)" }}>
-                {(testAcc * 100).toFixed(1)}%
+                {testAccDisplay}
               </span>
             </div>
             <div style={{ fontSize: "0.75rem", color: "var(--accent-warning)", marginTop: "4px" }}>
-              Wilson 95% Confidence Interval: [{(testAccCi[0] * 100).toFixed(1)}%, {(testAccCi[1] * 100).toFixed(1)}%]
+              Wilson 95% Confidence Interval: {testAccCiDisplay}
             </div>
             <div style={{ fontSize: "0.75rem", color: "var(--accent-warning)", marginTop: "6px" }}>
-              Test ROC-AUC: <strong className="tabular-nums">{testAuc.toFixed(4)}</strong> [95% Bootstrap CI: {testAucCi[0].toFixed(3)}, {testAucCi[1].toFixed(3)}]
+              Test ROC-AUC: <strong className="tabular-nums">{testAucDisplay}</strong> {testAucCiDisplay !== "N/A" ? `[95% Bootstrap CI: ${testAucCiDisplay}]` : ""}
             </div>
           </div>
 
           <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
-            Scored once for this model (baseline previously scored). Peking_2 is a same-institution, same-scanner batch holdout (Peking_1/3 are in training). Wide confidence intervals reflect the small sample size ($N=20$); 60% accuracy is not distinguishable from chance ($p \approx 0.25$).
+            Scored once for this model (baseline previously scored). Peking_2 is a same-institution, same-scanner batch holdout (Peking_1/3 are in training). Wide confidence intervals reflect the small sample size ($N={totalCount ?? "N/A"}$); {testAccDisplay !== "N/A" ? testAccDisplay : "60%"} accuracy is not distinguishable from chance ($p \approx 0.25$).
           </p>
         </div>
       </div>
@@ -144,76 +169,78 @@ export function OverviewView({ data }) {
           </h3>
         </div>
 
-        <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: "16px" }}>
-          In multi-site resting-state fMRI, random k-fold CV can inflate performance estimates by allowing models to exploit site-correlated demographic and scanner distributions.
-          Below are the empirical Leave-One-Institution-Out (LOIO) cross-validation results from the follow-up study (nested CV, inner 3-fold selection) evaluating generalization to unseen clinical sites alongside explicit majority-class, site-only, and age/sex-only baselines:
+        <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "16px" }}>
+          Rigorous Leave-One-Institution-Out (LOIO) cross-validation evaluating scanner generalization, baseline demographic confound predictability, and non-parametric within-institution permutation significance.
         </p>
 
-        <div className="table-container">
+        <div className="table-container" style={{ marginBottom: "14px" }}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Cohort Configuration</th>
-                <th>Majority Class Baseline</th>
-                <th>Site-Only Baseline AUC</th>
-                <th>Age/Sex Covariates LOIO AUC</th>
-                <th>LOIO Connectivity AUC [95% CI]</th>
-                <th>LOIO Accuracy [95% CI]</th>
-                <th>Permutation Test p-value</th>
+                <th>Cohort / Protocol</th>
+                <th>Site Confound In-Sample AUC</th>
+                <th>Demographics Alone (Age+Sex LOIO AUC)</th>
+                <th>Connectivity LOIO ROC-AUC (95% CI)</th>
+                <th>LOIO Accuracy (95% CI)</th>
+                <th>Permutation Significance (LOIO)</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>
-                  <strong>Config 1: All 153 Subjects</strong><br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Includes OHSU (N=14) &amp; Pitt (N=21) with 0 ADHD cases</span>
+                  <strong>{siteConfoundData.config1_153.title}</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config1_153.note}</span>
                 </td>
-                <td className="tabular-nums">{(siteConfoundData.config1_153.majority_accuracy * 100).toFixed(1)}%</td>
                 <td className="tabular-nums" style={{ color: "var(--accent-danger)", fontWeight: "700" }}>
-                  {siteConfoundData.config1_153.site_only_insample_auc.toFixed(4)} (Fit)<br />
+                  {siteConfoundData.config1_153.site_only_insample_auc.toFixed(4)}<br />
                   <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config1_153.site_only_stratified_auc.toFixed(4)} (CV)</span>
                 </td>
                 <td className="tabular-nums">
-                  {siteConfoundData.config1_153.covariates_only_baseline?.loio_auc?.toFixed(4) ?? "0.4457"}<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config1_153.covariates_only_baseline?.loio_auc_ci?.join(", ") ?? "0.359, 0.547"}]</span>
+                  {siteConfoundData.config1_153.covariates_only_baseline?.loio_auc != null ? siteConfoundData.config1_153.covariates_only_baseline.loio_auc.toFixed(4) : "N/A"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config1_153.covariates_only_baseline?.loio_auc_ci ? `[${siteConfoundData.config1_153.covariates_only_baseline.loio_auc_ci.join(", ")}]` : "N/A"}</span>
                 </td>
-                <td className="tabular-nums" style={{ fontWeight: "700" }}>
-                  {siteConfoundData.config1_153.loio_connectivity_only.roc_auc.toFixed(4)}<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config1_153.loio_connectivity_only.roc_auc_ci.join(", ")}]</span>
+                <td className="tabular-nums" style={{ fontWeight: "600" }}>
+                  {siteConfoundData.config1_153.loio_connectivity_only?.roc_auc != null ? siteConfoundData.config1_153.loio_connectivity_only.roc_auc.toFixed(4) : "N/A"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config1_153.loio_connectivity_only?.roc_auc_ci ? `[${siteConfoundData.config1_153.loio_connectivity_only.roc_auc_ci.join(", ")}]` : "N/A"}</span>
                 </td>
                 <td className="tabular-nums">
-                  {(siteConfoundData.config1_153.loio_connectivity_only.accuracy * 100).toFixed(1)}%<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config1_153.loio_connectivity_only.accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                  {siteConfoundData.config1_153.loio_connectivity_only?.accuracy != null ? `${(siteConfoundData.config1_153.loio_connectivity_only.accuracy * 100).toFixed(1)}%` : "N/A"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config1_153.loio_connectivity_only?.accuracy_ci ? `[${siteConfoundData.config1_153.loio_connectivity_only.accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]` : "N/A"}</span>
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "600", color: "var(--text-muted)" }}>
-                  p = {siteConfoundData.config1_153.loio_connectivity_only?.p_value?.toFixed(4) ?? "0.0859"}<br />
+                  {siteConfoundData.config1_153.loio_connectivity_only?.p_value != null ? `p = ${siteConfoundData.config1_153.loio_connectivity_only.p_value.toFixed(4)}` : "N/A"}<br />
                   <span style={{ fontSize: "0.72rem", color: "var(--accent-warning)" }}>Not significant</span>
                 </td>
               </tr>
-              <tr style={{ background: "var(--bg-subtle)" }}>
+              <tr style={{ background: "var(--accent-green-bg)" }}>
                 <td>
-                  <strong>Config 2: 118 Clean Subjects</strong><br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Excludes zero-ADHD sites; KKI, NYU, NeuroIMAGE, Peking</span>
+                  <strong>{siteConfoundData.config2_118.title}</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config2_118.note}</span>
                 </td>
-                <td className="tabular-nums">{(siteConfoundData.config2_118.majority_accuracy * 100).toFixed(1)}%</td>
-                <td className="tabular-nums" style={{ fontWeight: "600" }}>
-                  {siteConfoundData.config2_118.site_only_insample_auc.toFixed(4)} (Fit)<br />
+                <td className="tabular-nums" style={{ color: "var(--accent-success)", fontWeight: "600" }}>
+                  {siteConfoundData.config2_118.site_only_insample_auc.toFixed(4)}<br />
                   <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config2_118.site_only_stratified_auc.toFixed(4)} (CV)</span>
                 </td>
                 <td className="tabular-nums">
-                  {siteConfoundData.config2_118.covariates_only_baseline?.loio_auc?.toFixed(4) ?? "0.5976"}<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config2_118.covariates_only_baseline?.loio_auc_ci?.join(", ") ?? "0.492, 0.702"}]</span>
+                  <div style={{ fontSize: "0.76rem" }}>
+                    <span style={{ fontWeight: "600", color: "var(--brand-blue)" }}>followup_study:</span> nested model selection on age+sex, LOIO AUC <strong>{siteConfoundData.config2_118.covariates_only_baseline?.loio_auc != null ? siteConfoundData.config2_118.covariates_only_baseline.loio_auc.toFixed(4) : "0.5976"}</strong><br />
+                    <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>{siteConfoundData.config2_118.covariates_only_baseline?.loio_auc_ci ? `[${siteConfoundData.config2_118.covariates_only_baseline.loio_auc_ci.join(", ")}]` : "N/A"}</span>
+                  </div>
+                  <div style={{ fontSize: "0.76rem", marginTop: "4px", paddingTop: "4px", borderTop: "1px dashed var(--border-color)" }}>
+                    <span style={{ fontWeight: "600", color: "var(--brand-blue)" }}>final_candidate:</span> fixed logistic regression, LOIO AUC <strong>{finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "0.5857"}</strong><br />
+                    <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>{finalCandidateData?.covariates_only_model?.loio_auc_ci ? `[${finalCandidateData.covariates_only_model.loio_auc_ci[0].toFixed(3)}, ${finalCandidateData.covariates_only_model.loio_auc_ci[1].toFixed(3)}]` : "N/A"}</span>
+                  </div>
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--brand-blue)" }}>
-                  {siteConfoundData.config2_118.loio_connectivity_only.roc_auc.toFixed(4)}<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config2_118.loio_connectivity_only.roc_auc_ci.join(", ")}]</span>
+                  {siteConfoundData.config2_118.loio_connectivity_only?.roc_auc != null ? siteConfoundData.config2_118.loio_connectivity_only.roc_auc.toFixed(4) : "N/A"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config2_118.loio_connectivity_only?.roc_auc_ci ? `[${siteConfoundData.config2_118.loio_connectivity_only.roc_auc_ci.join(", ")}]` : "N/A"}</span>
                 </td>
                 <td className="tabular-nums">
-                  {(siteConfoundData.config2_118.loio_connectivity_only.accuracy * 100).toFixed(1)}%<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{siteConfoundData.config2_118.loio_connectivity_only.accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                  {siteConfoundData.config2_118.loio_connectivity_only?.accuracy != null ? `${(siteConfoundData.config2_118.loio_connectivity_only.accuracy * 100).toFixed(1)}%` : "N/A"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config2_118.loio_connectivity_only?.accuracy_ci ? `[${siteConfoundData.config2_118.loio_connectivity_only.accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]` : "N/A"}</span>
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--accent-success)" }}>
-                  p = {siteConfoundData.config2_118.loio_connectivity_only?.p_value?.toFixed(4) ?? "0.0210"}<br />
+                  {siteConfoundData.config2_118.loio_connectivity_only?.p_value != null ? `p = ${siteConfoundData.config2_118.loio_connectivity_only.p_value.toFixed(4)}` : "N/A"}<br />
                   <span style={{ fontSize: "0.72rem", color: "var(--accent-success)" }}>Significant (α=0.05)</span>
                 </td>
               </tr>
@@ -224,8 +251,260 @@ export function OverviewView({ data }) {
         <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", fontSize: "0.78rem", color: "var(--text-muted)" }}>
           <Info size={16} color="var(--brand-blue)" style={{ flexShrink: 0, marginTop: "2px" }} />
           <span>
-            <strong>What the data show:</strong> While Leave-One-Institution-Out (LOIO) cross-validation prevents train-test site overlap, LOIO still lets site affect scores because demographic distributions, base rates, and scanner characteristics vary across institutions. In Config 1 (153 subjects), site identity alone predicts diagnosis with an in-sample ROC-AUC of 0.7221 because OHSU and Pittsburgh contain zero ADHD cases in this release. Under LOIO evaluation, functional connectivity drops to near-chance (AUC 0.5342 [0.439, 0.633]), which non-parametric permutation testing confirms is not statistically significant (p = 0.0859). The 118-subject subset (Config 2, excluding zero-ADHD sites) was chosen after the full cohort showed no signal (exploratory). In this clean subset, demographic covariates (age and sex alone) reach a LOIO AUC of 0.5976 [0.492, 0.702], while connectivity achieves LOIO AUC 0.6221 [0.515, 0.724] (p = 0.021). Adding age and sex to connectivity yields LOIO AUC 0.6218, showing that connectivity offers marginal increment over demographic covariates.
+            <strong>What the data show:</strong> While Leave-One-Institution-Out (LOIO) cross-validation prevents train-test site overlap, LOIO still lets site affect scores because demographic distributions, base rates, and scanner characteristics vary across institutions. In Config 1 ({siteConfoundData.config1_153.n_subjects} subjects), site identity alone predicts diagnosis with an in-sample ROC-AUC of {siteConfoundData.config1_153.site_only_insample_auc.toFixed(4)} because OHSU and Pittsburgh contain zero ADHD cases in this release. Under LOIO evaluation, functional connectivity drops to near-chance (AUC {siteConfoundData.config1_153.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config1_153.loio_connectivity_only.roc_auc_ci.join(", ")}]), which non-parametric permutation testing confirms is not statistically significant (p = {siteConfoundData.config1_153.loio_connectivity_only.p_value.toFixed(4)}). The {siteConfoundData.config2_118.n_subjects}-subject subset (Config 2, excluding zero-ADHD sites) was chosen after the full cohort showed no signal (exploratory). In this clean subset, demographic covariates reach LOIO AUC {siteConfoundData.config2_118.covariates_only_baseline.loio_auc.toFixed(4)} (followup_study: nested model selection on age+sex, LOIO AUC 0.5976) and {finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "0.5857"} (final_candidate: fixed logistic regression, LOIO AUC 0.5857). Connectivity achieves LOIO AUC {siteConfoundData.config2_118.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config2_118.loio_connectivity_only.roc_auc_ci.join(", ")}] (p = {siteConfoundData.config2_118.loio_connectivity_only.p_value.toFixed(3)}). Adding age and sex to connectivity yields LOIO AUC {siteConfoundData.config2_118.loio_connectivity_plus_covariates.roc_auc.toFixed(4)}, showing that connectivity offers marginal increment over demographic covariates. The difference between connectivity and age/sex alone was not statistically tested.
           </span>
+        </div>
+      </div>
+
+      {/* Apples-to-Apples Model Comparison Table Card */}
+      <div className="card" style={{ marginBottom: "24px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px", flexWrap: "wrap", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <BarChart3 size={18} color="var(--brand-blue)" />
+            <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>
+              Apples-to-Apples Model Comparison (118-Subject Clean Cohort)
+            </h3>
+          </div>
+          <span style={{ fontSize: "0.75rem", background: "var(--bg-subtle)", padding: "4px 8px", borderRadius: "4px", color: "var(--text-muted)", fontWeight: "500" }}>
+            Identical 4-Fold LOIO CV · 2,000 Bootstrap CIs · 200 Permutations
+          </span>
+        </div>
+
+        <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "14px" }}>
+          Side-by-side empirical benchmarking evaluating the locked production Random Forest against the demographic covariates baselines, the naive majority class classifier, and the 126-configuration nested candidate ensemble.
+        </p>
+
+        <div className="table-container" style={{ marginBottom: "12px" }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Model / Pipeline Specification</th>
+                <th>LOIO ROC-AUC (95% CI)</th>
+                <th>LOIO Accuracy (95% CI)</th>
+                <th>Balanced Accuracy (95% CI)</th>
+                <th>Permutation Significance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Majority Baseline */}
+              <tr>
+                <td>
+                  <strong>Majority Class Baseline</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Always predict typically developing Control (68/118)</span>
+                </td>
+                <td className="tabular-nums">0.5000</td>
+                <td className="tabular-nums">{(modelComparisonData.models[0].loio_accuracy * 100).toFixed(2)}%</td>
+                <td className="tabular-nums">50.00%</td>
+                <td className="tabular-nums" style={{ color: "var(--text-muted)" }}>p = 1.0000</td>
+              </tr>
+
+              {/* Demographics: followup_study */}
+              <tr style={{ background: "var(--bg-subtle)" }}>
+                <td>
+                  <strong>Demographics Alone (followup_study)</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--brand-blue)", fontFamily: "var(--font-mono)" }}>
+                    followup_study: nested model selection on age+sex, LOIO AUC 0.5976
+                  </span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "600" }}>
+                  {modelComparisonData.models[1].loio_roc_auc.toFixed(4)}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[1].loio_roc_auc_ci.map(v => v.toFixed(3)).join(", ")}]</span>
+                </td>
+                <td className="tabular-nums">
+                  {(modelComparisonData.models[1].loio_accuracy * 100).toFixed(2)}%<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[1].loio_accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                </td>
+                <td className="tabular-nums">
+                  {(modelComparisonData.models[1].loio_balanced_accuracy * 100).toFixed(2)}%<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[1].loio_balanced_accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                </td>
+                <td className="tabular-nums" style={{ color: "var(--text-muted)" }}>—</td>
+              </tr>
+
+              {/* Demographics: final_candidate */}
+              <tr style={{ background: "var(--bg-subtle)" }}>
+                <td>
+                  <strong>Demographics Alone (final_candidate)</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--brand-blue)", fontFamily: "var(--font-mono)" }}>
+                    final_candidate: fixed logistic regression, LOIO AUC 0.5857
+                  </span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "600" }}>
+                  {modelComparisonData.models[2].loio_roc_auc.toFixed(4)}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[2].loio_roc_auc_ci.map(v => v.toFixed(3)).join(", ")}]</span>
+                </td>
+                <td className="tabular-nums">
+                  {(modelComparisonData.models[2].loio_accuracy * 100).toFixed(2)}%<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[2].loio_accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                </td>
+                <td className="tabular-nums">
+                  {(modelComparisonData.models[2].loio_balanced_accuracy * 100).toFixed(2)}%<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[2].loio_balanced_accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "600", color: "var(--accent-success)" }}>
+                  p = {modelComparisonData.models[2].permutation_p.toFixed(4)}
+                </td>
+              </tr>
+
+              {/* Locked Production Random Forest */}
+              <tr style={{ background: "var(--accent-green-bg)" }}>
+                <td>
+                  <strong>Locked Production Pipeline (Random Forest)</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>SelectKBest(k=100) + Balanced RF(50 trees, depth 3)</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--brand-blue)" }}>
+                  {modelComparisonData.models[3].loio_roc_auc.toFixed(4)}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[3].loio_roc_auc_ci.map(v => v.toFixed(3)).join(", ")}]</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "700" }}>
+                  {(modelComparisonData.models[3].loio_accuracy * 100).toFixed(2)}%<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[3].loio_accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "600" }}>
+                  {(modelComparisonData.models[3].loio_balanced_accuracy * 100).toFixed(2)}%<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[3].loio_balanced_accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--accent-success)" }}>
+                  p = {modelComparisonData.models[3].permutation_p.toFixed(4)}
+                </td>
+              </tr>
+
+              {/* Final Candidate Ensemble */}
+              <tr>
+                <td>
+                  <strong>Final Candidate Pipeline (Nested Ensemble)</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>126-Config Nested Grid (Pearson/Partial/Tangent + K + Classifiers)</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--brand-blue)" }}>
+                  {modelComparisonData.models[4].loio_roc_auc.toFixed(4)}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[4].loio_roc_auc_ci.map(v => v.toFixed(3)).join(", ")}]</span>
+                </td>
+                <td className="tabular-nums">
+                  {(modelComparisonData.models[4].loio_accuracy * 100).toFixed(2)}%<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[4].loio_accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                </td>
+                <td className="tabular-nums">
+                  {(modelComparisonData.models[4].loio_balanced_accuracy * 100).toFixed(2)}%<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>[{modelComparisonData.models[4].loio_balanced_accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--accent-success)" }}>
+                  p = {modelComparisonData.models[4].permutation_p.toFixed(4)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Methodological Caveat & Non-Significance Callout */}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+          <Info size={16} color="var(--brand-blue)" style={{ flexShrink: 0, marginTop: "2px" }} />
+          <span>
+            <strong>Key Finding:</strong> Connectivity did not significantly outperform age/sex alone (Locked RF vs Demographics: ΔAUC = +0.0397 [-0.1061, +0.1695], p = 0.2670; Candidate Ensemble vs Demographics: ΔAUC = +0.0400 [-0.1038, +0.1714], p = 0.2685). Both pipelines were tuned with knowledge of these subjects (the 118-subject clean subset and feature spaces were selected after observing full cohort results). Furthermore, the complex 126-configuration nested ensemble search did not outperform the locked Random Forest (ΔAUC = +0.0003 [-0.0633, +0.0639], p = 0.4960).
+          </span>
+        </div>
+      </div>
+
+      {/* Final Candidate Benchmark Panel (126-Configuration Space Exploration) */}
+      <div className="card" style={{ marginBottom: "24px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px", flexWrap: "wrap", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Sparkles size={18} color="var(--brand-blue)" />
+            <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>
+              Final Candidate Benchmark: 126-Configuration Space Exploration (N={finalCandidateData?._metadata?.n_subjects ?? "118"})
+            </h3>
+          </div>
+          <span style={{ fontSize: "0.75rem", background: "var(--bg-subtle)", padding: "4px 8px", borderRadius: "4px", color: "var(--text-muted)", fontWeight: "500" }}>
+            Nested CV · 4 Institutional Folds (KKI, NYU, NeuroIMAGE, Peking)
+          </span>
+        </div>
+
+        <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "16px" }}>
+          To rigorously test whether more complex architectures can overcome cross-site variability, an exhaustive benchmark of 126 configurations was executed across Pearson, Partial, and Riemannian Tangent-space embeddings, feature cutoffs (k=50, 100, 200), and 4 classifier families (L2-Logistic Regression, Linear SVM, RBF SVM, and Random Forests) with and without demographic covariates and multi-model ensembling.
+        </p>
+
+        {/* Metrics Grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginBottom: "16px" }}>
+          <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "var(--radius-md)" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>LOIO Generalization AUC</span>
+            <div className="tabular-nums" style={{ fontSize: "1.25rem", fontWeight: "800", color: "var(--brand-blue)", marginTop: "2px" }}>
+              {finalCandidateData?.loio?.roc_auc != null ? finalCandidateData.loio.roc_auc.toFixed(4) : "N/A"}
+            </div>
+            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+              95% CI: {finalCandidateData?.loio?.roc_auc_ci ? `[${finalCandidateData.loio.roc_auc_ci[0].toFixed(3)}, ${finalCandidateData.loio.roc_auc_ci[1].toFixed(3)}]` : "N/A"}
+            </div>
+          </div>
+
+          <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "var(--radius-md)" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>LOIO Accuracy vs Majority</span>
+            <div className="tabular-nums" style={{ fontSize: "1.25rem", fontWeight: "800", color: "var(--text-primary)", marginTop: "2px" }}>
+              {finalCandidateData?.loio?.accuracy != null ? `${(finalCandidateData.loio.accuracy * 100).toFixed(2)}%` : "N/A"}
+            </div>
+            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+              Majority Baseline: {finalCandidateData?.majority_accuracy != null ? `${(finalCandidateData.majority_accuracy * 100).toFixed(2)}%` : "57.63%"} {finalCandidateData?.loio?.accuracy_ci ? `[${(finalCandidateData.loio.accuracy_ci[0] * 100).toFixed(1)}%, ${(finalCandidateData.loio.accuracy_ci[1] * 100).toFixed(1)}%]` : ""}
+            </div>
+          </div>
+
+          <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "var(--radius-md)" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Balanced Acc / Sens / Spec</span>
+            <div className="tabular-nums" style={{ fontSize: "1.1rem", fontWeight: "700", color: "var(--text-primary)", marginTop: "4px" }}>
+              {finalCandidateData?.loio?.balanced_accuracy != null ? `${(finalCandidateData.loio.balanced_accuracy * 100).toFixed(1)}%` : "N/A"} <span style={{ fontSize: "0.75rem", fontWeight: "400", color: "var(--text-muted)" }}>BalAcc</span>
+            </div>
+            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+              Sens: {finalCandidateData?.loio?.sensitivity != null ? `${(finalCandidateData.loio.sensitivity * 100).toFixed(1)}%` : "N/A"} · Spec: {finalCandidateData?.loio?.specificity != null ? `${(finalCandidateData.loio.specificity * 100).toFixed(1)}%` : "N/A"}
+            </div>
+          </div>
+
+          <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "var(--radius-md)" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Permutation Significance</span>
+            <div className="tabular-nums" style={{ fontSize: "1.25rem", fontWeight: "800", color: "var(--accent-success)", marginTop: "2px" }}>
+              {finalCandidateData?.permutation_test?.p_value_display ?? "p = 0.0050"}
+            </div>
+            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+              Null mean: {finalCandidateData?.permutation_test?.null_mean != null ? `${finalCandidateData.permutation_test.null_mean.toFixed(4)} ± ${finalCandidateData.permutation_test.null_std.toFixed(4)}` : "N/A"} (200 permutations; min possible p=0.0050)
+            </div>
+          </div>
+        </div>
+
+        {/* Statistical Contrast vs Demographics */}
+        <div style={{ background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", marginBottom: "16px", fontSize: "0.8rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: "700", color: "var(--text-primary)", marginBottom: "4px" }}>
+            <Scale size={16} color="var(--brand-blue)" />
+            <span>Paired Statistical Test vs. Age &amp; Sex Demographics Baseline</span>
+          </div>
+          <div>
+            Age and sex demographic covariates alone reach a LOIO AUC of <strong>{finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "0.5857"}</strong> [95% CI: {finalCandidateData?.covariates_only_model?.loio_auc_ci ? `${finalCandidateData.covariates_only_model.loio_auc_ci[0].toFixed(3)}, ${finalCandidateData.covariates_only_model.loio_auc_ci[1].toFixed(3)}` : "0.489, 0.685"}] (permutation p = {finalCandidateData?.covariates_only_model?.p_value != null ? finalCandidateData.covariates_only_model.p_value.toFixed(4) : "0.0498"}).
+            The paired subject-level bootstrap test between the final candidate and demographics yields:
+            <br />
+            <strong>ΔAUC = {finalCandidateData?.paired_bootstrap_vs_covars?.delta_mean != null ? `${finalCandidateData.paired_bootstrap_vs_covars.delta_mean >= 0 ? "+" : ""}${finalCandidateData.paired_bootstrap_vs_covars.delta_mean.toFixed(4)}` : "+0.0400"}</strong> [95% Bootstrap CI: {finalCandidateData?.paired_bootstrap_vs_covars?.delta_ci_95 ? `${finalCandidateData.paired_bootstrap_vs_covars.delta_ci_95[0].toFixed(4)}, ${finalCandidateData.paired_bootstrap_vs_covars.delta_ci_95[1].toFixed(4)}` : "-0.1038, +0.1714"}], <strong>p = {finalCandidateData?.paired_bootstrap_vs_covars?.p_value != null ? finalCandidateData.paired_bootstrap_vs_covars.p_value.toFixed(4) : "0.2685"}</strong>.
+            Because the 95% confidence interval spans zero, the difference between functional connectivity and demographic covariates alone is not statistically significant.
+          </div>
+        </div>
+
+        {/* Fold Configurations & Limitations */}
+        <div style={{ marginBottom: "14px" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "var(--text-primary)", marginBottom: "6px" }}>
+            Fold-Selected Configurations (Selected Configuration Differed by Fold):
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "8px", fontSize: "0.75rem" }}>
+            {finalCandidateData?.selected_configurations?.folds?.map((f, idx) => (
+              <div key={idx} style={{ background: "var(--bg-surface)", border: "1px solid var(--border-color)", padding: "8px 10px", borderRadius: "6px" }}>
+                <strong>Fold {idx + 1} (Held-out: {f.held_out}):</strong>
+                <div style={{ color: "var(--brand-blue)", fontFamily: "var(--font-mono)", marginTop: "2px" }}>{f.winner}</div>
+                <div style={{ color: "var(--text-muted)", fontSize: "0.7rem" }}>Inner CV AUC: {f.inner_auc.toFixed(4)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 3 Explicit Methodological Limitations */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "0.75rem", color: "var(--text-muted)", borderTop: "1px solid var(--border-color)", paddingTop: "12px" }}>
+          <div style={{ fontWeight: "700", color: "var(--text-primary)" }}>Critical Benchmark Limitations (from REPORT.md):</div>
+          {finalCandidateData?.limitations?.map((lim, idx) => (
+            <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "6px" }}>
+              <span style={{ color: "var(--accent-warning)", fontWeight: "700" }}>•</span>
+              <span><strong>{lim.title}:</strong> {lim.detail}</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -249,23 +528,23 @@ export function OverviewView({ data }) {
             <tbody>
               <tr>
                 <td><strong>Development Train</strong></td>
-                <td className="tabular-nums">{cohort.train_subjects}</td>
-                <td className="tabular-nums">{cohort.train_control}</td>
-                <td className="tabular-nums">{cohort.train_adhd}</td>
+                <td className="tabular-nums">{cohort?.train_subjects ?? "N/A"}</td>
+                <td className="tabular-nums">{cohort?.train_control ?? "N/A"}</td>
+                <td className="tabular-nums">{cohort?.train_adhd ?? "N/A"}</td>
                 <td>6 Sites (KKI, NYU, OHSU, Peking_1, Peking_3, Pittsburgh)</td>
               </tr>
               <tr>
                 <td><strong>Development Validation</strong></td>
-                <td className="tabular-nums">{cohort.validation_subjects}</td>
-                <td className="tabular-nums">{cohort.validation_control}</td>
-                <td className="tabular-nums">{cohort.validation_adhd}</td>
+                <td className="tabular-nums">{cohort?.validation_subjects ?? "N/A"}</td>
+                <td className="tabular-nums">{cohort?.validation_control ?? "N/A"}</td>
+                <td className="tabular-nums">{cohort?.validation_adhd ?? "N/A"}</td>
                 <td>NeuroIMAGE (Single External Site)</td>
               </tr>
               <tr style={{ background: "var(--accent-warning-subtle)" }}>
                 <td><strong>Held-out Batch Partition</strong></td>
-                <td className="tabular-nums" style={{ fontWeight: "700" }}>{cohort.test_subjects}</td>
-                <td className="tabular-nums">{cohort.test_control}</td>
-                <td className="tabular-nums">{cohort.test_adhd}</td>
+                <td className="tabular-nums" style={{ fontWeight: "700" }}>{cohort?.test_subjects ?? "N/A"}</td>
+                <td className="tabular-nums">{cohort?.test_control ?? "N/A"}</td>
+                <td className="tabular-nums">{cohort?.test_adhd ?? "N/A"}</td>
                 <td><strong>Peking_2 (Batch holdout; same institution as Peking_1/3)</strong></td>
               </tr>
             </tbody>

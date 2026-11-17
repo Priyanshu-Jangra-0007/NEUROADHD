@@ -2,10 +2,18 @@ import React from "react";
 import { Activity, Lock } from "lucide-react";
 
 export function PerformanceView({ data }) {
-  const rfStats = data.rf_robustness.summary.all_8_repetitions;
-  const reps = data.rf_robustness.repetitions;
-  const finalTest = data.final_test_results.metrics;
-  const cm = data.final_confusion_matrix;
+  const rfStats = data?.rf_robustness?.summary?.all_8_repetitions;
+  const reps = data?.rf_robustness?.repetitions || [];
+  const finalTest = data?.final_test_results?.metrics;
+  const cm = data?.final_confusion_matrix ?? data?.final_test_results?.metrics?.confusion_matrix;
+
+  const totalAdhd = (cm?.tp != null && cm?.fn != null) ? (cm.tp + cm.fn) : null;
+  const totalCtrl = (cm?.tn != null && cm?.fp != null) ? (cm.tn + cm.fp) : null;
+  const totalTestCount = data?.final_test_results?.test_subject_count ?? data?.cohort_breakdown?.test_subjects ?? ((totalAdhd != null && totalCtrl != null) ? (totalAdhd + totalCtrl) : null);
+
+  const accCi = finalTest?.accuracy_ci_95 ?? finalTest?.accuracy_wilson_ci_95;
+  const aucCi = finalTest?.roc_auc_ci_95 ?? finalTest?.auc_bootstrap_ci_95;
+  const sens = finalTest?.recall_sensitivity ?? finalTest?.sensitivity ?? finalTest?.sensitivity_recall;
 
   return (
     <div className="view-container">
@@ -109,7 +117,7 @@ export function PerformanceView({ data }) {
             </h3>
           </div>
           <span style={{ fontSize: "0.75rem", background: "#fef3c7", color: "#b45309", padding: "4px 10px", borderRadius: "9999px", fontWeight: "700" }}>
-            Scored once for this model (baseline previously scored; N=20)
+            Scored once for this model (baseline previously scored; N={totalTestCount ?? "N/A"})
           </span>
         </div>
 
@@ -117,36 +125,42 @@ export function PerformanceView({ data }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px" }}>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Accuracy</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.accuracy ?? 0.6).toFixed(4)}</div>
+              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{finalTest?.accuracy != null ? finalTest.accuracy.toFixed(4) : "N/A"}</div>
               <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>
-                95% CI: [{finalTest?.accuracy_ci_95?.[0] ? (finalTest.accuracy_ci_95[0] * 100).toFixed(1) : "38.7"}%, {finalTest?.accuracy_ci_95?.[1] ? (finalTest.accuracy_ci_95[1] * 100).toFixed(1) : "78.1"}%] (Wilson)
+                {accCi?.[0] != null && accCi?.[1] != null ? `95% CI: [${(accCi[0] * 100).toFixed(1)}%, ${(accCi[1] * 100).toFixed(1)}%] (Wilson)` : "95% CI: N/A"}
               </div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Balanced Acc</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.balanced_accuracy ?? 0.6).toFixed(4)}</div>
-              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>6/10 ADHD, 6/10 Ctrl</div>
+              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{finalTest?.balanced_accuracy != null ? finalTest.balanced_accuracy.toFixed(4) : "N/A"}</div>
+              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>
+                {(cm?.tp != null && totalAdhd != null && cm?.tn != null && totalCtrl != null) ? `${cm.tp}/${totalAdhd} ADHD, ${cm.tn}/${totalCtrl} Ctrl` : "N/A"}
+              </div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Sensitivity</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.recall_sensitivity ?? finalTest?.sensitivity ?? finalTest?.sensitivity_recall ?? 0.6).toFixed(4)}</div>
-              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>6/10 Detected (+3 vs base)</div>
+              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{sens != null ? sens.toFixed(4) : "N/A"}</div>
+              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>
+                {(cm?.tp != null && totalAdhd != null) ? `${cm.tp}/${totalAdhd} Detected` : "N/A"}
+              </div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>Specificity</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.specificity ?? 0.6).toFixed(4)}</div>
-              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>6/10 Control (-2 vs base)</div>
+              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{finalTest?.specificity != null ? finalTest.specificity.toFixed(4) : "N/A"}</div>
+              <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>
+                {(cm?.tn != null && totalCtrl != null) ? `${cm.tn}/${totalCtrl} Control` : "N/A"}
+              </div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>ROC-AUC</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.roc_auc ?? 0.56).toFixed(4)}</div>
+              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{finalTest?.roc_auc != null ? finalTest.roc_auc.toFixed(4) : "N/A"}</div>
               <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>
-                95% CI: [{finalTest?.roc_auc_ci_95?.[0] ? finalTest.roc_auc_ci_95[0].toFixed(3) : "0.290"}, {finalTest?.roc_auc_ci_95?.[1] ? finalTest.roc_auc_ci_95[1].toFixed(3) : "0.830"}] (Bootstrap)
+                {aucCi?.[0] != null && aucCi?.[1] != null ? `95% CI: [${aucCi[0].toFixed(3)}, ${aucCi[1].toFixed(3)}] (Bootstrap)` : "95% CI: N/A"}
               </div>
             </div>
             <div style={{ background: "#fffbeb", padding: "10px", borderRadius: "6px", border: "1px solid #fef3c7" }}>
               <div style={{ fontSize: "0.7rem", color: "#92400e" }}>PR-AUC</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{(finalTest?.pr_auc ?? 0.6341).toFixed(4)}</div>
+              <div style={{ fontSize: "1.25rem", fontWeight: "800", color: "#78350f" }}>{finalTest?.pr_auc != null ? finalTest.pr_auc.toFixed(4) : "N/A"}</div>
               <div style={{ fontSize: "0.68rem", color: "#b45309", marginTop: "2px" }}>vs Chance 0.5000</div>
             </div>
           </div>
@@ -157,19 +171,19 @@ export function PerformanceView({ data }) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", textAlign: "center" }}>
               <div style={{ background: "#dcfce7", padding: "8px", borderRadius: "4px" }}>
                 <div style={{ fontSize: "0.7rem", color: "#166534" }}>True Pos (TP)</div>
-                <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#14532d" }}>{cm.tp}</div>
+                <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#14532d" }}>{cm?.tp != null ? cm.tp : "N/A"}</div>
               </div>
               <div style={{ background: "#fee2e2", padding: "8px", borderRadius: "4px" }}>
                 <div style={{ fontSize: "0.7rem", color: "#991b1b" }}>False Neg (FN)</div>
-                <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#7f1d1d" }}>{cm.fn}</div>
+                <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#7f1d1d" }}>{cm?.fn != null ? cm.fn : "N/A"}</div>
               </div>
               <div style={{ background: "#fee2e2", padding: "8px", borderRadius: "4px" }}>
                 <div style={{ fontSize: "0.7rem", color: "#991b1b" }}>False Pos (FP)</div>
-                <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#7f1d1d" }}>{cm.fp}</div>
+                <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#7f1d1d" }}>{cm?.fp != null ? cm.fp : "N/A"}</div>
               </div>
               <div style={{ background: "#dcfce7", padding: "8px", borderRadius: "4px" }}>
                 <div style={{ fontSize: "0.7rem", color: "#166534" }}>True Neg (TN)</div>
-                <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#14532d" }}>{cm.tn}</div>
+                <div style={{ fontSize: "1.2rem", fontWeight: "800", color: "#14532d" }}>{cm?.tn != null ? cm.tn : "N/A"}</div>
               </div>
             </div>
           </div>

@@ -1,11 +1,44 @@
 import React from "react";
 import { AlertTriangle, ShieldAlert, Cpu, Scale, HelpCircle, FileWarning } from "lucide-react";
+import siteConfoundData from "../data/siteConfoundData.json";
 
-export function LimitationsView() {
+export function LimitationsView({ data }) {
+  const c1 = siteConfoundData?.config1_153;
+  const c2 = siteConfoundData?.config2_118;
+  const finalTest = data?.final_test_results;
+  const testTotal = finalTest?.test_subject_count ?? null;
+  const totalStr = testTotal !== null ? String(testTotal) : "N/A";
+  const cm = finalTest?.metrics?.confusion_matrix;
+  const correctCount = (cm && typeof cm.tp === "number" && typeof cm.tn === "number") ? (cm.tp + cm.tn) : null;
+  const countStr = (correctCount !== null && testTotal !== null) ? `${correctCount}/${testTotal}` : "N/A";
+  const testAcc = finalTest?.metrics?.accuracy != null ? `${(finalTest.metrics.accuracy * 100).toFixed(1)}%` : "N/A";
+  const testAccCi = finalTest?.metrics?.accuracy_ci_95 ?? finalTest?.metrics?.accuracy_wilson_ci_95;
+  const testAccCiStr = testAccCi ? `[${(testAccCi[0] * 100).toFixed(1)}%, ${(testAccCi[1] * 100).toFixed(1)}%]` : "N/A";
+  const testAucCi = finalTest?.metrics?.roc_auc_ci_95 ?? finalTest?.metrics?.auc_bootstrap_ci_95;
+  const testAucCiStr = testAucCi ? `[${testAucCi[0].toFixed(3)}, ${testAucCi[1].toFixed(3)}]` : "N/A";
+  const singleSubjectEffect = (typeof testTotal === "number" && testTotal > 0) ? `${(100 / testTotal).toFixed(1)} percentage points` : "N/A";
+
+  const c1N = c1?.n_subjects != null ? String(c1.n_subjects) : "N/A";
+  const c1SiteAuc = c1?.site_only_insample_auc != null ? c1.site_only_insample_auc.toFixed(4) : "N/A";
+  const c1ConnAuc = c1?.loio_connectivity_only?.roc_auc != null ? c1.loio_connectivity_only.roc_auc.toFixed(4) : "N/A";
+  const c1ConnCi = c1?.loio_connectivity_only?.roc_auc_ci ? `[${c1.loio_connectivity_only.roc_auc_ci.join(", ")}]` : "N/A";
+  const c1PVal = c1?.loio_connectivity_only?.p_value != null ? `p = ${c1.loio_connectivity_only.p_value.toFixed(4)}` : "N/A";
+
+  const c2N = c2?.n_subjects != null ? String(c2.n_subjects) : "N/A";
+  const c2CovAuc = c2?.covariates_only_baseline?.loio_auc != null ? c2.covariates_only_baseline.loio_auc.toFixed(4) : "N/A";
+  const c2CovCi = c2?.covariates_only_baseline?.loio_auc_ci ? `[${c2.covariates_only_baseline.loio_auc_ci.join(", ")}]` : "N/A";
+  const c2ConnAuc = c2?.loio_connectivity_only?.roc_auc != null ? c2.loio_connectivity_only.roc_auc.toFixed(4) : "N/A";
+  const c2ConnCi = c2?.loio_connectivity_only?.roc_auc_ci ? `[${c2.loio_connectivity_only.roc_auc_ci.join(", ")}]` : "N/A";
+  const c2PVal = c2?.loio_connectivity_only?.p_value != null ? `p = ${c2.loio_connectivity_only.p_value.toFixed(3)}` : "N/A";
+
+  const siteDesc = `In multi-site resting-state fMRI, random k-fold CV can inflate performance estimates by allowing models to exploit site-correlated demographic and scanner distributions. While Leave-One-Institution-Out (LOIO) cross-validation avoids train-test site overlap, LOIO still lets site affect scores through differences in demographic profiles, acquisition protocols, and scanner baselines. What the data show: in the full ${c1N}-subject cohort (Config 1), OHSU and Pittsburgh contain exclusively typically developing controls with zero ADHD cases, enabling site identity alone to reach an in-sample ROC-AUC of ${c1SiteAuc}. Under LOIO CV, functional connectivity drops to near-chance (LOIO AUC ${c1ConnAuc} ${c1ConnCi}, permutation ${c1PVal}). The ${c2N}-subject subset (Config 2) was chosen after the full cohort showed no signal (exploratory). Within this clean subset, demographic covariates (age and sex alone) reach LOIO AUC ${c2CovAuc} ${c2CovCi}, while connectivity achieves ${c2ConnAuc} ${c2ConnCi}, ${c2PVal}. The difference between connectivity and age/sex alone was not statistically tested.`;
+
+  const p2Desc = `The held-out Peking_2 test set consists of only ${totalStr} subjects. At N=${totalStr}, each subject shifts accuracy by ${singleSubjectEffect}. The Wilson 95% confidence interval for ${countStr} accuracy spans ${testAccCiStr}, and the stratified bootstrap 95% CI for test ROC-AUC spans ${testAucCiStr}. Because 50% chance lies comfortably within both intervals, the test accuracy of ${testAcc} is not statistically distinguishable from chance (binomial p ≈ 0.25).`;
+
   const limitations = [
     {
       title: "Site Confounding & Post-Hoc Clean Cohort Selection",
-      desc: "In multi-site resting-state fMRI, random k-fold CV can inflate performance estimates by allowing models to exploit site-correlated demographic and scanner distributions. While Leave-One-Institution-Out (LOIO) cross-validation avoids train-test site overlap, LOIO still lets site affect scores through differences in demographic profiles, acquisition protocols, and scanner baselines. What the data show: in the full 153-subject cohort (Config 1), OHSU (N=14) and Pittsburgh (N=21) contain exclusively typically developing controls with zero ADHD cases, enabling site identity alone to reach an in-sample ROC-AUC of 0.7221. Under LOIO CV, functional connectivity drops to near-chance (LOIO AUC 0.5342 [0.439, 0.633], permutation p=0.0859). The 118-subject subset (Config 2) was chosen after the full cohort showed no signal (exploratory). Within this clean subset, demographic covariates (age and sex alone) reach LOIO AUC 0.5976 [0.492, 0.702], while connectivity achieves 0.6221 [0.515, 0.724], p=0.021.",
+      desc: siteDesc,
       icon: ShieldAlert,
       color: "var(--accent-danger)"
     },
@@ -16,8 +49,8 @@ export function LimitationsView() {
       color: "var(--accent-warning)"
     },
     {
-      title: "Small Test Sample Size & Statistical Power (N=20)",
-      desc: "The held-out Peking_2 test set consists of only 20 subjects (10 Control, 10 ADHD). At N=20, each subject shifts accuracy by 5.0 percentage points. The Wilson 95% confidence interval for 12/20 accuracy spans [38.7%, 78.1%], and the stratified bootstrap 95% CI for test ROC-AUC spans [0.290, 0.830]. Because 50% chance lies comfortably within both intervals, the test accuracy of 60.0% is not statistically distinguishable from chance (binomial p ≈ 0.25).",
+      title: "Small Test Sample Size & Statistical Power",
+      desc: p2Desc,
       icon: Scale,
       color: "var(--accent-warning)"
     },
@@ -48,44 +81,35 @@ export function LimitationsView() {
           Study Limitations &amp; Ethical Boundaries
         </h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.5, marginTop: "4px" }}>
-          Explicit documentation of methodological constraints, statistical power boundaries, site confounding, and non-clinical status.
+          Rigorous methodological caveats, site-confounding realities, sample size constraints, and clinical disclaimers.
         </p>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "24px" }}>
-        {limitations.map((lim, i) => {
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "16px" }}>
+        {limitations.map((lim, idx) => {
           const Icon = lim.icon;
           return (
-            <div 
-              key={i} 
-              className="card" 
-              style={{ 
-                display: "flex", 
-                alignItems: "flex-start", 
-                gap: "14px", 
-                padding: "18px 20px" 
-              }}
-            >
-              <div 
-                style={{ 
-                  background: "var(--bg-subtle)", 
-                  padding: "8px", 
-                  borderRadius: "var(--radius-md)", 
-                  color: lim.color,
-                  flexShrink: 0,
-                  marginTop: "2px"
-                }}
-              >
-                <Icon size={18} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)", marginBottom: "4px" }}>
-                  {i + 1}. {lim.title}
+            <div key={idx} className="card" style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                <div style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "var(--radius-sm)",
+                  background: "var(--bg-subtle)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0
+                }}>
+                  <Icon size={18} color={lim.color} />
+                </div>
+                <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)" }}>
+                  {lim.title}
                 </h3>
-                <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", lineHeight: 1.55 }}>
-                  {lim.desc}
-                </p>
               </div>
+              <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", lineHeight: 1.6, flexGrow: 1 }}>
+                {lim.desc}
+              </p>
             </div>
           );
         })}

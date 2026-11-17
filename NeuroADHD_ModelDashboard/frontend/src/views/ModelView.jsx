@@ -2,7 +2,10 @@ import React from "react";
 import { CheckCircle2, ShieldCheck, ArrowRight, Layers } from "lucide-react";
 
 export function ModelView({ data }) {
-  const meta = data.final_model_metadata;
+  const meta = data?.final_model_metadata;
+  const hp = meta?.hyperparameters;
+  const kMatch = meta?.feature_selection?.match(/k=(\d+)/);
+  const kVal = kMatch ? kMatch[1] : null;
 
   const pipelineSteps = [
     { name: "Raw BOLD Input", tensor: "200 ROIs × T timepoints", desc: "Craddock 200 spatially constrained spectral clustering atlas time courses" },
@@ -11,19 +14,19 @@ export function ModelView({ data }) {
     { name: "Median Imputation", tensor: "19,900 edge vector", desc: "SimpleImputer(strategy='median', keep_empty_features=True) fitted inside training folds only" },
     { name: "Variance Filter", tensor: "19,900 edge vector", desc: "VarianceThreshold(threshold=0.0) removes zero-variance constants" },
     { name: "Standardization", tensor: "19,900 edge vector", desc: "StandardScaler() zero-mean unit-variance scaling fitted strictly inside training folds" },
-    { name: "Univariate Selection", tensor: "100 selected edges", desc: "SelectKBest(score_func=f_classif, k=100) ANOVA F-test applied strictly on training folds" },
-    { name: "Classification Model", tensor: "Scalar probability [0, 1]", desc: "Balanced Random Forest (50 trees, max_depth=3, class_weight='balanced')" }
+    { name: "Univariate Selection", tensor: kVal ? `${kVal} selected edges` : "N/A", desc: meta?.feature_selection ? `${meta.feature_selection} ANOVA F-test applied strictly on training folds` : "SelectKBest applied on training folds" },
+    { name: "Classification Model", tensor: "Scalar probability [0, 1]", desc: hp ? `Balanced Random Forest (${hp.n_estimators ?? "N/A"} trees, max_depth=${hp.max_depth ?? "N/A"}, class_weight='${hp.class_weight ?? "balanced"}')` : "Balanced Random Forest classifier" }
   ];
 
   const hyperparams = [
-    { param: "K (Selected Edges)", value: "100", note: "Top ANOVA F-score functional connectivity connections (out of 19,900)" },
-    { param: "n_estimators", value: "50", note: "Number of decision trees in forest; prevents overfitting on small N" },
-    { param: "max_depth", value: "3", note: "Constrained tree depth to limit high-order interaction variance" },
-    { param: "min_samples_split", value: "2", note: "Minimum samples required to split an internal decision node" },
-    { param: "min_samples_leaf", value: "1", note: "Minimum samples permitted at any individual leaf node" },
-    { param: "max_features", value: "'sqrt' (10)", note: "Square root of K: exactly 10 features considered per split candidate" },
-    { param: "class_weight", value: "'balanced'", note: "Inverse class-frequency weights to penalize minority ADHD misclassifications" },
-    { param: "random_state", value: "42", note: "Fixed deterministic seed for exact scientific reproducibility" }
+    { param: "K (Selected Edges)", value: kVal ?? "N/A", note: "Top ANOVA F-score functional connectivity connections (out of 19,900)" },
+    { param: "n_estimators", value: hp?.n_estimators != null ? String(hp.n_estimators) : "N/A", note: "Number of decision trees in forest; prevents overfitting on small N" },
+    { param: "max_depth", value: hp?.max_depth != null ? String(hp.max_depth) : "N/A", note: "Constrained tree depth to limit high-order interaction variance" },
+    { param: "min_samples_split", value: hp?.min_samples_split != null ? String(hp.min_samples_split) : "N/A", note: "Minimum samples required to split an internal decision node" },
+    { param: "min_samples_leaf", value: hp?.min_samples_leaf != null ? String(hp.min_samples_leaf) : "N/A", note: "Minimum samples permitted at any individual leaf node" },
+    { param: "max_features", value: hp?.max_features != null ? (typeof hp.max_features === "string" ? `'${hp.max_features}'` : String(hp.max_features)) : "N/A", note: "Square root of K: features considered per split candidate" },
+    { param: "class_weight", value: hp?.class_weight != null ? `'${hp.class_weight}'` : "N/A", note: "Inverse class-frequency weights to penalize minority ADHD misclassifications" },
+    { param: "random_state", value: hp?.random_state != null ? String(hp.random_state) : "N/A", note: "Fixed deterministic seed for exact scientific reproducibility" }
   ];
 
   return (

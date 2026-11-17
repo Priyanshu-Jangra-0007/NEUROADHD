@@ -77,7 +77,7 @@ export default function App() {
               {currentTab === "network" && <NetworkGraphView data={BENCHMARK_DATA} />}
               {currentTab === "subjects" && <IndividualSubjectView data={BENCHMARK_DATA} />}
               {currentTab === "methodology" && <MethodologyView data={BENCHMARK_DATA} />}
-              {currentTab === "limitations" && <LimitationsView />}
+              {currentTab === "limitations" && <LimitationsView data={BENCHMARK_DATA} />}
             </div>
           </ErrorBoundary>
         </main>

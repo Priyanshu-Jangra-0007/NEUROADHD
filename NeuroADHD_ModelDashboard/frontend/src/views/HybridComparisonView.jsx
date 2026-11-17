@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 
 export function HybridComparisonView({ data }) {
   const rfStats = data.rf_robustness.summary.all_8_repetitions;
@@ -9,7 +9,7 @@ export function HybridComparisonView({ data }) {
     {
       name: "Balanced Random Forest (Single Reference)",
       type: "Standalone Model",
-      protocol: "8-Repetition 5-Fold CV",
+      protocol: "8-Repetition 5-Fold CV (N=133 Development)",
       roc_auc: `${rfStats.roc_auc.mean.toFixed(4)} ± ${rfStats.roc_auc.std.toFixed(4)}`,
       bal_acc: `${rfStats.balanced_accuracy.mean.toFixed(4)} ± ${rfStats.balanced_accuracy.std.toFixed(4)}`,
       sensitivity: `${rfStats.recall_sensitivity.mean.toFixed(4)} ± ${rfStats.recall_sensitivity.std.toFixed(4)}`,
@@ -19,7 +19,7 @@ export function HybridComparisonView({ data }) {
     {
       name: "Soft Voting (0.6 RF / 0.4 XGBoost)",
       type: "Ensemble Hybrid",
-      protocol: "5-Repetition 5-Fold CV",
+      protocol: "5-Repetition 5-Fold CV (N=133 Development)",
       roc_auc: `${hybridStats.soft_voting.roc_auc.mean.toFixed(4)} ± ${hybridStats.soft_voting.roc_auc.std.toFixed(4)}`,
       bal_acc: `${hybridStats.soft_voting.balanced_accuracy.mean.toFixed(4)} ± ${hybridStats.soft_voting.balanced_accuracy.std.toFixed(4)}`,
       sensitivity: `${hybridStats.soft_voting.recall_sensitivity.mean.toFixed(4)} ± ${hybridStats.soft_voting.recall_sensitivity.std.toFixed(4)}`,
@@ -29,7 +29,7 @@ export function HybridComparisonView({ data }) {
     {
       name: "Hard Voting (RF + XGBoost)",
       type: "Ensemble Hybrid",
-      protocol: "5-Repetition 5-Fold CV",
+      protocol: "5-Repetition 5-Fold CV (N=133 Development)",
       roc_auc: `${hybridStats.hard_voting.roc_auc.mean.toFixed(4)} ± ${hybridStats.hard_voting.roc_auc.std.toFixed(4)}`,
       bal_acc: `${hybridStats.hard_voting.balanced_accuracy.mean.toFixed(4)} ± ${hybridStats.hard_voting.balanced_accuracy.std.toFixed(4)}`,
       sensitivity: `${hybridStats.hard_voting.recall_sensitivity.mean.toFixed(4)} ± ${hybridStats.hard_voting.recall_sensitivity.std.toFixed(4)}`,
@@ -39,7 +39,7 @@ export function HybridComparisonView({ data }) {
     {
       name: "Stacking (Balanced Logistic Regression Meta)",
       type: "Ensemble Hybrid",
-      protocol: "5-Repetition 5-Fold CV",
+      protocol: "5-Repetition 5-Fold CV (N=133 Development)",
       roc_auc: `${hybridStats.stacking.roc_auc.mean.toFixed(4)} ± ${hybridStats.stacking.roc_auc.std.toFixed(4)}`,
       bal_acc: `${hybridStats.stacking.balanced_accuracy.mean.toFixed(4)} ± ${hybridStats.stacking.balanced_accuracy.std.toFixed(4)}`,
       sensitivity: `${hybridStats.stacking.recall_sensitivity.mean.toFixed(4)} ± ${hybridStats.stacking.recall_sensitivity.std.toFixed(4)}`,
@@ -52,8 +52,8 @@ export function HybridComparisonView({ data }) {
     <div className="view-container">
       <div style={{ marginBottom: "20px" }}>
         <h2 style={{ fontSize: "1.4rem", fontWeight: "800", color: "var(--text-primary)" }}>Single Model vs. Hybrid Architecture Comparison</h2>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-          Empirical comparison between the frozen Balanced Random Forest and three ensemble architectures under identical repeated cross-validation protocols.
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginTop: "4px" }}>
+          Initial exploratory comparison conducted on the 133-subject development partition under random-fold cross-validation. Note: this protocol mixes acquisition sites across folds; external LOIO evaluation on the 118-subject clean cohort is reported on the Overview page.
         </p>
       </div>
 
@@ -91,9 +91,9 @@ export function HybridComparisonView({ data }) {
       <div style={{ background: "#f8fafc", border: "1px solid var(--border-color)", borderRadius: "8px", padding: "16px", display: "flex", alignItems: "flex-start", gap: "12px" }}>
         <AlertCircle size={20} color="var(--brand-blue)" style={{ flexShrink: 0, marginTop: "2px" }} />
         <div>
-          <h4 style={{ fontSize: "0.9rem", fontWeight: "700", color: "var(--text-primary)", marginBottom: "4px" }}>Scientific Conclusion</h4>
+          <h4 style={{ fontSize: "0.9rem", fontWeight: "700", color: "var(--text-primary)", marginBottom: "4px" }}>Scientific Conclusion &amp; Scope</h4>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
-            <strong>Hybrid models did not demonstrate a consistent improvement over the Balanced Random Forest.</strong> Across repeated cross-validation splits, the standalone Balanced Random Forest achieved higher average ROC-AUC (0.6045 vs 0.5926 for voting and 0.5555 for stacking) with superior parsimony and stability. Consequently, the single Balanced Random Forest was finalized.
+            <strong>Historical Context &amp; Parsimony:</strong> Within the initial development cohort (N=133, random-fold CV), hybrid ensembling did not provide an advantage over the standalone Balanced Random Forest ({rfStats?.roc_auc?.mean != null ? rfStats.roc_auc.mean.toFixed(4) : "N/A"} vs {hybridStats?.soft_voting?.roc_auc?.mean != null ? hybridStats.soft_voting.roc_auc.mean.toFixed(4) : "N/A"} for soft voting and {hybridStats?.stacking?.roc_auc?.mean != null ? hybridStats.stacking.roc_auc.mean.toFixed(4) : "N/A"} for stacking). Consequently, the simpler standalone Random Forest was frozen. Subsequent rigorous LOIO evaluation on the 118-subject clean cohort confirmed that neither the locked Random Forest (LOIO AUC 0.6250) nor multi-model ensembles (LOIO AUC 0.6253) significantly outperformed demographic covariates alone.
           </p>
         </div>
       </div>
