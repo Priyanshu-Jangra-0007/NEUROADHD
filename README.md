@@ -108,7 +108,7 @@ This generates the full feature matrix at:
 
 ## 🔒 Locked Final Model Checkpoint
 
-The frozen production model checkpoint is stored in [NeuroADHD_ModelBenchmark/results/final_locked/](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/):
+The frozen production model checkpoint is stored in `NeuroADHD_ModelBenchmark/results/final_locked/`:
 - **Model Checkpoint**: `final_model.joblib` (74,409 bytes)
 - **Architecture**: `sklearn.ensemble.RandomForestClassifier`
 - **Key Hyperparameters**:
@@ -144,7 +144,7 @@ Every metric reported below is derived directly from reproducibility artifacts a
 ---
 
 ### 2. Multi-Site Generalization (Leave-One-Institution-Out CV)
-*Source File: [NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)*
+*Source File: [NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json](NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)*
 
 To assess cross-scanner generalization, models were evaluated with Leave-One-Institution-Out (LOIO) cross-validation where all subjects from an entire institution are held out as the test set:
 
@@ -167,7 +167,7 @@ To assess cross-scanner generalization, models were evaluated with Leave-One-Ins
 ---
 
 ### 3. Study 1 Exploratory Model Comparison (118-Subject Clean Cohort, LOIO)
-*Source Files: [NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json), [modelComparisonData.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/modelComparisonData.json)*
+*Source Files: [NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json](NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json), [modelComparisonData.json](NeuroADHD_ModelDashboard/frontend/src/data/modelComparisonData.json)*
 
 All pipelines below were evaluated identically across the 4 LOIO folds on the 118-subject clean cohort:
 
@@ -203,11 +203,11 @@ Study 2 is a pre-registered follow-up on a different preprocessing pipeline: it 
 ### 5. What Was Tried That Did Not Help (Study 1)
 Extensive ablation studies and architectural alternatives were systematically benchmarked but failed to yield improvements:
 
-1. **Class Balancing Techniques**: SMOTE, RandomUnderSampler, and artificial oversampling strategies did not reliably improve out-of-site generalization compared to native balanced class weights ([experiments/balancing_study/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/balancing_study/REPORT.md)).
-2. **Alternative Model Families**: Linear SVM, RBF-kernel SVM, ExtraTrees, and gradient boosted trees (XGBoost) did not outperform a simple shallow Random Forest under multi-site cross-validation ([runs/full_benchmark_01/run_report.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/runs/full_benchmark_01/run_report.json)).
-3. **Partial Correlation Matrices**: Precision matrix estimation using Ledoit-Wolf shrinkage failed to outperform standard Fisher $z$-transformed Pearson correlation matrices under LOIO evaluation ([experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
-4. **Riemannian Tangent Space Embeddings**: Projecting symmetric positive-definite covariance matrices onto the Riemannian manifold tangent space yielded negligible performance changes relative to flat Pearson connectivity ([experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
-5. **Nested Hyperparameter Grid Search**: Exhaustive inner-loop optimization over 126 pipeline configurations (varying correlation metric, feature selection cutoff $k \in \{50, 100, 200, 300\}$, and classifier depth) converged to parsimonious depth-3 trees and did not statistically improve generalization over the locked baseline ($\Delta \text{AUC} = +0.0003, p = 0.4960$) ([experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
+1. **Class Balancing Techniques**: SMOTE, RandomUnderSampler, and artificial oversampling strategies did not reliably improve out-of-site generalization compared to native balanced class weights ([experiments/balancing_study/REPORT.md](NeuroADHD_ModelBenchmark/experiments/balancing_study/REPORT.md)).
+2. **Alternative Model Families**: Linear SVM, RBF-kernel SVM, ExtraTrees, and gradient boosted trees (XGBoost) did not outperform a simple shallow Random Forest under multi-site cross-validation ([runs/full_benchmark_01/run_report.json](NeuroADHD_ModelBenchmark/runs/full_benchmark_01/run_report.json)).
+3. **Partial Correlation Matrices**: Precision matrix estimation using Ledoit-Wolf shrinkage failed to outperform standard Fisher $z$-transformed Pearson correlation matrices under LOIO evaluation ([experiments/final_candidate/REPORT.md](NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
+4. **Riemannian Tangent Space Embeddings**: Projecting symmetric positive-definite covariance matrices onto the Riemannian manifold tangent space yielded negligible performance changes relative to flat Pearson connectivity ([experiments/final_candidate/REPORT.md](NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
+5. **Nested Hyperparameter Grid Search**: Exhaustive inner-loop optimization over 126 pipeline configurations (varying correlation metric, feature selection cutoff $k \in \{50, 100, 200, 300\}$, and classifier depth) converged to parsimonious depth-3 trees and did not statistically improve generalization over the locked baseline ($\Delta \text{AUC} = +0.0003, p = 0.4960$) ([experiments/final_candidate/REPORT.md](NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)).
 
 ---
 

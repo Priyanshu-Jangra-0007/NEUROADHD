@@ -11,7 +11,7 @@ This document provides a slide-by-slide presentation outline for a technical def
   - Resting-state functional magnetic resonance imaging (rs-fMRI) captures spontaneous blood-oxygen-level-dependent (BOLD) low-frequency fluctuations, from which whole-brain functional connectivity networks are derived.
   - Neuroimaging machine learning faces notorious failure modes: the "curse of dimensionality" ($p \gg N$), site-specific scanner artifacts, publication bias toward over-optimistic random cross-validation, and non-replicable clinical claims.
   - *Goal of this project*: Build a rigorous, fully auditable, leak-free benchmark on the ADHD-200 CC200 dataset to honestly determine whether resting-state functional connectivity predicts ADHD beyond demographic covariates and scanner confounds.
-* **Source Reference**: [README.md](file:///Users/apple/Documents/Codex/2026-09-29/down/README.md)
+* **Source Reference**: [README.md](../README.md)
 
 ---
 
@@ -23,7 +23,7 @@ This document provides a slide-by-slide presentation outline for a technical def
   - Each subject contributes an ROI time-series CSV; functional connectivity is calculated via pairwise Pearson correlation followed by Fisher $z$-transformation:
     $$\text{Feature Dimension} = \frac{200 \times 199}{2} = 19,900 \text{ unique functional edges}$$
   - Presents a massive $p \gg N$ ratio ($19,900$ features for $118\text{--}153$ subjects), necessitating strict feature selection and leakage prevention.
-* **Source Reference**: [NeuroADHD/data/adhd200/features/cc200/cc200_connectivity_features.csv](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD/data/adhd200/features/cc200/cc200_connectivity_features.csv), [benchmarkData.js](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/benchmarkData.js)
+* **Source Reference**: `NeuroADHD/data/adhd200/features/cc200/cc200_connectivity_features.csv`, [benchmarkData.js](../NeuroADHD_ModelDashboard/frontend/src/data/benchmarkData.js)
 
 ---
 
@@ -47,7 +47,7 @@ This document provides a slide-by-slide presentation outline for a technical def
   - Two distinct evaluation protocols deployed:
     1. *Peking_2 Held-Out Partition* ($N=20$): Fixed institution holdout, but shares the same 3T Siemens Trio scanner as Peking_1 and Peking_3 training partitions (same-scanner batch reproducibility).
     2. *Leave-One-Institution-Out (LOIO) Cross-Validation*: True out-of-site generalization, rotating each entire clinical institution out as the test fold.
-* **Source Reference**: [NeuroADHD/configs/splits/cc200_site_holdout.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD/configs/splits/cc200_site_holdout.json), [siteConfoundData.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)
+* **Source Reference**: [NeuroADHD/configs/splits/cc200_site_holdout.json](../NeuroADHD/configs/splits/cc200_site_holdout.json), [siteConfoundData.json](../NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)
 
 ---
 
@@ -74,7 +74,7 @@ This document provides a slide-by-slide presentation outline for a technical def
     - **Pittsburgh**: 21 subjects, 0 ADHD
   - Full cohort ($N=153$) connectivity LOIO performance collapses to ROC-AUC **`0.5342`** [0.439, 0.633] and Accuracy **`58.82%`** [0.510, 0.667] (permutation $p = 0.0859$, not statistically significant).
   - Clean cohort ($N=118$, removing OHSU & Pittsburgh, merging Peking 1/2/3): Connectivity LOIO ROC-AUC is **`0.6221`** [0.515, 0.724], Accuracy **`61.86%`**, permutation $p = 0.0210$ *(exploratory post-hoc subset; did not hold up in the Study 2 pre-registered follow-up on a different preprocessing pipeline)*.
-* **Source Reference**: [NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)
+* **Source Reference**: [NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json](../NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)
 
 ---
 
@@ -87,7 +87,7 @@ This document provides a slide-by-slide presentation outline for a technical def
     - Paired difference: $\Delta \text{AUC} = +0.0397$ [$-0.1061, +0.1695$], paired permutation **`p = 0.2670`** (not statistically significant).
     - Nested Ensemble (126 configs): LOIO AUC **`0.6253`** [0.521, 0.728], $\Delta \text{AUC} = +0.0400$, paired permutation **`p = 0.2685`** (not significant).
   - *Core scientific takeaway*: Functional connectivity did **not** demonstrate a statistically significant performance advantage over age and sex alone. The demographic signal reflects cohort recruitment differences, not ADHD-specific brain circuitry.
-* **Source Reference**: [NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json), [modelComparisonData.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/modelComparisonData.json)
+* **Source Reference**: [NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json](../NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json), [modelComparisonData.json](../NeuroADHD_ModelDashboard/frontend/src/data/modelComparisonData.json)
 
 ---
 
@@ -98,7 +98,7 @@ This document provides a slide-by-slide presentation outline for a technical def
   - **Model Families**: Linear SVM, RBF SVM, ExtraTrees, and XGBoost suffered severe variance and failed to outperform a simple depth-3 Random Forest.
   - **Precision & Covariance Representations**: Ledoit-Wolf shrinkage partial correlation and Riemannian tangent space projections yielded negligible changes over flat Fisher $z$-Pearson matrices.
   - **126-Configuration Nested CV Search**: Exhaustive inner-loop optimization across correlation types, feature cutoffs, and classifiers converged to simple trees and showed zero statistical gain over the locked RF ($\Delta \text{AUC} = +0.0003, p = 0.4960$).
-* **Source Reference**: [experiments/balancing_study/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/balancing_study/REPORT.md), [experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)
+* **Source Reference**: [experiments/balancing_study/REPORT.md](../NeuroADHD_ModelBenchmark/experiments/balancing_study/REPORT.md), [experiments/final_candidate/REPORT.md](../NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)
 
 ---
 
@@ -137,7 +137,7 @@ This document provides a slide-by-slide presentation outline for a technical def
     - *Explainability & Connectivity Network*: Global SHAP edge importances and topological graph visualization of top predictive hubs.
     - *Methodology & Limitations*: Detailed split documentation, site confound analyses, and ethical constraints.
   - Zero subject IDs displayed; fully responsive across desktop (1440px) and mobile (390px) with full keyboard accessibility.
-* **Source Reference**: [NeuroADHD_ModelDashboard/frontend/src/App.jsx](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/App.jsx)
+* **Source Reference**: [NeuroADHD_ModelDashboard/frontend/src/App.jsx](../NeuroADHD_ModelDashboard/frontend/src/App.jsx)
 
 ---
 
@@ -160,16 +160,16 @@ This document provides a slide-by-slide presentation outline for a technical def
 
 1. **Q: Was the held-out Peking_2 test set really untouched?**
    - **A**: The final model was scored once on Peking_2; the Peking_2 set was scored 10 times in total (9 baseline runs, 1 final); no tuning used it; same institution and scanner as Peking_1/3. Therefore, our primary claims of generalizability rest on the Leave-One-Institution-Out (LOIO) cross-validation (where Peking_1, Peking_2, and Peking_3 are unified into a single institution fold), not on Peking_2.
-   - *Reference*: [NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json)
+   - *Reference*: [NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json](../NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json)
 
 2. **Q: Why did you exclude OHSU and Pittsburgh from the 118-subject clean cohort?**
    - **A**: OHSU ($N=14$) and Pittsburgh ($N=21$) contain zero ADHD cases in the CC200 preprocessed distribution (100% control). When left in LOIO cross-validation, any test fold on these sites tests a classifier with undefined specificity or sensitivity for ADHD, distorting macro-averaged metrics. However, we explicitly disclose both the 153-subject and 118-subject results and clarify that the 118-subject cohort was an exploratory post-hoc partition.
-   - *Reference*: [NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)
+   - *Reference*: [NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json](../NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)
 
 3. **Q: Is this model clinically useful for diagnosing ADHD?**
    - **A**: *No.* Study 1's exploratory LOIO AUC (`0.6250` on $N=118$) did not beat age and sex alone ($p = 0.2670$) and did not hold up in Study 2 — a pre-registered follow-up on a different preprocessing pipeline (Athena, `190` ROIs, different cohort/sites with `126` overlapping development subjects; primary $N = 368$ LOIO AUC `0.5241`, $p_{\text{perm}} = 0.2298$; sealed NYU primary $N = 196$ AUC `0.5765` `[0.496177, 0.656518]`, Inconclusive Zone), where motion-only and age/sex baselines scored as high or higher than fMRI in every regime. This conclusion applies to this pipeline rather than to connectivity in general. Research use only: not a medical device or diagnostic tool; model scores are not calibrated probabilities.
-   - *Reference*: [NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json)
+   - *Reference*: [NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json](../NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json)
 
 4. **Q: Why wasn't ComBat evaluated on this data, and why did Tangent Space not help?**
    - **A**: ComBat estimates location and scale parameters per site. In strict Leave-One-Institution-Out CV, the held-out institution is completely unseen at training time, so standard training-set ComBat cannot estimate parameters for the held-out site without test-site data (verified via unit test in `test_candidate_leakage.py`). Riemannian tangent space was evaluated across the 118 subjects, but noisy empirical covariance estimates on short time series ($T \approx 120\text{--}240$) prevented it from improving over Fisher $z$-Pearson connectivity.
-   - *Reference*: [NeuroADHD_ModelBenchmark/experiments/final_candidate/test_candidate_leakage.py](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/test_candidate_leakage.py), [experiments/final_candidate/REPORT.md](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)
+   - *Reference*: [NeuroADHD_ModelBenchmark/experiments/final_candidate/test_candidate_leakage.py](../NeuroADHD_ModelBenchmark/experiments/final_candidate/test_candidate_leakage.py), [experiments/final_candidate/REPORT.md](../NeuroADHD_ModelBenchmark/experiments/final_candidate/REPORT.md)
