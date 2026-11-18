@@ -232,3 +232,7 @@ Every item logged in [`docs/study2/DEVIATIONS.md`](DEVIATIONS.md) is listed plai
   - Development JSON & log (`study2_dev_results.json`, `study2_dev_run.log`): `6d072448bf6573cd7f6e0bd65c0b6a141bc2cf60f2ea0e4a69bcc504918dc0d5`
   - Sealed JSON & log (`study2_sealed_results.json`, `study2_sealed_run.log`): `117e0395e73f9c9e0388d9a37d6e7de1405c052cfdc2c35769891cbc7d548dc2`
 - **Source Data Access:** ADHD-200 preprocessed derivatives (Athena CC200 and NIAK intermediate motion archives) are distributed by the ADHD-200 Consortium and the Neuro Bureau via NITRC Release 1600 and are excluded from version control (`.gitignore`).
+
+### Verifiability of the Timeline
+
+Only the public OSF registrations (`https://osf.io/db7nv` and `https://osf.io/grbt2`, together with the uploaded `PREREGISTRATION.md` file and its SHA-256 hash) are externally timestamped by a third party. The four milestone tags (`study2-dev-analysis-frozen`, `study2-dev-results`, `study2-sealed-frozen`, `study2-sealed-results`) and branch commits were pushed to `origin` after the sealed NYU run had completed; accordingly, the ordering and timestamps of the intermediate freezes and runs are documented in local Git history rather than independently verified by an external timestamping authority.
