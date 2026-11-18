@@ -174,7 +174,7 @@ export function OverviewView({ data }) {
                 </td>
                 <td className="tabular-nums" style={{ color: "var(--accent-danger)", fontWeight: "700" }}>
                   Section 8.1: {study2Data.development_sensitivity.meets_section_8_1 ? "MET" : "NOT MET"}<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>p_perm = {study2Data.development_sensitivity.p_perm_display} (motion &gt; fMRI)</span>
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>fMRI above chance (permutation p = {study2Data.development_sensitivity.p_perm_display}); below the motion-only baseline</span>
                 </td>
               </tr>
               <tr style={{ background: "var(--accent-warning-subtle)" }}>
@@ -230,6 +230,11 @@ export function OverviewView({ data }) {
           <span>
             <strong>Registered Interpretation:</strong> {study2Data.section_8_2_inconclusive_zone.conclusion_plain}{" "}
             Motion-only and age/sex baselines scored as high or higher than the fMRI pipeline in every regime.{" "}
+            <strong>Differential motion exclusion (Section 5.3):</strong> Primary development excluded{" "}
+            {study2Data.development_primary_attrition.excluded_tdc} TDC ({study2Data.development_primary_attrition.excluded_tdc_pct_display}) vs.{" "}
+            {study2Data.development_primary_attrition.excluded_adhd} ADHD ({study2Data.development_primary_attrition.excluded_adhd_pct_display}, Fisher exact p = {study2Data.development_primary_attrition.fisher_p_display});{" "}
+            sealed NYU excluded {study2Data.sealed_nyu_attrition.excluded_tdc} TDC ({study2Data.sealed_nyu_attrition.excluded_tdc_pct_display}) vs.{" "}
+            {study2Data.sealed_nyu_attrition.excluded_adhd} ADHD ({study2Data.sealed_nyu_attrition.excluded_adhd_pct_display}, Fisher exact p = {study2Data.sealed_nyu_attrition.fisher_p_display}).{" "}
             <strong>Sealed-site status:</strong> {study2Data.preregistration.sealed_site_status}{" "}
             Prior Study 1 overlap: {study2Data.prior_exposure.dev_overlap_subjects} development subjects and {study2Data.prior_exposure.nyu_overlap_subjects} NYU subjects.
           </span>

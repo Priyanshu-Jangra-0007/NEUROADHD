@@ -32,6 +32,12 @@ class TestCompileStudy2Data(unittest.TestCase):
         self.assertIn("0.499996", data["sealed_nyu_sensitivity"]["fmri_ci_95_exact_display"])
         self.assertEqual(data["prior_exposure"]["dev_overlap_subjects"], 126)
         self.assertEqual(data["prior_exposure"]["nyu_overlap_subjects"], 6)
+        self.assertEqual(data["development_primary_attrition"]["excluded_tdc_pct_display"], "5.0%")
+        self.assertEqual(data["development_primary_attrition"]["excluded_adhd_pct_display"], "14.8%")
+        self.assertEqual(data["development_primary_attrition"]["fisher_p_display"], "0.0011")
+        self.assertEqual(data["sealed_nyu_attrition"]["excluded_tdc_pct_display"], "7.1%")
+        self.assertEqual(data["sealed_nyu_attrition"]["excluded_adhd_pct_display"], "11.0%")
+        self.assertEqual(data["sealed_nyu_attrition"]["fisher_p_display"], "0.3568")
 
 
 if __name__ == "__main__":

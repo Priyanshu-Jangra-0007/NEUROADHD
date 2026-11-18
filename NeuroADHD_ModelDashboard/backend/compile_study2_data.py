@@ -156,6 +156,7 @@ def _parse_sealed_section(section_text: str, label: str) -> Dict[str, Any]:
 def compile_study2_data(docs_dir: Path = DOCS_STUDY2_DIR) -> Dict[str, Any]:
     dev_md = (docs_dir / "DEV_RESULTS_2026-11-18.md").read_text(encoding="utf-8")
     sealed_md = (docs_dir / "SEALED_RESULTS_2026-11-18.md").read_text(encoding="utf-8")
+    cohort_md = (docs_dir / "COHORT_COUNTS_2026-11-18.md").read_text(encoding="utf-8")
     osf_md = (docs_dir / "OSF_RECORD.md").read_text(encoding="utf-8")
     prereg_md = (docs_dir / "PREREGISTRATION.md").read_text(encoding="utf-8")
 
@@ -172,9 +173,18 @@ def compile_study2_data(docs_dir: Path = DOCS_STUDY2_DIR) -> Dict[str, Any]:
     sealed_primary = _parse_sealed_section(sealed_md[s_sec3:s_sec4], "sealed primary_196")
     sealed_sensitivity = _parse_sealed_section(sealed_md[s_sec4:], "sealed sensitivity_216")
 
-    # Parse NYU attrition counts from Section 2 of SEALED_RESULTS
+    # Parse primary development differential motion exclusion rates from COHORT_COUNTS_2026-11-18.md
+    sec32_start = cohort_md.index("### 3.2. Primary Motion Exclusion")
+    sec33_start = cohort_md.index("### 3.3. Strict Motion Exclusion")
+    dev_excl = _require_match(
+        r"\*\*POOLED DEV\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\s*\(([\d.]+%)\)\*\*\s*\|\s*\*\*(\d+)\s*\(([\d.]+%)\)\*\*\s*\|\s*\*\*`(\d+\.\d+)`\*\*",
+        cohort_md[sec32_start:sec33_start],
+        "Development primary attrition",
+    )
+
+    # Parse NYU attrition counts & rates from Section 2 of SEALED_RESULTS
     nyu_excl = _require_match(
-        r"\*\*Excluded by Section 5\.3 Primary FD Rule\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\*\*[^\n|]+\|\s*\*\*(\d+)\*\*[^\n|]+\|\s*Two-sided Fisher exact \$p = (\d+\.\d+)\$",
+        r"\*\*Excluded by Section 5\.3 Primary FD Rule\*\*\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\*\*(\d+)\*\*\s*\(([\d.]+%)\)\s*\|\s*\*\*(\d+)\*\*\s*\(([\d.]+%)\)\s*\|\s*Two-sided Fisher exact \$p = (\d+\.\d+)\$",
         sealed_md,
         "NYU attrition",
     )
@@ -209,6 +219,7 @@ def compile_study2_data(docs_dir: Path = DOCS_STUDY2_DIR) -> Dict[str, Any]:
         "source_files": [
             "docs/study2/DEV_RESULTS_2026-11-18.md",
             "docs/study2/SEALED_RESULTS_2026-11-18.md",
+            "docs/study2/COHORT_COUNTS_2026-11-18.md",
             "docs/study2/OSF_RECORD.md",
             "docs/study2/PREREGISTRATION.md",
         ],
@@ -225,13 +236,27 @@ def compile_study2_data(docs_dir: Path = DOCS_STUDY2_DIR) -> Dict[str, Any]:
             "nyu_overlap_subjects": nyu_overlap,
         },
         "development_primary": dev_primary,
+        "development_primary_attrition": {
+            "retained_total": int(dev_excl.group(1)),
+            "retained_tdc": int(dev_excl.group(2)),
+            "retained_adhd": int(dev_excl.group(3)),
+            "excluded_total": int(dev_excl.group(4)),
+            "excluded_tdc": int(dev_excl.group(5)),
+            "excluded_tdc_pct_display": dev_excl.group(6),
+            "excluded_adhd": int(dev_excl.group(7)),
+            "excluded_adhd_pct_display": dev_excl.group(8),
+            "fisher_p": float(dev_excl.group(9)),
+            "fisher_p_display": dev_excl.group(9),
+        },
         "development_sensitivity": dev_sensitivity,
         "sealed_nyu_attrition": {
             "excluded_total": int(nyu_excl.group(1)),
             "excluded_tdc": int(nyu_excl.group(2)),
-            "excluded_adhd": int(nyu_excl.group(3)),
-            "fisher_p": float(nyu_excl.group(4)),
-            "fisher_p_display": nyu_excl.group(4),
+            "excluded_tdc_pct_display": nyu_excl.group(3),
+            "excluded_adhd": int(nyu_excl.group(4)),
+            "excluded_adhd_pct_display": nyu_excl.group(5),
+            "fisher_p": float(nyu_excl.group(6)),
+            "fisher_p_display": nyu_excl.group(6),
         },
         "sealed_nyu_primary": sealed_primary,
         "sealed_nyu_sensitivity": sealed_sensitivity,
