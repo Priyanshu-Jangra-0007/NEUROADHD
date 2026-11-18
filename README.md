@@ -5,7 +5,7 @@ An academic machine learning benchmark and exploration dashboard investigating f
 > [!WARNING]
 > Research use only: not a medical device or diagnostic tool; model scores are not calibrated probabilities.
 
-**Study 2 (Preregistered Multi-Site Athena Replication Attempt):** OSF Preregistration ([https://osf.io/grbt2](https://osf.io/grbt2)), final summary ([`docs/study2/STUDY2_SUMMARY.md`](docs/study2/STUDY2_SUMMARY.md)), and full report ([`docs/study2/STUDY2_REPORT.md`](docs/study2/STUDY2_REPORT.md)).  
+**Study 2 (Pre-Registered Follow-Up on a Different Preprocessing Pipeline — Athena CC200):** OSF Preregistration ([https://osf.io/grbt2](https://osf.io/grbt2)), final summary ([`docs/study2/STUDY2_SUMMARY.md`](docs/study2/STUDY2_SUMMARY.md)), and full report ([`docs/study2/STUDY2_REPORT.md`](docs/study2/STUDY2_REPORT.md)).  
 Study 2 is aggregate-only; OSF registrations: https://osf.io/grbt2 and https://osf.io/db7nv. The sealed NYU set has been scored once and is used up; any further modeling is exploratory.
 
 ---
@@ -156,17 +156,17 @@ To assess cross-scanner generalization, models were evaluated with Leave-One-Ins
 - **Functional Connectivity Alone** (Pearson $r \to$ Fisher-$z$, SelectKBest $k=100$, Balanced RF): LOIO AUC **`0.5342`** [0.439, 0.633], LOIO Accuracy **`0.5882`** [0.510, 0.667], Within-institution permutation **`p = 0.0859`** (not statistically significant).
 - **Connectivity + Demographic Covariates**: LOIO AUC **`0.5025`** [0.412, 0.600], LOIO Accuracy **`0.5752`** [0.497, 0.647].
 
-#### Clean Cohort ($N=118$ subjects across 4 institutions: KKI, NYU, NeuroIMAGE, Peking — Study 1 Exploratory, Not Replicated)
-*Note: Exploratory post-hoc subset excluding zero-ADHD sites (OHSU, Pittsburgh) and merging Peking 1/2/3 into a single Peking institution. Study 1's LOIO AUC (~0.62) was exploratory and was **not replicated** in preregistered Study 2.*
+#### Clean Cohort ($N=118$ subjects across 4 institutions: KKI, NYU, NeuroIMAGE, Peking — Study 1 Exploratory)
+*Note: Exploratory post-hoc subset excluding zero-ADHD sites (OHSU, Pittsburgh) and merging Peking 1/2/3 into a single Peking institution. Study 1's exploratory LOIO AUC (~0.62) did not hold up in Study 2 (a pre-registered follow-up on a different preprocessing pipeline, atlas [190 ROIs], cohort, and sites; 126 development subjects overlap Study 1).*
 - **Majority-Class Baseline**: Accuracy **`57.63%`** (Control: 68/118), Balanced Accuracy `50.00%`, ROC-AUC `0.5000`.
 - **Site-Only Model** (logistic regression on one-hot site labels): In-sample AUC **`0.5791`**, Stratified 5-fold AUC **`0.5010`**, LOIO AUC **`0.4609`**.
 - **Age/Sex-Only Baseline** (standardized age + sex covariates): LOIO AUC **`0.5976`** [0.492, 0.702], LOIO Accuracy **`0.5763`** [0.492, 0.661].
-- **Functional Connectivity Alone** (Pearson $r \to$ Fisher-$z$, SelectKBest $k=100$, Balanced RF): LOIO AUC **`0.6221`** [0.515, 0.724], LOIO Accuracy **`0.6186`** [0.534, 0.703], Within-institution permutation **`p = 0.0210`** *(exploratory; not replicated in Study 2)*.
+- **Functional Connectivity Alone** (Pearson $r \to$ Fisher-$z$, SelectKBest $k=100$, Balanced RF): LOIO AUC **`0.6221`** [0.515, 0.724], LOIO Accuracy **`0.6186`** [0.534, 0.703], Within-institution permutation **`p = 0.0210`** *(exploratory; did not hold up in the Study 2 follow-up)*.
 - **Connectivity + Demographic Covariates**: LOIO AUC **`0.6218`** [0.516, 0.724], LOIO Accuracy **`0.6271`** [0.542, 0.712].
 
 ---
 
-### 3. Study 1 Exploratory Model Comparison (118-Subject Clean Cohort, LOIO — Not Replicated)
+### 3. Study 1 Exploratory Model Comparison (118-Subject Clean Cohort, LOIO)
 *Source Files: [NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json), [modelComparisonData.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/modelComparisonData.json)*
 
 All pipelines below were evaluated identically across the 4 LOIO folds on the 118-subject clean cohort:
@@ -188,15 +188,15 @@ All pipelines below were evaluated identically across the 4 LOIO folds on the 11
 
 ---
 
-### 4. Study 2: Preregistered Multi-Site Replication Attempt (Athena CC200)
+### 4. Study 2: Pre-Registered Follow-Up on a Different Preprocessing Pipeline (Athena CC200)
 *Sources: [`docs/study2/STUDY2_REPORT.md`](docs/study2/STUDY2_REPORT.md), [`docs/study2/STUDY2_SUMMARY.md`](docs/study2/STUDY2_SUMMARY.md), [`NeuroADHD_ModelDashboard/frontend/src/data/study2Data.json`](NeuroADHD_ModelDashboard/frontend/src/data/study2Data.json) (compiled from tracked Study 2 summary docs), OSF Preregistration [https://osf.io/grbt2](https://osf.io/grbt2) & [https://osf.io/db7nv](https://osf.io/db7nv) (commit `2d7ed3b`).*
 
-Study 2 evaluated the locked Study 1 pipeline without re-tuning across four ADHD-200 Athena development institutions (KKI, NeuroIMAGE, OHSU, Peking) under LOIO CV and scored it once on the sealed NYU institution:
+Study 2 is a pre-registered follow-up on a different preprocessing pipeline: it evaluated the locked Study 1 pipeline without re-tuning across four ADHD-200 Athena development institutions (KKI, NeuroIMAGE, OHSU, Peking) under LOIO CV and scored it once on the sealed NYU institution. Study 2 differs from Study 1 in preprocessing pipeline (Athena vs. C-PAC), atlas (`190` populated CC200 ROIs vs. `200`), cohort, and sites (with `126` development subjects and `6` NYU subjects overlapping Study 1):
 
 - **Development Primary LOIO ($N = 368$, Section 5.3 FD exclusion):** fMRI ROC-AUC `0.5241` `[0.4691, 0.5797]`, $p_{\text{perm}} = 0.2298$; Motion baseline `0.6038`, Age/Sex baseline `0.6163` ($\Delta\text{AUC}_{\text{motion}} = -0.0797$ `[-0.1520, -0.0099]`). **Section 8.1 NOT MET.**
 - **Development Registered Section 5.4 Sensitivity LOIO ($N = 404$, no exclusion):** fMRI ROC-AUC `0.5740` `[0.5243, 0.6243]`, $p_{\text{perm}} = 0.0050$; Motion baseline `0.6158`, Age/Sex baseline `0.5857` ($\Delta\text{AUC}_{\text{motion}} = -0.0418$ `[-0.0890, +0.0087]`). **Section 8.1 NOT MET.**
 - **One-Shot Sealed NYU External Evaluation:** Primary ($N = 196$, governing): fMRI ROC-AUC `0.5765` `[0.496177, 0.656518]` (descriptive baselines: Motion `0.6069`, Age/Sex `0.5806`); Sensitivity ($N = 216$): `0.5770` `[0.499996, 0.652819]` (descriptive baselines: Motion `0.6076`, Age/Sex `0.6150`). Both fall in the registered **Inconclusive Zone** (external validity cannot be claimed).
-- **Status & Disclosures:** Motion-only and age/sex baselines scored as high or higher than the fMRI pipeline in all four regimes. **The sealed NYU set is used up; any further modeling is exploratory.** Prior Study 1 overlap included 126 development subjects and 6 NYU subjects (the OSF foreknowledge option understates this); only the OSF registrations are externally timestamped (the freeze/results tags were pushed to `origin` after the sealed run).
+- **Status & Disclosures:** Study 1's exploratory `0.62` LOIO AUC did not hold up in this follow-up (not a direct test of the same pipeline/cohort). Motion-only and age/sex baselines scored as high or higher than the fMRI pipeline in all four regimes, and this conclusion applies to this locked pipeline rather than to functional connectivity in general. **The sealed NYU set is used up; any further modeling is exploratory.** Prior Study 1 overlap included 126 development subjects and 6 NYU subjects (the OSF foreknowledge option understates this); only the OSF registrations are externally timestamped (the freeze/results tags were pushed to `origin` after the sealed run).
 
 ---
 
@@ -217,13 +217,13 @@ Extensive ablation studies and architectural alternatives were systematically be
 > #### Interpretation & Methodological Takeaways
 >
 > **What this benchmark shows:**
-> - Study 1's exploratory LOIO AUC (`0.6221` / `0.6250` on $N = 118$) was **not replicated** in preregistered Study 2 (`0.5241` primary $N = 368$, $p_{\text{perm}} = 0.2298$; Section 8.1 not met in either $N = 368$ or the registered Section 5.4 sensitivity analysis $N = 404$; sealed NYU fell in the registered Inconclusive Zone).
-> - Resting-state functional connectivity did **not** outperform simple non-imaging baselines: in Study 1, paired comparisons against age/sex were non-significant ($p = 0.2670$); in Study 2, motion-only and age/sex baselines scored as high or higher than the locked fMRI pipeline in every regime.
+> - Study 1's exploratory LOIO AUC (`0.6221` / `0.6250` on $N = 118$) did not hold up in Study 2, a pre-registered follow-up on a different preprocessing pipeline (`0.5241` primary $N = 368$, $p_{\text{perm}} = 0.2298$; Section 8.1 not met in either $N = 368$ or the registered Section 5.4 sensitivity analysis $N = 404$; sealed NYU fell in the registered Inconclusive Zone). Because Study 2 differs in pipeline (Athena vs. C-PAC), atlas (`190` ROIs vs. `200`), cohort, and sites (with `126` overlapping development subjects), this outcome is not a failed direct test of the identical Study 1 protocol.
+> - Resting-state functional connectivity under this locked pipeline did **not** outperform simple non-imaging baselines: in Study 1, paired comparisons against age/sex were non-significant ($p = 0.2670$); in Study 2, motion-only and age/sex baselines scored as high or higher than the locked fMRI pipeline in every regime.
 > - The sealed NYU set is now used up; any further modeling on this dataset is exploratory.
 > - Both Study 1 pipelines were tuned with prior awareness of the 153-subject pool, and 126 Study 2 development subjects plus 6 NYU subjects overlapped with Study 1.
 >
 > **What this benchmark does not show:**
-> - It does **not** demonstrate that ADHD cannot be classified from functional neuroimaging, nor do wide finite-sample confidence intervals rule out a small population effect.
+> - This conclusion applies to this locked pipeline, not to functional connectivity in general, and wide finite-sample confidence intervals do not rule out a small population effect.
 > - It indicates only that under these samples, preprocessing pipelines (C-PAC and Athena CC200), and locked feature/model specifications, generalizable diagnostic signal beyond head motion and basic demographics is not established.
 > - **Research use only:** not a medical device or diagnostic tool; model scores are not calibrated probabilities.
 

@@ -77,19 +77,19 @@ export function OverviewView({ data }) {
           Resting-State fMRI Connectivity Benchmark for ADHD Classification
         </h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6, marginTop: "6px", maxWidth: "980px" }}>
-          This platform documents Study 1 (exploratory C-PAC CC200 benchmark) and Study 2 (preregistered multi-site replication attempt on Athena CC200 derivatives).
+          This platform documents Study 1 (exploratory C-PAC CC200 benchmark) and Study 2 (a pre-registered follow-up on a different preprocessing pipeline — Athena CC200, differing in pipeline, atlas [190 ROIs], cohort, and sites, with {study2Data.prior_exposure.dev_overlap_subjects} overlapping development subjects).
           <strong> What the model does:</strong> Identifies statistical functional edge correlations and discriminative connectivity weights across subjects.
-          <strong> What the model cannot do:</strong> Research use only — not a medical device or diagnostic tool; model scores are not calibrated probabilities. Study 1&apos;s exploratory LOIO result was not replicated in Study 2, where motion-only and age/sex baselines scored as high or higher than the locked fMRI pipeline and the sealed NYU evaluation fell in the registered Inconclusive Zone.
+          <strong> What the model cannot do:</strong> Research use only — not a medical device or diagnostic tool; model scores are not calibrated probabilities. Study 1&apos;s exploratory LOIO result did not hold up in this follow-up (not a failed test of the identical C-PAC protocol); motion-only and age/sex baselines scored as high or higher than the locked fMRI pipeline, the sealed NYU evaluation fell in the registered Inconclusive Zone, and this conclusion applies to this pipeline rather than to connectivity in general.
         </p>
       </div>
 
-      {/* Study 2: Preregistered Multi-Site Replication Attempt (Read from study2Data.json — no typed numbers) */}
+      {/* Study 2: Pre-Registered Follow-Up on a Different Preprocessing Pipeline (Read from study2Data.json — no typed numbers) */}
       <div className="card" style={{ marginBottom: "24px", borderColor: "rgba(217, 119, 6, 0.35)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px", flexWrap: "wrap", gap: "8px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <ClipboardCheck size={18} color="var(--accent-warning)" />
             <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>
-              Study 2: Preregistered Multi-Site Replication Attempt (Athena CC200)
+              Study 2: Pre-Registered Follow-Up on a Different Preprocessing Pipeline (Athena CC200)
             </h3>
           </div>
           <span style={{ fontSize: "0.74rem", background: "var(--accent-warning-subtle)", padding: "4px 8px", borderRadius: "4px", color: "var(--accent-warning)", fontWeight: "600" }}>
@@ -98,7 +98,7 @@ export function OverviewView({ data }) {
         </div>
 
         <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "14px" }}>
-          Preregistered test of the locked Study 1 pipeline on ADHD-200 Athena CC200 derivatives (
+          Pre-registered follow-up of the locked Study 1 classifier on ADHD-200 Athena CC200 derivatives — differing from Study 1 in preprocessing pipeline (Athena vs. C-PAC), atlas (190 populated ROIs), cohort, and sites, with {study2Data.prior_exposure.dev_overlap_subjects} development subjects and {study2Data.prior_exposure.nyu_overlap_subjects} NYU subjects overlapping Study 1 (
           <a href={study2Data.preregistration.osf_primary_url} target="_blank" rel="noreferrer" style={{ color: "var(--brand-blue)" }}>
             {study2Data.preregistration.osf_primary_url}
           </a>
@@ -106,7 +106,7 @@ export function OverviewView({ data }) {
           <a href={study2Data.preregistration.osf_open_ended_url} target="_blank" rel="noreferrer" style={{ color: "var(--brand-blue)" }}>
             {study2Data.preregistration.osf_open_ended_url}
           </a>
-          ). All figures below are compiled directly from tracked Study 2 summary records.
+          ). All figures below are compiled directly from tracked Study 2 summary records; this conclusion applies to this locked pipeline, not to connectivity in general.
         </p>
 
         <div className="table-container" style={{ marginBottom: "12px" }}>
@@ -386,7 +386,7 @@ export function OverviewView({ data }) {
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--accent-warning)" }}>
                   {siteConfoundData.config2_118.loio_connectivity_only?.p_value != null ? `p = ${siteConfoundData.config2_118.loio_connectivity_only.p_value.toFixed(4)}` : "N/A"}<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--accent-warning)" }}>Exploratory (not replicated in Study 2)</span>
+                  <span style={{ fontSize: "0.72rem", color: "var(--accent-warning)" }}>Exploratory (did not hold up in Study 2)</span>
                 </td>
               </tr>
             </tbody>
@@ -396,7 +396,7 @@ export function OverviewView({ data }) {
         <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", fontSize: "0.78rem", color: "var(--text-muted)" }}>
           <Info size={16} color="var(--brand-blue)" style={{ flexShrink: 0, marginTop: "2px" }} />
           <span>
-            <strong>What the data show (Study 1 — Exploratory, Not Replicated):</strong> While Leave-One-Institution-Out (LOIO) cross-validation prevents train-test site overlap, LOIO still lets site affect scores because demographic distributions, base rates, and scanner characteristics vary across institutions. In Config 1 ({siteConfoundData.config1_153.n_subjects} subjects), site identity alone predicts diagnosis with an in-sample ROC-AUC of {siteConfoundData.config1_153.site_only_insample_auc.toFixed(4)} because OHSU and Pittsburgh contain zero ADHD cases in this release. Under LOIO evaluation, functional connectivity drops to near-chance (AUC {siteConfoundData.config1_153.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config1_153.loio_connectivity_only.roc_auc_ci.join(", ")}]), which non-parametric permutation testing confirms is not statistically significant (p = {siteConfoundData.config1_153.loio_connectivity_only.p_value.toFixed(4)}). The {siteConfoundData.config2_118.n_subjects}-subject subset (Config 2, excluding zero-ADHD sites) was chosen post-hoc after the full cohort showed no signal. In this exploratory subset, demographic covariates reach LOIO AUC {siteConfoundData.config2_118.covariates_only_baseline.loio_auc.toFixed(4)} (followup_study) and {finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "N/A"} (final_candidate), while connectivity reaches LOIO AUC {siteConfoundData.config2_118.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config2_118.loio_connectivity_only.roc_auc_ci.join(", ")}] (p = {siteConfoundData.config2_118.loio_connectivity_only.p_value.toFixed(3)}). That exploratory Study 1 LOIO AUC was not replicated in Study 2 (primary LOIO AUC {study2Data.development_primary.fmri_auc_display}, p_perm = {study2Data.development_primary.p_perm_display}; sealed NYU {study2Data.sealed_nyu_primary.fmri_auc_display} {study2Data.sealed_nyu_primary.fmri_ci_95_exact_display}).
+            <strong>What the data show (Study 1 — Exploratory):</strong> While Leave-One-Institution-Out (LOIO) cross-validation prevents train-test site overlap, LOIO still lets site affect scores because demographic distributions, base rates, and scanner characteristics vary across institutions. In Config 1 ({siteConfoundData.config1_153.n_subjects} subjects), site identity alone predicts diagnosis with an in-sample ROC-AUC of {siteConfoundData.config1_153.site_only_insample_auc.toFixed(4)} because OHSU and Pittsburgh contain zero ADHD cases in this release. Under LOIO evaluation, functional connectivity drops to near-chance (AUC {siteConfoundData.config1_153.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config1_153.loio_connectivity_only.roc_auc_ci.join(", ")}]), which non-parametric permutation testing confirms is not statistically significant (p = {siteConfoundData.config1_153.loio_connectivity_only.p_value.toFixed(4)}). The {siteConfoundData.config2_118.n_subjects}-subject subset (Config 2, excluding zero-ADHD sites) was chosen post-hoc after the full cohort showed no signal. In this exploratory subset, demographic covariates reach LOIO AUC {siteConfoundData.config2_118.covariates_only_baseline.loio_auc.toFixed(4)} (followup_study) and {finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "N/A"} (final_candidate), while connectivity reaches LOIO AUC {siteConfoundData.config2_118.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config2_118.loio_connectivity_only.roc_auc_ci.join(", ")}] (p = {siteConfoundData.config2_118.loio_connectivity_only.p_value.toFixed(3)}). That exploratory Study 1 LOIO AUC did not hold up in Study 2, a pre-registered follow-up on a different preprocessing pipeline, atlas (190 ROIs), cohort, and sites (primary LOIO AUC {study2Data.development_primary.fmri_auc_display}, p_perm = {study2Data.development_primary.p_perm_display}; sealed NYU {study2Data.sealed_nyu_primary.fmri_auc_display} {study2Data.sealed_nyu_primary.fmri_ci_95_exact_display}); this conclusion applies to this pipeline, not to connectivity in general.
           </span>
         </div>
       </div>
@@ -407,7 +407,7 @@ export function OverviewView({ data }) {
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <BarChart3 size={18} color="var(--brand-blue)" />
             <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>
-              Study 1 Exploratory Model Comparison (118-Subject Clean Cohort — Not Replicated in Study 2)
+              Study 1 Exploratory Model Comparison (118-Subject Clean Cohort — Did Not Hold Up in Study 2 Follow-Up)
             </h3>
           </div>
           <span style={{ fontSize: "0.75rem", background: "var(--bg-subtle)", padding: "4px 8px", borderRadius: "4px", color: "var(--text-muted)", fontWeight: "500" }}>
