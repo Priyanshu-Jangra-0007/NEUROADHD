@@ -42,11 +42,14 @@ export function OverviewView({ data }) {
   const kMatch = data?.final_model_metadata?.feature_selection?.match(/k=(\d+)/);
   const kVal = kMatch ? kMatch[1] : null;
 
+  const STUDY1_TAG = "Exploratory (Study 1; did not hold up in Study 2)";
+
   const statCards = [
     { 
       title: "Dataset & Atlas", 
       value: cohort?.total_subjects != null ? `${cohort.total_subjects} Subjects` : "N/A", 
       sub: "ADHD-200 · CC200 Atlas (200 ROIs)", 
+      tag: STUDY1_TAG,
       icon: Database, 
       color: "var(--brand-blue)" 
     },
@@ -61,6 +64,7 @@ export function OverviewView({ data }) {
       title: "Random-Fold CV (8 Seeds)", 
       value: rfStats?.roc_auc?.mean != null ? `${rfStats.roc_auc.mean.toFixed(4)} AUC` : "N/A", 
       sub: rfStats?.roc_auc?.std != null ? `± ${rfStats.roc_auc.std.toFixed(4)} seed variability (N=${rfCvN ?? "N/A"}, Train+Val)` : "N/A", 
+      tag: STUDY1_TAG,
       icon: CheckCircle2, 
       color: "var(--brand-blue)" 
     },
@@ -68,6 +72,7 @@ export function OverviewView({ data }) {
       title: "Peking_2 Batch Holdout", 
       value: testAccCardDisplay, 
       sub: testSubDisplay, 
+      tag: STUDY1_TAG,
       icon: Lock, 
       color: "var(--accent-warning)" 
     }
@@ -243,6 +248,11 @@ export function OverviewView({ data }) {
               </div>
               <div className="card-value tabular-nums" style={{ fontSize: "1.25rem" }}>{c.value}</div>
               <div className="card-subtext">{c.sub}</div>
+              {c.tag && (
+                <div style={{ marginTop: "6px", fontSize: "0.68rem", fontWeight: "600", color: "var(--accent-warning)", background: "var(--accent-warning-subtle)", display: "inline-block", padding: "2px 6px", borderRadius: "4px" }}>
+                  {c.tag}
+                </div>
+              )}
             </div>
           );
         })}
@@ -252,11 +262,16 @@ export function OverviewView({ data }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px", marginBottom: "24px" }}>
         {/* Development CV Robustness Card */}
         <div className="card">
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-            <CheckCircle2 size={18} color="var(--brand-blue)" />
-            <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)" }}>
-              Development Partition: Random-Fold CV (N={rfCvN ?? "N/A"}, Train+Val)
-            </h3>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <CheckCircle2 size={18} color="var(--brand-blue)" />
+              <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)" }}>
+                Development Partition: Random-Fold CV (N={rfCvN ?? "N/A"}, Train+Val)
+              </h3>
+            </div>
+            <span style={{ fontSize: "0.68rem", fontWeight: "600", color: "var(--accent-warning)", background: "var(--accent-warning-subtle)", padding: "2px 7px", borderRadius: "4px" }}>
+              {STUDY1_TAG}
+            </span>
           </div>
 
           <div style={{ background: "var(--bg-subtle)", padding: "14px", borderRadius: "var(--radius-md)", marginBottom: "12px" }}>
@@ -281,11 +296,16 @@ export function OverviewView({ data }) {
 
         {/* Peking_2 Batch Holdout Card */}
         <div className="card" style={{ borderColor: "rgba(217, 119, 6, 0.3)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-            <Lock size={18} color="var(--accent-warning)" />
-            <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--accent-warning)" }}>
-              Held-out Peking_2 Evaluation (N={totalCount ?? "N/A"})
-            </h3>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Lock size={18} color="var(--accent-warning)" />
+              <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--accent-warning)" }}>
+                Held-out Peking_2 Evaluation (N={totalCount ?? "N/A"})
+              </h3>
+            </div>
+            <span style={{ fontSize: "0.68rem", fontWeight: "600", color: "var(--accent-warning)", background: "var(--accent-warning-subtle)", padding: "2px 7px", borderRadius: "4px" }}>
+              {STUDY1_TAG}
+            </span>
           </div>
 
           <div style={{ background: "var(--accent-warning-subtle)", padding: "14px", borderRadius: "var(--radius-md)", marginBottom: "12px", border: "1px solid rgba(217, 119, 6, 0.2)" }}>
@@ -572,19 +592,24 @@ export function OverviewView({ data }) {
               Final Candidate Benchmark: 126-Configuration Space Exploration (N={finalCandidateData?._metadata?.n_subjects ?? "118"})
             </h3>
           </div>
-          <span style={{ fontSize: "0.75rem", background: "var(--bg-subtle)", padding: "4px 8px", borderRadius: "4px", color: "var(--text-muted)", fontWeight: "500" }}>
-            Nested CV · 4 Institutional Folds (KKI, NYU, NeuroIMAGE, Peking)
-          </span>
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "6px" }}>
+            <span style={{ fontSize: "0.68rem", fontWeight: "600", color: "var(--accent-warning)", background: "var(--accent-warning-subtle)", padding: "3px 7px", borderRadius: "4px" }}>
+              {STUDY1_TAG}
+            </span>
+            <span style={{ fontSize: "0.75rem", background: "var(--bg-subtle)", padding: "4px 8px", borderRadius: "4px", color: "var(--text-muted)", fontWeight: "500" }}>
+              Nested CV · 4 Institutional Folds (KKI, NYU, NeuroIMAGE, Peking)
+            </span>
+          </div>
         </div>
 
         <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "16px" }}>
-          To rigorously test whether more complex architectures can overcome cross-site variability, an exhaustive benchmark of 126 configurations was executed across Pearson, Partial, and Riemannian Tangent-space embeddings, feature cutoffs (k=50, 100, 200), and 4 classifier families (L2-Logistic Regression, Linear SVM, RBF SVM, and Random Forests) with and without demographic covariates and multi-model ensembling.
+          To test whether alternative architectures can overcome cross-site variability, a 126-configuration search chosen from a larger grid was executed across Pearson, Partial, and Riemannian Tangent-space embeddings, feature cutoffs (k=50, 100, 200), and 4 classifier families (L2-Logistic Regression, Linear SVM, RBF SVM, and Random Forests) with and without demographic covariates and multi-model ensembling.
         </p>
 
         {/* Metrics Grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginBottom: "16px" }}>
           <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "var(--radius-md)" }}>
-            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>LOIO Generalization AUC</span>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>LOIO AUC (Study 1, exploratory)</span>
             <div className="tabular-nums" style={{ fontSize: "1.25rem", fontWeight: "800", color: "var(--brand-blue)", marginTop: "2px" }}>
               {finalCandidateData?.loio?.roc_auc != null ? finalCandidateData.loio.roc_auc.toFixed(4) : "N/A"}
             </div>
@@ -669,9 +694,14 @@ export function OverviewView({ data }) {
 
       {/* Cohort Stratification Table */}
       <div className="card">
-        <h3 style={{ fontSize: "0.95rem", fontWeight: "700", marginBottom: "12px", color: "var(--text-primary)" }}>
-          Cohort Partitioning &amp; Site Stratification Summary
-        </h3>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
+          <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)" }}>
+            Cohort Partitioning &amp; Site Stratification Summary
+          </h3>
+          <span style={{ fontSize: "0.68rem", fontWeight: "600", color: "var(--accent-warning)", background: "var(--accent-warning-subtle)", padding: "2px 7px", borderRadius: "4px" }}>
+            {STUDY1_TAG}
+          </span>
+        </div>
 
         <div className="table-container" style={{ marginBottom: 0 }}>
           <table className="data-table">
