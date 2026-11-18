@@ -258,8 +258,8 @@ cd NeuroADHD_ModelDashboard/frontend && npm run build
 
 ## 📚 Data and Citation
 
+- **Data in this repository**: Pre-existing Study 1 per-subject phenotype tables, predictions, and SHAP files keyed by public ADHD-200 IDs are included in this repository (Study 2 outputs are aggregate-only and exclude raw scans, ROI time series, and feature matrices). The data source is the ADHD-200 Consortium via NITRC (free account required, non-commercial research use; please cite the ADHD-200 Consortium and the Neuro Bureau). Redistribution terms for the phenotype table were not verified.
 - **ADHD-200 Sample**: ADHD-200 Consortium, shared via INDI/NITRC (https://fcon_1000.projects.nitrc.org/indi/adhd200/).
-- **Preprocessed Data**: Neuro Bureau (CC200 via C-PAC).
+- **Preprocessed Data**: Neuro Bureau (CC200 via C-PAC and Athena).
 - **Access and Usage**: Non-commercial research use. A free NITRC account is needed to download.
-- **Redistribution Policy**: No raw scans, ROI time series, or connectivity feature matrices are included; per-subject model outputs (predictions and attributions) keyed by public ADHD-200 IDs are included for reproducibility.
 - **Citation**: Please cite the ADHD-200 Consortium and the Neuro Bureau.
