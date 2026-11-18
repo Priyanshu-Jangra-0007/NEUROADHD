@@ -23,7 +23,7 @@
 
 ## 2. Staged `<Site>_preproc_xfms.tar` Archives & Member Audit
 
-All six archives were moved cleanly from `/Users/apple/Downloads/NeuroAdhd NITRC` (now empty) into `NeuroADHD/data/athena/staging/` with zero overwrites.  
+All six archives were moved cleanly from the local NITRC downloads folder (now empty) into `NeuroADHD/data/athena/staging/` with zero overwrites.  
 *(Note: All SHA-256 checksums below are **self-computed locally** after download for provenance tracking; NITRC Release 1600 does not publish SHA-256 checksums.)*
 
 | # | Archive Filename | Size (Bytes) | Human Size | Self-Computed SHA-256 | TAR Integrity | Total Entries | `rp_*.1D` Count | Masked Member Pattern |

@@ -24,7 +24,7 @@ From the official upstream Athena preprocessing scripts (`preprocessed-connectom
 
 ### 2.1. File Naming & Path Architecture
 - **Naming Pattern:** `rp_${subjid}_${sid}_${rid}.1D`  
-  (e.g., `rp_0010189_session_1_rest_1.1D` or `rp_1018959_session_1_rest_1.1D`)
+  (e.g., `rp_<ID>_session_1_rest_1.1D` or `rp_<ID>_session_1_rest_1.1D`)
 - **Generation Directive:**
   ```bash
   coreg_base=rm_da${bold_file}'[0]'
