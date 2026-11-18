@@ -109,7 +109,8 @@ All deviations and clarifications were logged in [`docs/study2/DEVIATIONS.md`](D
    rel_trans = params[:, 3:6] - params[0, 3:6]
    max_disp_mm = float(np.max(np.linalg.norm(rel_trans, axis=1)))
    ```
-4. **Label-Free 4-Frame Drop Sensitivity Check (Not a Protocol Change):** A label-free sensitivity check recomputing FD with 4 dropped NIAK frames instead of 3 changed the Section 5.3 primary-exclusion status of 1 of 404 development scans (an OHSU scan, retained to excluded) and 0 of 216 NYU scans; no classifier was re-run and no registered result was changed (see [`DEVIATIONS.md`](DEVIATIONS.md) Section 4.6).
+
+Additional label-free checks and their counts are logged in DEVIATIONS.md.
 
 ---
 
