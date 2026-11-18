@@ -73,7 +73,7 @@ This document provides a slide-by-slide presentation outline for a technical def
     - **OHSU**: 14 subjects, 0 ADHD
     - **Pittsburgh**: 21 subjects, 0 ADHD
   - Full cohort ($N=153$) connectivity LOIO performance collapses to ROC-AUC **`0.5342`** [0.439, 0.633] and Accuracy **`58.82%`** [0.510, 0.667] (permutation $p = 0.0859$, not statistically significant).
-  - Clean cohort ($N=118$, removing OHSU & Pittsburgh, merging Peking 1/2/3): Connectivity LOIO ROC-AUC is **`0.6221`** [0.515, 0.724], Accuracy **`61.86%`**, permutation $p = 0.0210$.
+  - Clean cohort ($N=118$, removing OHSU & Pittsburgh, merging Peking 1/2/3): Connectivity LOIO ROC-AUC is **`0.6221`** [0.515, 0.724], Accuracy **`61.86%`**, permutation $p = 0.0210$ *(exploratory post-hoc subset; **not replicated** in preregistered Study 2)*.
 * **Source Reference**: [NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)
 
 ---
@@ -82,8 +82,8 @@ This document provides a slide-by-slide presentation outline for a technical def
 * **Title**: Do Connectivity Features Beat Simple Demographics?
 * **Key Points**:
   - A baseline model trained *solely* on standardized age and biological sex reaches LOIO ROC-AUC **`0.5857`** [0.489, 0.685] (Accuracy `61.02%`, Balanced Accuracy `63.26%`, permutation $p = 0.0498$).
-  - Apples-to-apples comparison on the 118-subject clean cohort:
-    - Locked Random Forest (Connectivity): LOIO AUC **`0.6250`** [0.518, 0.726], Accuracy `61.86%`.
+  - Apples-to-apples comparison on the 118-subject clean cohort *(Study 1 exploratory — not replicated in Study 2)*:
+    - Locked Random Forest (Connectivity): LOIO AUC **`0.6250`** [0.518, 0.726], Accuracy `61.86%` *(exploratory; not replicated)*.
     - Paired difference: $\Delta \text{AUC} = +0.0397$ [$-0.1061, +0.1695$], paired permutation **`p = 0.2670`** (not statistically significant).
     - Nested Ensemble (126 configs): LOIO AUC **`0.6253`** [0.521, 0.728], $\Delta \text{AUC} = +0.0400$, paired permutation **`p = 0.2685`** (not significant).
   - *Core scientific takeaway*: Functional connectivity did **not** demonstrate a statistically significant performance advantage over age and sex alone. The demographic signal reflects cohort recruitment differences, not ADHD-specific brain circuitry.
@@ -102,18 +102,31 @@ This document provides a slide-by-slide presentation outline for a technical def
 
 ---
 
-### Slide 9: Limitations & Ethical Guardrails
-* **Title**: Methodological Honesty & Study Boundaries
+### Slide 9: Study 2 — Preregistered Multi-Site Replication Attempt (Athena CC200)
+* **Title**: Preregistered Replication Attempt on Athena CC200: Section 8.1 Not Met; Sealed NYU Inconclusive
 * **Key Points**:
-  - *Post-Hoc Cohort Selection*: The 118-subject clean cohort was selected exploratory post-hoc after the full 153-subject cohort demonstrated no statistically significant connectivity signal ($p = 0.0859$).
-  - *Small Holdout Sample Size*: $N=20$ for Peking_2 results in broad Wilson confidence intervals ($38.7\%\text{--}78.1\%$), precluding definitive claims about reproducibility.
-  - *Acquisition Protocol Heterogeneity*: TR, TE, voxel size, and subject motion vary widely across scanning centers.
-  - *Strict Ethical Disclaimer*: This software is an academic research platform and is **not** an FDA-cleared medical device. Model outputs are experimental pattern rankings, not clinical diagnostic probabilities.
-* **Source Reference**: [NeuroADHD_ModelDashboard/frontend/src/views/LimitationsView.jsx](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/views/LimitationsView.jsx)
+  - Protocol preregistered on OSF prior to Athena data acquisition ([https://osf.io/grbt2](https://osf.io/grbt2) and [https://osf.io/db7nv](https://osf.io/db7nv), commit `2d7ed3b`) locking the exact Study 1 pipeline (`SelectKBest(k=100)` + `RandomForestClassifier(50, max_depth=3, balanced, random_state=42)`) across four Athena development institutions (KKI, NeuroIMAGE, OHSU, Peking) and a single one-shot evaluation on sealed NYU.
+  - **Development Primary LOIO ($N = 368$, Section 5.3 FD exclusion):** fMRI ROC-AUC **`0.5241`** `[0.4691, 0.5797]`, $p_{\text{perm}} = 0.2298$; Motion baseline `0.6038`, Age/Sex baseline `0.6163` ($\Delta\text{AUC}_{\text{motion}} = -0.0797$ `[-0.1520, -0.0099]`). **Section 8.1 NOT MET.**
+  - **Development Registered Section 5.4 Sensitivity LOIO ($N = 404$, no exclusion):** fMRI ROC-AUC **`0.5740`** `[0.5243, 0.6243]`, $p_{\text{perm}} = 0.0050$; Motion baseline `0.6158`, Age/Sex baseline `0.5857` ($\Delta\text{AUC}_{\text{motion}} = -0.0418$ `[-0.0890, +0.0087]`). **Section 8.1 NOT MET.**
+  - **One-Shot Sealed NYU External Evaluation:** Primary ($N = 196$, governing): **`0.5765`** `[0.496177, 0.656518]` (descriptive Motion `0.6069`, Age/Sex `0.5806`); Sensitivity ($N = 216$): **`0.5770`** `[0.499996, 0.652819]` (descriptive Motion `0.6076`, Age/Sex `0.6150`). Both fall in the registered **Inconclusive Zone** (confidence interval spans chance; external validity cannot be claimed).
+  - **Takeaways:** Study 1's exploratory LOIO AUC (`~0.62`) was **not replicated**; motion-only and age/sex baselines scored as high or higher than fMRI in all four regimes. **The sealed NYU set is used up; any further modeling is exploratory.**
+* **Source Reference**: `docs/study2/STUDY2_REPORT.md`, `docs/study2/STUDY2_SUMMARY.md`, `NeuroADHD_ModelDashboard/frontend/src/data/study2Data.json`
 
 ---
 
-### Slide 10: Interactive Exploration Dashboard
+### Slide 10: Limitations & Ethical Guardrails
+* **Title**: Methodological Honesty & Study Boundaries
+* **Key Points**:
+  - *Post-Hoc Study 1 Cohort Selection (Not Replicated):* The 118-subject clean cohort was selected post-hoc after the full 153-subject cohort showed no statistically significant connectivity signal ($p = 0.0859$), and its `~0.62` LOIO AUC was not replicated in Study 2.
+  - *Sealed Set Used Up & Prior Exposure:* The sealed NYU set has been scored once and is used up; any further modeling is exploratory. Moreover, `126` Study 2 development subjects and `6` NYU subjects overlapped with Study 1's C-PAC cohort where hyperparameters were chosen (the OSF foreknowledge option understates this), and only the OSF registrations are externally timestamped (the freeze/results tags were pushed to `origin` after the sealed run).
+  - *Small Holdout Sample Sizes & Power:* $N=20$ for Peking_2 (Study 1) and $N=196/216$ for NYU (Study 2, CI half-width $\approx \pm 0.08$) limit statistical precision; wide intervals do not rule out a small population effect, while external validity cannot be claimed.
+  - *Acquisition Protocol Heterogeneity & Motion:* TR, TE, voxel size, and head motion vary widely across centers; motion-only and age/sex baselines scored as high or higher than fMRI in Study 2.
+  - *Strict Ethical Disclaimer:* **Research use only: not a medical device or diagnostic tool; model scores are not calibrated probabilities.** Must never be used for clinical psychiatric diagnosis, triage, or treatment planning.
+* **Source Reference**: `NeuroADHD_ModelDashboard/frontend/src/views/LimitationsView.jsx`, `docs/study2/STUDY2_REPORT.md`
+
+---
+
+### Slide 11: Interactive Exploration Dashboard
 * **Title**: NeuroADHD Dashboard: Transparent Visual Analytics
 * **Key Points**:
   - Full-stack React + Vite frontend and FastAPI backend built for reproducibility and open-science auditability.
@@ -128,21 +141,21 @@ This document provides a slide-by-slide presentation outline for a technical def
 
 ---
 
-### Slide 11: Summary & Next Steps
+### Slide 12: Summary & Next Steps
 * **Title**: Key Takeaways & Recommendations for Future Neuroimaging ML
 * **Key Points**:
-  - Publishing negative results and null findings is essential to counter the reproducibility crisis in computational psychiatry and neuroimaging.
-  - Without Leave-One-Institution-Out cross-validation and rigorous demographic baselines, machine learning models frequently report inflated performance driven by non-neural artifacts.
-  - *Future directions & next steps*:
+  - Publishing negative and inconclusive preregistered results is essential to counter publication bias in computational psychiatry and neuroimaging.
+  - Without Leave-One-Institution-Out cross-validation, head-motion controls, and demographic baselines, machine learning models frequently report inflated performance reflecting non-neural artifacts.
+  - In Study 2, the preregistered replication did not meet Section 8.1 criteria and sealed NYU fell in the Inconclusive Zone; **the sealed NYU set is used up and any further modeling on ADHD-200 is exploratory.**
+  - *Future directions & next steps (exploratory or on independent new cohorts)*:
     - **Scanner Harmonization (ComBat / neuroCombat)**: Empirically evaluating empirical Bayes harmonization on multi-site cohorts with balanced site distributions (untested in this benchmark due to out-of-site CV constraints).
     - **Large Prospective Cohorts**: Standardized multi-site acquisition protocols with large samples (e.g., ABCD Study, $N > 10,000$).
     - **Multimodal Integration**: Fusing resting-state functional connectivity with T1w structural volumetrics, DTI tractography, and cognitive batteries.
-    - **Prospective Pre-Registration**: Pre-registering analysis pipelines before held-out test data acquisition.
-* **Source Reference**: [README.md](file:///Users/apple/Documents/Codex/2026-09-29/down/README.md), [archive/audit_reports/](file:///Users/apple/Documents/Codex/2026-09-29/down/archive/audit_reports/)
+* **Source Reference**: `README.md`, `docs/study2/STUDY2_REPORT.md`
 
 ---
 
-### Slide 12: Likely Viva Questions & Honest Defenses
+### Slide 13: Likely Viva Questions & Honest Defenses
 * **Title**: Viva Defense Q&A: Addressing Critical Methodological Inquiries
 
 1. **Q: Was the held-out Peking_2 test set really untouched?**
@@ -154,7 +167,7 @@ This document provides a slide-by-slide presentation outline for a technical def
    - *Reference*: [NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelDashboard/frontend/src/data/siteConfoundData.json)
 
 3. **Q: Is this model clinically useful for diagnosing ADHD?**
-   - **A**: *No.* The locked model achieves an LOIO AUC of $0.6250$ and accuracy of $61.86\%$. When compared against a simple model using only age and sex (AUC $0.5857$), the paired permutation test shows no statistically significant improvement ($p = 0.2670$). A model that does not beat basic demographic covariates cannot be claimed to have clinical diagnostic utility.
+   - **A**: *No.* Study 1's exploratory LOIO AUC (`0.6250` on $N=118$) did not beat age and sex alone ($p = 0.2670$) and was **not replicated** in preregistered Study 2 (primary $N = 368$ LOIO AUC `0.5241`, $p_{\text{perm}} = 0.2298$; sealed NYU primary $N = 196$ AUC `0.5765` `[0.496177, 0.656518]`, Inconclusive Zone), where motion-only and age/sex baselines scored as high or higher than fMRI in every regime. Research use only: not a medical device or diagnostic tool; model scores are not calibrated probabilities.
    - *Reference*: [NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/model_comparison/model_comparison_results.json)
 
 4. **Q: Why wasn't ComBat evaluated on this data, and why did Tangent Space not help?**
