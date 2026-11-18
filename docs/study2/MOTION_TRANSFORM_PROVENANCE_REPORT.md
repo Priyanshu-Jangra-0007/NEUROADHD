@@ -143,7 +143,7 @@ With the completion of Phase 2E, the technical provenance of the candidate motio
    - Extract the 6 kinematic parameters from `intermediate_*.tar` into `NeuroADHD/data/athena/motion/`.
    - Apply the 3-frame truncation to match the exact temporal dimension of the CC200 BOLD time courses.
    - Compute Power et al. (2012) FD and mechanically generate the preregistered development exclusion table.
-   - Record the three assumptions in `docs/study2/FRAMEWISE_MOTION_PROTOCOL_MEMO.md` as an open-science technical addendum to the OSF registration record.
+   - *(Superseded proposal — no separate protocol memo was created; all motion fallback rules, deviations, and clarifications are recorded in [`docs/study2/DEVIATIONS.md`](DEVIATIONS.md) and [`docs/study2/STUDY2_REPORT.md`](STUDY2_REPORT.md).)*
 2. **Option 2 (Halt and Attempt Full Athena AFNI Archive Retrieval):**
    - Search upstream Neuro Bureau archives for Tier 5 raw full-preprocessing packages (2–4 GB per site, ~15 GB total) to recover the exact AFNI `rp_*.1D` files.
    - *Assessment:* Scientifically redundant, high bandwidth overhead, with negligible expected change in the excluded participant set.

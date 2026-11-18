@@ -35,7 +35,7 @@ This document provides a slide-by-slide presentation outline for a technical def
   - Model architecture: Shallow Balanced Random Forest (`n_estimators=50`, `max_depth=3`, `class_weight='balanced'`, `max_features='sqrt'`) to resist overfitting on small sample sizes.
   - Frozen model checkpoint: `final_model.joblib` (74,409 bytes) and `final_preprocessing_pipeline.joblib`.
   - Double-gated test evaluation in CLI: requires both `--evaluate-test` and `--confirm-test-eval` flags to prevent accidental leakage into the held-out test split.
-* **Source Reference**: [NeuroADHD_ModelBenchmark/results/final_locked/final_model_metadata.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/final_model_metadata.json), [NeuroADHD_ModelBenchmark/scripts/run_all_models.py](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/scripts/run_all_models.py)
+* **Source Reference**: [final_model_metadata.json](../NeuroADHD_ModelBenchmark/runs/run_20261004_182318_final_locked/final_model_metadata.json), [run_all_models.py](../NeuroADHD_ModelBenchmark/scripts/run_all_models.py)
 
 ---
 
@@ -61,7 +61,7 @@ This document provides a slide-by-slide presentation outline for a technical def
     - Confusion Matrix: TP = 6, TN = 6, FP = 4, FN = 4 (Balanced Acc: 60.0%, Sensitivity: 60.0%, Specificity: 60.0%).
   - Evaluated strictly once for this locked Random Forest checkpoint; however, an early baseline model had previously been scored on it during preliminary exploratory work.
   - Wide confidence intervals span chance performance ($50\%$), underscoring the statistical uncertainty inherent in small holdout test sets ($N=20$).
-* **Source Reference**: [NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json), [final_confusion_matrix.json](file:///Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/final_confusion_matrix.json)
+* **Source Reference**: [final_test_results.json](../NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json), [final_confusion_matrix.json](../NeuroADHD_ModelBenchmark/runs/run_20261004_182318_final_locked/final_confusion_matrix.json)
 
 ---
 
