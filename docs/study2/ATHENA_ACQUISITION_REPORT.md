@@ -15,7 +15,7 @@
 | Protocol Dimension | Verified Status | Governing Scientific Rationale |
 | :--- | :---: | :--- |
 | **Archive Integrity** | **PASS** | Valid, uncorrupted gzip stream; 2,416 archive entries; 2,404 `.1D` files verified without unpacking to disk. |
-| **File Acquisition** | **PASS** | All 8 required files verified in staging (`NeuroADHD/data/athena/staging/`) with non-zero sizes and matching checksums. |
+| **File Acquisition** | **PASS** | All 8 required files verified present in staging (`NeuroADHD/data/athena/staging/`) with non-zero sizes and locally computed SHA-256 provenance hashes recorded (see Section 2.1). |
 | **Motion Summary Metadata** | **VERIFIED** | 11-column per-subject summary tables verified; rotational units in degrees, translational units in mm. |
 | **Framewise FD Availability** | **UNRESOLVED** | Available CSV files contain scalar summary extrema only; framewise ($T \times 6$) rigid-body parameter traces (`rp_*.1D`) are absent. |
 | **Motion-Based Cohort Exclusion** | **NOT READY** | Strictly gated. Preregistered Power et al. (2012) FD calculation requires framewise traces; calculating/approximating FD from summary maxima is strictly prohibited. |
@@ -38,6 +38,10 @@ All 8 files downloaded from the official NITRC Release 1600 repository and the a
 | 7 | `Peking_3_motion.csv` | NITRC `/frs/downloadlink.php/3332` | 3,947 | 3.9 KB | `cb6522e182e58ef89825129a31f42c602bf18a8305bfa00fe93da29a80323aae` | **PASS** |
 | 8 | `NYU_motion.csv` | NITRC `/frs/downloadlink.php/3328` | 35,609 | 34.8 KB | `15d0287a0a9ef2516f7fed7f6de5b46cb5e54da4c826f1173f2488028d85efb3` | **PASS (Quarantined)** |
 | 9 | `adhd200_preprocessed_phenotypics.tsv` | NITRC `/frs/download.php/9024/` | 59,935 | 58.5 KB | `7a37195f0260b04246b833ff4b8050afc4756b8a8f1622feca52944189f5a898` | **PASS** |
+
+### 2.1. SHA-256 Hash Provenance Clarification (Added 2026-11-18)
+* **Self-Computed Local Hashes (NITRC Downloads):** NITRC Release 1600 does **not** publish official SHA-256 checksums for these files. Every SHA-256 hash recorded in Section 2 (and for subsequent NITRC staging archives) is a **self-computed local hash** calculated via `hashlib.sha256` / `shasum -a 256` after download to create an immutable provenance record and detect subsequent local corruption or modification. It was **not** compared against a published upstream checksum.
+* **Externally Locked Reference Check (`PREREGISTRATION.md`):** By contrast, the SHA-256 verification on `docs/study2/PREREGISTRATION.md` (`e227005c1386dddef3d8b265579f293483769c249cccf31d1cf7f8ec8e09e7ec`) **is** compared against the externally locked reference hash recorded in OSF registrations `grbt2`/`db7nv` and Git commit `2d7ed3b`.
 
 ---
 
@@ -117,11 +121,16 @@ A full inspection of the 2,416 members of `ADHD200_CC200_TCs_filtfix.tar.gz` was
 
 ---
 
-## 6. NYU Quarantine Status
+## 6. NYU Quarantine Status & Member-Read Audit (Updated 2026-11-18)
 
-The NYU external validation dataset ($N \approx 216$) remains protected under strict scientific quarantine:
-* **Administrative Presence Check:** `NYU_motion.csv` verified present (35,609 bytes, SHA-256: `15d0287a0a9ef2516f7fed7f6de5b46cb5e54da4c826f1173f2488028d85efb3`).
-* **Archive Presence Check:** 799 entries in `NYU/` subdirectory of the CC200 archive confirmed.
+The NYU external validation dataset ($N = 216$ `rest_1` scans) remains protected under strict scientific quarantine:
+* **Administrative Presence Check:** `NYU_motion.csv` verified present (35,609 bytes, self-computed SHA-256: `15d0287a0a9ef2516f7fed7f6de5b46cb5e54da4c826f1173f2488028d85efb3`).
+* **Archive Presence Check:** 799 entries in `NYU/` subdirectory of `ADHD200_CC200_TCs_filtfix.tar.gz` confirmed.
+* **CC200 Archive NYU Extraction & Read Audit:**
+  - **Zero NYU members have been extracted to disk.** No file from `ADHD200_CC200_TCs_filtfix.tar.gz` has been unpacked to disk.
+  - **Zero NYU numerical BOLD values, time series, connectivity matrices, correlations, or diagnosis labels have ever been parsed, printed, stored, or analyzed.**
+  - **Full Transparency Note:** During Phase 2B acquisition checks, only member names and counts were read. During Phase 2D's in-memory frame-count check, an unfiltered Python loop over `sfnwmrda...rest_1` members called `tf.extractfile(m)` and counted non-empty lines (`len(lines)`) across all sites including the 216 `NYU/` `rest_1` members, returning only the aggregate site count (`nyu: 216`) in memory without parsing, storing, or inspecting any BOLD signal values or individual IDs.
+  - **Strict Rule Going Forward:** All future CC200 archive reads and extractions will explicitly filter to **development-site members only** (`KKI`, `NeuroIMAGE`, `OHSU`, `Peking_1`, `Peking_2`, `Peking_3`) and skip `NYU/` entirely (both on disk and in memory).
 * **Analytical Quarantine Enforcement:**
   - Zero inspection of NYU BOLD time-series values.
   - Zero functional connectivity feature extraction.
