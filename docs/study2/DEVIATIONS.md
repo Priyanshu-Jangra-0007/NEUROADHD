@@ -89,3 +89,6 @@ The following implementation details clarify operational choices that conform to
   motion_X[idx, 0] = float(m_row["mean_fd_mm"])
   motion_X[idx, 1] = float(m_row["max_disp_mm"])
   ```
+
+### 4.3. Explicit Section 5.2 Source-Substitution Statement (2026-11-18, Pre-Run)
+- **Protocol Deviation (Registration Section 5.2):** Per Section 1 Branch (b), Framewise Displacement (FD) for the development cohort was computed from the Neuro Bureau **NIAK-derived $4 \times 4 \times T$ rigid-body transforms** (volume-centered, first 3 frames removed) rather than the Athena **AFNI `3dvolreg` `rp_*.1D` files** specified in `PREREGISTRATION.md` Section 5.2, because the six development `<Site>_preproc_xfms.tar` archives contained `0 / 404` `rp_*.1D` files. This entry is committed prior to executing the real-label development analysis.
