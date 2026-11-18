@@ -8,6 +8,10 @@ import study2Data from "../data/study2Data.json";
 export function OverviewView({ data }) {
   const cohort = data?.cohort_breakdown;
   const rfStats = data?.rf_robustness?.summary?.all_8_repetitions;
+  const rfFirstRep = data?.rf_robustness?.repetitions?.[0];
+  const rfCvN = (rfFirstRep && typeof rfFirstRep.tp === "number" && typeof rfFirstRep.tn === "number" && typeof rfFirstRep.fp === "number" && typeof rfFirstRep.fn === "number")
+    ? (rfFirstRep.tp + rfFirstRep.tn + rfFirstRep.fp + rfFirstRep.fn)
+    : ((cohort?.train_subjects != null && cohort?.validation_subjects != null) ? (cohort.train_subjects + cohort.validation_subjects) : null);
   const finalTest = data?.final_test_results;
 
   const cm = finalTest?.metrics?.confusion_matrix;
@@ -56,7 +60,7 @@ export function OverviewView({ data }) {
     { 
       title: "Random-Fold CV (8 Seeds)", 
       value: rfStats?.roc_auc?.mean != null ? `${rfStats.roc_auc.mean.toFixed(4)} AUC` : "N/A", 
-      sub: rfStats?.roc_auc?.std != null ? `± ${rfStats.roc_auc.std.toFixed(4)} seed variability (N=${cohort?.train_subjects != null ? cohort.train_subjects : "133"})` : "N/A", 
+      sub: rfStats?.roc_auc?.std != null ? `± ${rfStats.roc_auc.std.toFixed(4)} seed variability (N=${rfCvN ?? "N/A"}, Train+Val)` : "N/A", 
       icon: CheckCircle2, 
       color: "var(--brand-blue)" 
     },
@@ -251,7 +255,7 @@ export function OverviewView({ data }) {
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
             <CheckCircle2 size={18} color="var(--brand-blue)" />
             <h3 style={{ fontSize: "0.95rem", fontWeight: "700", color: "var(--text-primary)" }}>
-              Development Partition: Random-Fold CV (N={cohort?.train_subjects != null ? cohort.train_subjects : "133"})
+              Development Partition: Random-Fold CV (N={rfCvN ?? "N/A"}, Train+Val)
             </h3>
           </div>
 
