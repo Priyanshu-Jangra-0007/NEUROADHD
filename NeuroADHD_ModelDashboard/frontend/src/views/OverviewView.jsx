@@ -77,9 +77,12 @@ export function OverviewView({ data }) {
           Resting-State fMRI Connectivity Benchmark for ADHD Classification
         </h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6, marginTop: "6px", maxWidth: "980px" }}>
-          This platform documents Study 1 (exploratory C-PAC CC200 benchmark) and Study 2 (a pre-registered follow-up on a different preprocessing pipeline — Athena CC200, differing in pipeline, atlas [190 ROIs], cohort, and sites, with {study2Data.prior_exposure.dev_overlap_subjects} overlapping development subjects).
+          This platform documents Study 1 (exploratory C-PAC CC200 benchmark) and Study 2 (a pre-registered follow-up on a different preprocessing pipeline — Athena CC200, differing in pipeline, atlas, cohort, and sites, with {study2Data.prior_exposure.dev_overlap_subjects} overlapping development subjects).
           <strong> What the model does:</strong> Identifies statistical functional edge correlations and discriminative connectivity weights across subjects.
-          <strong> What the model cannot do:</strong> Research use only — not a medical device or diagnostic tool; model scores are not calibrated probabilities. Study 1&apos;s exploratory LOIO result did not hold up in this follow-up (not a failed test of the identical C-PAC protocol); motion-only and age/sex baselines scored as high or higher than the locked fMRI pipeline, the sealed NYU evaluation fell in the registered Inconclusive Zone, and this conclusion applies to this pipeline rather than to connectivity in general.
+          <strong> What the model cannot do:</strong> The model cannot identify ADHD in an individual, and in Study 2 did not generalize to held-out institutions.
+        </p>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", lineHeight: 1.5, marginTop: "4px", maxWidth: "980px" }}>
+          <strong>Disclaimer:</strong> Research use only: not a medical device or diagnostic tool; model scores are not calibrated probabilities.
         </p>
       </div>
 
