@@ -6,7 +6,7 @@
 **Locked Protocol Hash (SHA-256, unmodified):** `e227005c1386dddef3d8b265579f293483769c249cccf31d1cf7f8ec8e09e7ec`  
 **Protocol Deviation Applied:** [`docs/study2/DEVIATIONS.md`](DEVIATIONS.md) Branch (b) — NIAK-derived Power et al. (2012) FD (volume-centered, first 3 frames dropped, $r = 50\text{ mm}$, $\text{FD}_0 = 0.0$), with no-exclusion elevated to co-primary sensitivity.  
 **Script:** [`scripts/generate_cohort_counts.py`](../../scripts/generate_cohort_counts.py)  
-**Guardrails:** Diagnosis labels used strictly for aggregate counts and attrition tests only; zero modeling; zero individual subject IDs logged or printed; **NYU count read strictly from the phenotype TSV without opening any NYU imaging**.
+**Guardrails:** Diagnosis labels used strictly for aggregate counts and attrition tests only; zero modeling; zero individual subject IDs logged or printed; **NYU archive counts derived strictly from CC200 tar member names only (zero NYU imaging opened or extracted) joined to the phenotype TSV**.
 
 ---
 
@@ -30,7 +30,7 @@
 
 ---
 
-## 2. All Verified Development Scans & Phenotype-Only NYU Count
+## 2. All Verified Development Scans & Sealed NYU Count (Member Names Only)
 
 All **404 / 404** development `rest_1` scans in `ADHD200_CC200_TCs_filtfix.tar.gz` matched a valid binary diagnosis in `adhd200_preprocessed_phenotypics.tsv` (**0 missing or pending diagnoses**; `DX = 0` mapped to TDC, `DX ∈ {1, 2, 3}` mapped to ADHD).
 
@@ -44,9 +44,10 @@ All **404 / 404** development `rest_1` scans in `ADHD200_CC200_TCs_filtfix.tar.g
 | **Peking_3** | *(Peking sub-site)* | 42 | 23 | 19 | 45.2% | OK |
 | **Peking (Combined)** | LOIO Fold 4 (Dev) | 194 | 116 | 78 | 40.2% | OK |
 | **POOLED DEVELOPMENT** | **4-Institution LOIO** | **404** | **242** | **162** | **40.1%** | **OK** |
-| **NYU *(phenotype TSV only)*** | **Sealed External Site** | **263** | **111** | **152** | **57.8%** | **OK** |
+| **NYU *(CC200 archive member names only)*** | **Sealed External Site (Actual Scans)** | **216** | **98** | **118** | **54.6%** | **OK** |
+| *(NYU phenotype TSV total — NOT scored $N$)* | *(Training + test rows in TSV)* | *(263)* | *(111)* | *(152)* | *(57.8%)* | — |
 
-*(Note on NYU: The consolidated `adhd200_preprocessed_phenotypics.tsv` contains 263 NYU rows spanning training + test releases [111 TDC, 152 ADHD]. No NYU imaging or motion files were opened to generate this table. Single-class/near-single-class sites WashU [61 TDC, 0 ADHD] and Pittsburgh [94 TDC, 4 ADHD = 4.1% ADHD in TSV; 0 ADHD in training archive] and pending-label Brown [26 pending] are excluded a priori.)*
+*(Note on NYU: Joining the 216 NYU `sfnwmrda*_session_1_rest_1_cc200_TCs.1D` member names in `ADHD200_CC200_TCs_filtfix.tar.gz` — read via `tarfile.getmembers()` only, with zero NYU imaging files opened or extracted — to `adhd200_preprocessed_phenotypics.tsv` yields exactly **216 scans (98 TDC, 118 ADHD, 54.6% ADHD; 0 missing DX)**. The 263 NYU rows in the consolidated phenotype TSV include 47 additional test-release rows absent from `ADHD200_CC200_TCs_filtfix.tar.gz`, so 263 is the phenotype table count, **not** the scored $N$. Single-class/near-single-class sites WashU [61 TDC, 0 ADHD] and Pittsburgh [94 TDC, 4 ADHD = 4.1% ADHD in TSV; 0 ADHD in training archive] and pending-label Brown [26 pending] are excluded a priori.)*
 
 ---
 
@@ -98,11 +99,11 @@ Identical to Section 2 above: **404 / 404** development scans retained (242 TDC,
      - `NeuroIMAGE` (TDC = **11**, ADHD = **8**)
      - `OHSU` (TDC = **13**, ADHD = **6**)
      - *(And all three Peking sub-sites individually have $< 15$ in at least one class, though pooled Peking retains 55 TDC / 19 ADHD.)*
-     - Strict-threshold LOIO fold AUCs for KKI, NeuroIMAGE, and OHSU must therefore be interpreted as severely underpowered exploratory estimates.
+     - Strict-threshold LOIO is therefore **descriptive/attrition-only** and is **not run as a LOIO classification model** (recorded in [`DEVIATIONS.md`](DEVIATIONS.md)).
 
 3. **Mechanical Outcome of the Written Sealing Rule:**
    - Applying `PREREGISTRATION.md` Section 4.3 strictly to these counts **confirms NYU as the sealed external validation institution**:
-     - Balanced diagnostic classes ($>5\%$ ADHD): **PASS** (111 TDC, 152 ADHD = 57.8% ADHD in phenotype TSV).
+     - Balanced diagnostic classes ($>5\%$ ADHD): **PASS** (216 actual `rest_1` scans in CC200 archive: **98 TDC, 118 ADHD = 54.6% ADHD**; 263 total rows in phenotype TSV: 111 TDC, 152 ADHD).
      - Standard pediatric acquisition parameters: **PASS**.
      - Minimal exposure during Study 1 exploration: **PASS** (6 NYU subjects vs. 126 development subjects across KKI [24], NeuroIMAGE [19], Peking [69], OHSU [14]).
    - The four-institution LOIO development cohort is frozen as **KKI, NeuroIMAGE, OHSU, and Peking (1–3)**.
