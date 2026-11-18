@@ -95,6 +95,29 @@ export function OverviewView({ data }) {
 
   return (
     <div className="view-container">
+      {/* 2-Line Bottom Line Box */}
+      <div
+        data-testid="bottom-line-box"
+        style={{
+          background: "var(--bg-subtle)",
+          border: "1px solid var(--border-color)",
+          borderLeft: "4px solid var(--accent-warning)",
+          borderRadius: "var(--radius-md)",
+          padding: "12px 16px",
+          marginBottom: "18px",
+          fontSize: "0.84rem",
+          lineHeight: 1.55,
+          color: "var(--text-primary)"
+        }}
+      >
+        <div>
+          <strong>Bottom line:</strong> Neither study shows reliable ADHD classification from resting-state connectivity across institutions.
+        </div>
+        <div style={{ color: "var(--text-secondary)" }}>
+          Motion-only and age/sex baselines scored as high or higher than the locked fMRI pipeline.
+        </div>
+      </div>
+
       {/* Lead Scientific Headline */}
       <div style={{ marginBottom: "24px" }}>
         <h2 style={{ fontSize: "1.35rem", fontWeight: "800", color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
@@ -199,7 +222,9 @@ export function OverviewView({ data }) {
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "700" }}>
                   {study2Data.sealed_nyu_primary.fmri_auc_display}<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.sealed_nyu_primary.fmri_ci_95_exact_display}</span>
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+                    {study2Data.sealed_nyu_primary.fmri_ci_95_exact_display} (primary lower bound {study2Data.sealed_nyu_primary.fmri_ci_95_exact[0].toFixed(6)} &lt; 0.5)
+                  </span>
                 </td>
                 <td className="tabular-nums">
                   {study2Data.sealed_nyu_primary.motion_baseline_auc_display}<br />
@@ -221,7 +246,9 @@ export function OverviewView({ data }) {
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "700" }}>
                   {study2Data.sealed_nyu_sensitivity.fmri_auc_display}<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.sealed_nyu_sensitivity.fmri_ci_95_exact_display}</span>
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+                    {study2Data.sealed_nyu_sensitivity.fmri_ci_95_exact_display} (sensitivity lower bound {study2Data.sealed_nyu_sensitivity.fmri_ci_95_exact[0].toFixed(6)} &lt; 0.5)
+                  </span>
                 </td>
                 <td className="tabular-nums">
                   {study2Data.sealed_nyu_sensitivity.motion_baseline_auc_display}<br />
