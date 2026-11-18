@@ -18,7 +18,7 @@
 2. **Open-Ended Registration (registered first; metadata & hashes):** [https://osf.io/db7nv](https://osf.io/db7nv) — DOI `10.17605/OSF.IO/DB7NV` (`2026-11-17 14:56 UTC`, Public, CC0 1.0)
 3. **Primary OSF Preregistration (registered second; complete binding protocol):** [https://osf.io/grbt2](https://osf.io/grbt2) — DOI `10.17605/OSF.IO/GRBT2`, `2026-11-17`, approximately 14:58 UTC (inferred from the OSF page display), Public, CC0 1.0
 
-### 1.2. Chronological Local Annotated Git Tags
+### 1.2. Chronological Annotated Git Tags (pushed to origin)
 All four milestone tags lie in strict chronological order along `HEAD`'s ancestry, and the OSF registration commit `2d7ed3b` is a verified ancestor of every tag:
 
 | Order | Tag Name | Target Commit | Timestamp (UTC) | Milestone |
