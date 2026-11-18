@@ -52,7 +52,7 @@ export function MethodologyView({ data }) {
                 <span className="tabular-nums">N = {cohort.test_subjects}</span>
               </div>
               <div style={{ fontSize: "0.75rem", color: "var(--accent-warning)", marginTop: "4px", lineHeight: 1.4 }}>
-                10 Control, 10 ADHD from site <code>Peking_2</code>. Held as a batch partition and scored once for this model; the baseline had been scored on the same set earlier. Note: Peking_2 is a same-institution, same-scanner batch holdout (Peking_1 and Peking_3 are in the training set).
+                10 Control, 10 ADHD from site <code>Peking_2</code>. Held as a batch partition and scored 10 times in total (9 baseline runs, 1 final; no tuning used it). Note: Peking_2 is a same-institution, same-scanner batch holdout (Peking_1 and Peking_3 are in the training set).
               </div>
             </div>
           </div>

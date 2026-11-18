@@ -43,7 +43,22 @@ export function LimitationsView({ data }) {
 
   const sealedUsedUpDesc = `${study2Data.preregistration.sealed_site_status} In addition, ${study2Data.prior_exposure.dev_overlap_subjects} Study 2 development subjects and ${study2Data.prior_exposure.nyu_overlap_subjects} NYU subjects overlapped with Study 1's C-PAC cohort where the locked pipeline's hyperparameters were chosen, so development LOIO estimates may be optimistic for those overlapping subjects and only the sealed NYU evaluation was close to independent. Only the OSF registrations are externally timestamped; the four freeze/results tags were pushed to origin after the sealed run.`;
 
-  const p2Desc = `The held-out Peking_2 test set consists of only ${totalStr} subjects. At N=${totalStr}, each subject shifts accuracy by ${singleSubjectEffect}. The Wilson 95% confidence interval for ${countStr} accuracy spans ${testAccCiStr}, and the stratified bootstrap 95% CI for test ROC-AUC spans ${testAucCiStr}. Because 50% chance lies comfortably within both intervals, the test accuracy of ${testAcc} is not statistically distinguishable from chance (binomial p ≈ 0.25).`;
+  const computeExactBinomialP = (k, n) => {
+    if (typeof k !== "number" || typeof n !== "number" || n <= 0 || k < 0 || k > n) return null;
+    const logFact = [0];
+    for (let i = 1; i <= n; i++) logFact.push(logFact[i - 1] + Math.log(i));
+    let oneSided = 0;
+    for (let j = k; j <= n; j++) {
+      oneSided += Math.exp(logFact[n] - logFact[j] - logFact[n - j] - n * Math.log(2));
+    }
+    return { oneSided, twoSided: Math.min(1, 2 * oneSided) };
+  };
+  const p2Binom = computeExactBinomialP(correctCount, testTotal);
+  const p2BinomStr = p2Binom
+    ? `one-sided exact binomial p = ${p2Binom.oneSided.toFixed(4)}; two-sided ${p2Binom.twoSided.toFixed(4)} (about 0.50)`
+    : "N/A";
+
+  const p2Desc = `The held-out Peking_2 test set consists of only ${totalStr} subjects and was scored 10 times in total (9 baseline runs, 1 final). At N=${totalStr}, each subject shifts accuracy by ${singleSubjectEffect}. The Wilson 95% confidence interval for ${countStr} accuracy spans ${testAccCiStr}, and the stratified bootstrap 95% CI for test ROC-AUC spans ${testAucCiStr}. Because chance lies within both intervals, the test accuracy of ${testAcc} is not statistically distinguishable from chance (${p2BinomStr}).`;
 
   const limitations = [
     {

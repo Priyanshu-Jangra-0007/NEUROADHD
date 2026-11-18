@@ -55,11 +55,11 @@ This document provides a slide-by-slide presentation outline for a technical def
 * **Title**: Benchmark Findings: Peking_2 Held-Out Evaluation ($N=20$)
 * **Key Points**:
   - Peking_2 held-out test metrics ($N=20$, 10 ADHD, 10 Control):
-    - Accuracy: **`60.00%`** (12/20 correct), Wilson 95% CI: **`[38.7%, 78.1%]`**.
+    - Accuracy: **`60.00%`** (12/20 correct), Wilson 95% CI: **`[38.7%, 78.1%]`** (`one-sided exact binomial p = 0.2517; two-sided 0.5034, about 0.50`, computed from the 12/20 confusion matrix).
     - ROC-AUC: **`0.5600`**, Stratified bootstrap 95% CI: **`[0.290, 0.830]`** (2,000 resamples).
     - PR-AUC: **`0.6341`** (vs chance `0.5000`).
     - Confusion Matrix: TP = 6, TN = 6, FP = 4, FN = 4 (Balanced Acc: 60.0%, Sensitivity: 60.0%, Specificity: 60.0%).
-  - Evaluated strictly once for this locked Random Forest checkpoint; however, an early baseline model had previously been scored on it during preliminary exploratory work.
+  - Peking_2 was scored 10 times in total (9 baseline runs, 1 final); no hyperparameter tuning used it.
   - Wide confidence intervals span chance performance ($50\%$), underscoring the statistical uncertainty inherent in small holdout test sets ($N=20$).
 * **Source Reference**: [final_test_results.json](../NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json), [final_confusion_matrix.json](../NeuroADHD_ModelBenchmark/runs/run_20261004_182318_final_locked/final_confusion_matrix.json)
 

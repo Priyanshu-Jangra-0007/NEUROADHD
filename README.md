@@ -130,8 +130,8 @@ Every metric reported below is derived directly from reproducibility artifacts a
 *Source Files: [NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json](NeuroADHD_ModelBenchmark/results/final_locked/final_test_results.json), [final_confusion_matrix.json](NeuroADHD_ModelBenchmark/runs/run_20261004_182318_final_locked/final_confusion_matrix.json), [benchmarkData.js](NeuroADHD_ModelDashboard/frontend/src/data/benchmarkData.js)*
 
 * **Sample Size & Split**: 20 subjects (10 ADHD, 10 Typically Developing Controls) from Peking University (`Peking_2`).
-* **Evaluation Protocol Context**: This held-out test set represents a **same-institution, same-scanner holdout** (scanned on the same 3T Siemens Trio scanner as Peking_1 and Peking_3 training partitions). The test set was scored 10 times in total across project history (9 baseline development runs with identical results, 1 final model run); no hyperparameter tuning used it.
-* **Accuracy**: **`60.00%`** (12/20 correct), Wilson score 95% CI: **`[38.7%, 78.1%]`**.
+* **Evaluation Protocol Context**: This held-out test set represents a **same-institution, same-scanner holdout** (scanned on the same 3T Siemens Trio scanner as Peking_1 and Peking_3 training partitions). The test set was scored 10 times in total (9 baseline runs, 1 final); no hyperparameter tuning used it.
+* **Accuracy**: **`60.00%`** (12/20 correct), Wilson score 95% CI: **`[38.7%, 78.1%]`** (`one-sided exact binomial p = 0.2517; two-sided 0.5034, about 0.50`, computed from the 12/20 confusion matrix).
 * **ROC-AUC**: **`0.5600`**, Stratified bootstrap 95% CI: **`[0.290, 0.830]`** (2,000 resamples).
 * **PR-AUC**: **`0.6341`** (vs chance baseline of `0.5000`).
 * **2x2 Confusion Matrix**:

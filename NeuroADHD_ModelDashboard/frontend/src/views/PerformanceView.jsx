@@ -119,7 +119,7 @@ export function PerformanceView({ data }) {
             </h3>
           </div>
           <span style={{ fontSize: "0.75rem", background: "#fef3c7", color: "#b45309", padding: "4px 10px", borderRadius: "9999px", fontWeight: "700" }}>
-            Scored once for this model (baseline previously scored; N={totalTestCount ?? "N/A"})
+            Scored 10 times in total (9 baseline runs, 1 final; N={totalTestCount ?? "N/A"})
           </span>
         </div>
 

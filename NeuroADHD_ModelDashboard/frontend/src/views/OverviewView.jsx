@@ -19,6 +19,21 @@ export function OverviewView({ data }) {
   const totalCount = finalTest?.test_subject_count ?? cohort?.test_subjects ?? null;
   const countStr = (correctCount !== null && totalCount !== null) ? `${correctCount}/${totalCount}` : "N/A";
 
+  const computeExactBinomialP = (k, n) => {
+    if (typeof k !== "number" || typeof n !== "number" || n <= 0 || k < 0 || k > n) return null;
+    const logFact = [0];
+    for (let i = 1; i <= n; i++) logFact.push(logFact[i - 1] + Math.log(i));
+    let oneSided = 0;
+    for (let j = k; j <= n; j++) {
+      oneSided += Math.exp(logFact[n] - logFact[j] - logFact[n - j] - n * Math.log(2));
+    }
+    return { oneSided, twoSided: Math.min(1, 2 * oneSided) };
+  };
+  const p2Binom = computeExactBinomialP(correctCount, totalCount);
+  const p2BinomStr = p2Binom
+    ? `one-sided exact binomial p = ${p2Binom.oneSided.toFixed(4)}; two-sided ${p2Binom.twoSided.toFixed(4)} (about 0.50)`
+    : "N/A";
+
   const testAcc = finalTest?.metrics?.accuracy ?? null;
   const testAccCi = finalTest?.metrics?.accuracy_ci_95 ?? finalTest?.metrics?.accuracy_wilson_ci_95 ?? null;
   const testAuc = finalTest?.metrics?.roc_auc ?? null;
@@ -329,7 +344,7 @@ export function OverviewView({ data }) {
           </div>
 
           <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
-            Scored once for this model (baseline previously scored). Peking_2 is a same-institution, same-scanner batch holdout (Peking_1/3 are in training). Wide confidence intervals reflect the small sample size ($N={totalCount ?? "N/A"}$); {testAccDisplay !== "N/A" ? testAccDisplay : "60%"} accuracy is not distinguishable from chance ($p \approx 0.25$).
+            Peking_2 was scored 10 times in total (9 baseline runs, 1 final); no tuning used it. Peking_2 is a same-institution, same-scanner batch holdout (Peking_1/3 are in training). Wide confidence intervals reflect the small sample size (N={totalCount ?? "N/A"}); {testAccDisplay} accuracy ({countStr}) is not distinguishable from chance ({p2BinomStr}).
           </p>
         </div>
       </div>

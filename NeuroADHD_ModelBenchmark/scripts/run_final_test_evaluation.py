@@ -234,7 +234,7 @@ def run_final_test():
 ## 1. Executive Summary & Verification Declaration
 
 > **DECLARATION:**  
-> The final model configuration (`Random Forest`, $K=100$, `class_weight="balanced"`, `max_depth=3`, `n_estimators=50`) was refit strictly on **Train + Validation data (133 subjects)** and scored once for this model on the held-out Peking_2 test set (20 subjects); the baseline model had been scored on the same set earlier. Peking_2 is a same-institution, same-scanner batch holdout (Peking_1 and Peking_3 are in the training set). No hyperparameter tuning, model selection, or feature adjustments occurred after viewing test set results.
+> The final model configuration (`Random Forest`, $K=100$, `class_weight="balanced"`, `max_depth=3`, `n_estimators=50`) was refit strictly on **Train + Validation data (133 subjects)**; the Peking_2 test set (20 subjects) was scored 10 times in total (9 baseline runs, 1 final). Peking_2 is a same-institution, same-scanner batch holdout (Peking_1 and Peking_3 are in the training set). No hyperparameter tuning, model selection, or feature adjustments occurred after viewing test set results.
 
 ---
 
@@ -278,7 +278,7 @@ Actual ADHD    :        {final_test_metrics['confusion_matrix']['fn']} (FN)     
 2. **Did ADHD Sensitivity Improve?**:
    - **Yes.** Sensitivity improved from `0.3000` (3/10 detected in baseline) to **`{final_test_metrics['recall_sensitivity']:.4f}`** ({final_test_metrics['confusion_matrix']['tp']}/10 detected in final model), representing 3 additional detected subjects.
 3. **Is the Result Stable / Credible Given Only 20 Test Subjects?**:
-   - On a 20-subject test set, each single subject represents a 5.0 percentage point change in metric. The 5-seed validation stability testing ($0.6878 \pm 0.0341$ ROC-AUC) confirms that the performance gains are statistically consistent across validation seeds, though test AUC (0.5600 [0.290, 0.830]) cannot be distinguished from chance (p ~ 0.25).
+   - On a 20-subject test set, each single subject represents a 5.0 percentage point change in metric. Test accuracy ({final_test_metrics['confusion_matrix']['tp'] + final_test_metrics['confusion_matrix']['tn']}/20) and test AUC ({final_test_metrics['roc_auc']:.4f} [0.290, 0.830]) cannot be distinguished from chance (one-sided exact binomial p = {sum(__import__('math').comb(20, j) * (0.5 ** 20) for j in range(final_test_metrics['confusion_matrix']['tp'] + final_test_metrics['confusion_matrix']['tn'], 21)):.4f}; two-sided {min(1.0, 2.0 * sum(__import__('math').comb(20, j) * (0.5 ** 20) for j in range(final_test_metrics['confusion_matrix']['tp'] + final_test_metrics['confusion_matrix']['tn'], 21))):.4f}, about 0.50).
 4. **Limitations**:
    - Small test sample size ($N=20$) limits confidence interval granularity (Wilson 95% CI for 12/20 is [38.7%, 78.1%]).
    - Same-Institution Batch Holdout: Peking_2 is a same-institution, same-scanner batch holdout with Peking_1 and Peking_3 in training, rather than a completely unseen external institution. ComBat harmonization or leave-one-institution-out CV is recommended for future work.
@@ -329,7 +329,7 @@ Actual ADHD    :        {final_test_metrics['confusion_matrix']['fn']} (FN)     
         "  <div class='container'>",
         "    <div class='header'>",
         "      <h1>NeuroADHD — Final Locked Test Evaluation Report</h1>",
-        "      <p>Held-out Peking_2 Evaluation (20 Subjects; scored once for this model; baseline previously scored) | <span class='badge'>FINAL LOCKED</span></p>",
+        "      <p>Held-out Peking_2 Evaluation (20 Subjects; scored 10 times in total: 9 baseline runs, 1 final) | <span class='badge'>FINAL LOCKED</span></p>",
         "    </div>",
         "    <div class='grid-4'>",
         "      <div class='card'><div class='card-label'>Test Accuracy</div><div class='card-value'>" + f"{final_test_metrics['accuracy']:.4f}" + "</div><div class='card-label'>" + f"{final_test_metrics['confusion_matrix']['tp'] + final_test_metrics['confusion_matrix']['tn']}/20 Correct</div></div>",
