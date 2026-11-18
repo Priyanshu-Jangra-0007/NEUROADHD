@@ -168,10 +168,10 @@ class TestComputeAthenaFD(unittest.TestCase):
             arc_path = Path(tmp) / "mock_cc200.tar.gz"
             with tarfile.open(arc_path, "w:gz") as tf:
                 for member_name, body in [
-                    ("KKI/0010001/sfnwmrda0010001_session_1_rest_1_cc200_TCs.1D", b"1 2\n3 4\n5 6\n"),
-                    ("NYU/0020001/sfnwmrda0020001_session_1_rest_1_cc200_TCs.1D", b"9 9\n9 9\n"),
-                    ("WashU/0030001/sfnwmrda0030001_session_1_rest_1_cc200_TCs.1D", b"1 1\n"),
-                    ("Peking_2/0040001/sfnwmrda0040001_session_1_rest_1_cc200_TCs.1D", b"1 2\n3 4\n"),
+                    ("KKI/00SYN_A/sfnwmrda00SYN_A_session_1_rest_1_cc200_TCs.1D", b"1 2\n3 4\n5 6\n"),
+                    ("NYU/00SYN_B/sfnwmrda00SYN_B_session_1_rest_1_cc200_TCs.1D", b"9 9\n9 9\n"),
+                    ("WashU/00SYN_C/sfnwmrda00SYN_C_session_1_rest_1_cc200_TCs.1D", b"1 1\n"),
+                    ("Peking_2/00SYN_D/sfnwmrda00SYN_D_session_1_rest_1_cc200_TCs.1D", b"1 2\n3 4\n"),
                 ]:
                     info = tarfile.TarInfo(name=member_name)
                     info.size = len(body)
@@ -179,10 +179,10 @@ class TestComputeAthenaFD(unittest.TestCase):
 
             dev_map = load_dev_cc200_frame_counts(arc_path)
             self.assertEqual(len(dev_map), 2)
-            self.assertIn(("KKI", "10001"), dev_map)
-            self.assertIn(("Peking", "40001"), dev_map)
-            self.assertEqual(dev_map[("KKI", "10001")], ("KKI", 3))
-            self.assertEqual(dev_map[("Peking", "40001")], ("Peking_2", 2))
+            self.assertIn(("KKI", "SYN_A"), dev_map)
+            self.assertIn(("Peking", "SYN_D"), dev_map)
+            self.assertEqual(dev_map[("KKI", "SYN_A")], ("KKI", 3))
+            self.assertEqual(dev_map[("Peking", "SYN_D")], ("Peking_2", 2))
             self.assertTrue(all(k[0] not in ("NYU", "WashU") for k in dev_map))
 
 
