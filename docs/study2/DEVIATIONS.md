@@ -92,3 +92,8 @@ The following implementation details clarify operational choices that conform to
 
 ### 4.3. Explicit Section 5.2 Source-Substitution Statement (2026-11-18, Pre-Run)
 - **Protocol Deviation (Registration Section 5.2):** Per Section 1 Branch (b), Framewise Displacement (FD) for the development cohort was computed from the Neuro Bureau **NIAK-derived $4 \times 4 \times T$ rigid-body transforms** (volume-centered, first 3 frames removed) rather than the Athena **AFNI `3dvolreg` `rp_*.1D` files** specified in `PREREGISTRATION.md` Section 5.2, because the six development `<Site>_preproc_xfms.tar` archives contained `0 / 404` `rp_*.1D` files. This entry is committed prior to executing the real-label development analysis.
+
+### 4.4. Post-Freeze Acquisition of `intermediate_nyu.tar` (2026-11-18, Pre-Sealed-Run)
+- **Planned Sealed-Site Motion Acquisition:** As pre-specified in [`SEALED_RUN_PLAN.md`](SEALED_RUN_PLAN.md) (`837b33c`), `intermediate_nyu.tar` (NITRC Release 1600 `/frs/downloadlink.php/3808`) was downloaded **after** the sealed code freeze (`study2-sealed-frozen`, `a75d6b4`) and copied to Git-ignored `NeuroADHD/data/athena/staging/intermediate_nyu.tar`.
+- **File Provenance:** Size = `275,527,680` bytes (`262.76 MB`); self-computed SHA-256 = `9640ee0a1623efe91d9eab9ad6a4024d240cdfad3886ecf9b1124a778b141eb4`; non-extracting TAR integrity = `PASS` (`2,665` members, `1,368` files).
+- **Quarantine Confirmation:** Zero NYU imaging, time-series, or motion/FD values were inspected or computed prior to the single sealed run. Frozen code and tag `study2-sealed-frozen` remain untouched.
