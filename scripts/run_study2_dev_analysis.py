@@ -4,7 +4,7 @@ Study 2 Registered Development Analysis Runner (LOIO over KKI, NeuroIMAGE, OHSU,
 
 Implements the exact locked protocol from docs/study2/PREREGISTRATION.md (SHA-256:
 e227005c1386dddef3d8b265579f293483769c249cccf31d1cf7f8ec8e09e7ec) and the
-co-primary sensitivity regime in docs/study2/DEVIATIONS.md Branch (b):
+registered Section 5.4 sensitivity regime documented in docs/study2/DEVIATIONS.md:
 
 - Locked fMRI pipeline (refitted from scratch inside every LOIO training fold):
     1. SimpleImputer(strategy='median')
@@ -25,8 +25,8 @@ co-primary sensitivity regime in docs/study2/DEVIATIONS.md Branch (b):
     - Within-institution permutation test (B = 1,000):
       p_perm = (1 + sum(AUC_b >= AUC_obs)) / (1 + B)
 - Regimes:
-    - Primary Motion Exclusion (N = 368)
-    - Co-Primary No-Exclusion Sensitivity (N = 404)
+    - Primary Motion Exclusion (N = 368, Section 5.3)
+    - Registered No-Exclusion Sensitivity Analysis (N = 404, Section 5.4)
     (Strict threshold N = 133 is descriptive only per DEVIATIONS.md Section 3.4.)
 
 Strict Guardrails:
@@ -55,6 +55,7 @@ DEFAULT_K_BEST = 100
 DEFAULT_BOOTSTRAP_B = 2000
 DEFAULT_PERM_B = 1000
 LOCKED_RANDOM_STATE = 42
+DEFAULT_RESULTS_JSON = Path("NeuroADHD/data/athena/results/study2_dev_results.json")
 
 
 def build_locked_fmri_pipeline(k_best: int = DEFAULT_K_BEST) -> Pipeline:
@@ -399,7 +400,12 @@ def main() -> None:
         type=Path,
         default=Path("NeuroADHD/data/athena/features"),
     )
-    parser.add_argument("--out-json", type=Path, default=None)
+    parser.add_argument(
+        "--out-json",
+        type=Path,
+        default=DEFAULT_RESULTS_JSON,
+        help="Output JSON path (defaults to Git-ignored NeuroADHD/data/athena/results/).",
+    )
     parser.add_argument("--n-boot", type=int, default=DEFAULT_BOOTSTRAP_B)
     parser.add_argument("--n-perm", type=int, default=DEFAULT_PERM_B)
     parser.add_argument(
