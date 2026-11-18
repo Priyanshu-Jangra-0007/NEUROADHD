@@ -1,8 +1,9 @@
 import React from "react";
-import { Database, Network, Users, Cpu, Lock, CheckCircle2, ShieldAlert, Info, Sparkles, Scale, BarChart3 } from "lucide-react";
+import { Database, Network, Users, Cpu, Lock, CheckCircle2, ShieldAlert, Info, Sparkles, Scale, BarChart3, ClipboardCheck } from "lucide-react";
 import siteConfoundData from "../data/siteConfoundData.json";
 import finalCandidateData from "../data/finalCandidateData.json";
 import modelComparisonData from "../data/modelComparisonData.json";
+import study2Data from "../data/study2Data.json";
 
 export function OverviewView({ data }) {
   const cohort = data?.cohort_breakdown;
@@ -76,10 +77,151 @@ export function OverviewView({ data }) {
           Resting-State fMRI Connectivity Benchmark for ADHD Classification
         </h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6, marginTop: "6px", maxWidth: "980px" }}>
-          This platform benchmarks machine learning algorithms classifying Attention-Deficit/Hyperactivity Disorder from pairwise resting-state functional connectivity (Craddock 200 parcellation). 
-          <strong> What the model does:</strong> Identifies statistical functional edge correlations and discriminative connectivity weights across subjects. 
-          <strong> What the model cannot do:</strong> It cannot make medical or psychiatric diagnoses, guarantee individual neurobiological biomarkers, or generalize reliably across external scanners; the difference between connectivity and age/sex alone was not statistically tested.
+          This platform documents Study 1 (exploratory C-PAC CC200 benchmark) and Study 2 (preregistered multi-site replication attempt on Athena CC200 derivatives).
+          <strong> What the model does:</strong> Identifies statistical functional edge correlations and discriminative connectivity weights across subjects.
+          <strong> What the model cannot do:</strong> Research use only — not a medical device or diagnostic tool; model scores are not calibrated probabilities. Study 1&apos;s exploratory LOIO result was not replicated in Study 2, where motion-only and age/sex baselines scored as high or higher than the locked fMRI pipeline and the sealed NYU evaluation fell in the registered Inconclusive Zone.
         </p>
+      </div>
+
+      {/* Study 2: Preregistered Multi-Site Replication Attempt (Read from study2Data.json — no typed numbers) */}
+      <div className="card" style={{ marginBottom: "24px", borderColor: "rgba(217, 119, 6, 0.35)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px", flexWrap: "wrap", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <ClipboardCheck size={18} color="var(--accent-warning)" />
+            <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>
+              Study 2: Preregistered Multi-Site Replication Attempt (Athena CC200)
+            </h3>
+          </div>
+          <span style={{ fontSize: "0.74rem", background: "var(--accent-warning-subtle)", padding: "4px 8px", borderRadius: "4px", color: "var(--accent-warning)", fontWeight: "600" }}>
+            OSF Preregistered ({study2Data.preregistration.commit_short}) · Section 8.1 Not Met · Sealed Site Used Up
+          </span>
+        </div>
+
+        <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "14px" }}>
+          Preregistered test of the locked Study 1 pipeline on ADHD-200 Athena CC200 derivatives (
+          <a href={study2Data.preregistration.osf_primary_url} target="_blank" rel="noreferrer" style={{ color: "var(--brand-blue)" }}>
+            {study2Data.preregistration.osf_primary_url}
+          </a>
+          {" "}and{" "}
+          <a href={study2Data.preregistration.osf_open_ended_url} target="_blank" rel="noreferrer" style={{ color: "var(--brand-blue)" }}>
+            {study2Data.preregistration.osf_open_ended_url}
+          </a>
+          ). All figures below are compiled directly from tracked Study 2 summary records.
+        </p>
+
+        <div className="table-container" style={{ marginBottom: "12px" }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Study 2 Regime</th>
+                <th>fMRI ROC-AUC (95% CI)</th>
+                <th>Motion-Only Baseline</th>
+                <th>Age &amp; Sex Baseline</th>
+                <th>Registered Criterion / Outcome</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong>Development Primary LOIO (N={study2Data.development_primary.n_scans})</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Section 5.3 primary FD exclusion (KKI, NeuroIMAGE, OHSU, Peking)</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "700" }}>
+                  {study2Data.development_primary.fmri_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.development_primary.fmri_ci_display}</span>
+                </td>
+                <td className="tabular-nums">
+                  {study2Data.development_primary.motion_baseline_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Δ={study2Data.development_primary.delta_vs_motion_display} {study2Data.development_primary.delta_vs_motion_ci_display}</span>
+                </td>
+                <td className="tabular-nums">
+                  {study2Data.development_primary.age_sex_baseline_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Δ={study2Data.development_primary.delta_vs_age_sex_display} {study2Data.development_primary.delta_vs_age_sex_ci_display}</span>
+                </td>
+                <td className="tabular-nums" style={{ color: "var(--accent-danger)", fontWeight: "700" }}>
+                  Section 8.1: {study2Data.development_primary.meets_section_8_1 ? "MET" : "NOT MET"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>p_perm = {study2Data.development_primary.p_perm_display}</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Development Sensitivity LOIO (N={study2Data.development_sensitivity.n_scans})</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Registered Section 5.4 no-exclusion sensitivity analysis</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "700" }}>
+                  {study2Data.development_sensitivity.fmri_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.development_sensitivity.fmri_ci_display}</span>
+                </td>
+                <td className="tabular-nums">
+                  {study2Data.development_sensitivity.motion_baseline_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Δ={study2Data.development_sensitivity.delta_vs_motion_display} {study2Data.development_sensitivity.delta_vs_motion_ci_display}</span>
+                </td>
+                <td className="tabular-nums">
+                  {study2Data.development_sensitivity.age_sex_baseline_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Δ={study2Data.development_sensitivity.delta_vs_age_sex_display} {study2Data.development_sensitivity.delta_vs_age_sex_ci_display}</span>
+                </td>
+                <td className="tabular-nums" style={{ color: "var(--accent-danger)", fontWeight: "700" }}>
+                  Section 8.1: {study2Data.development_sensitivity.meets_section_8_1 ? "MET" : "NOT MET"}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>p_perm = {study2Data.development_sensitivity.p_perm_display} (motion &gt; fMRI)</span>
+                </td>
+              </tr>
+              <tr style={{ background: "var(--accent-warning-subtle)" }}>
+                <td>
+                  <strong>Sealed NYU Primary (N={study2Data.sealed_nyu_primary.n_scans}, Governing)</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>One-shot external test (Section 5.3 FD exclusion; {study2Data.sealed_nyu_primary.n_tdc} TDC / {study2Data.sealed_nyu_primary.n_adhd} ADHD)</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "700" }}>
+                  {study2Data.sealed_nyu_primary.fmri_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.sealed_nyu_primary.fmri_ci_95_exact_display}</span>
+                </td>
+                <td className="tabular-nums">
+                  {study2Data.sealed_nyu_primary.motion_baseline_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.sealed_nyu_primary.motion_baseline_ci_95_exact_display}</span>
+                </td>
+                <td className="tabular-nums">
+                  {study2Data.sealed_nyu_primary.age_sex_baseline_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.sealed_nyu_primary.age_sex_baseline_ci_95_exact_display}</span>
+                </td>
+                <td style={{ color: "var(--accent-warning)", fontWeight: "700" }}>
+                  {study2Data.sealed_nyu_primary.outcome_zone_label}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Section 8.2 (governs)</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Sealed NYU Sensitivity (N={study2Data.sealed_nyu_sensitivity.n_scans})</strong><br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Registered Section 5.4 no-exclusion ({study2Data.sealed_nyu_sensitivity.n_tdc} TDC / {study2Data.sealed_nyu_sensitivity.n_adhd} ADHD)</span>
+                </td>
+                <td className="tabular-nums" style={{ fontWeight: "700" }}>
+                  {study2Data.sealed_nyu_sensitivity.fmri_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.sealed_nyu_sensitivity.fmri_ci_95_exact_display}</span>
+                </td>
+                <td className="tabular-nums">
+                  {study2Data.sealed_nyu_sensitivity.motion_baseline_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.sealed_nyu_sensitivity.motion_baseline_ci_95_exact_display}</span>
+                </td>
+                <td className="tabular-nums">
+                  {study2Data.sealed_nyu_sensitivity.age_sex_baseline_auc_display}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{study2Data.sealed_nyu_sensitivity.age_sex_baseline_ci_95_exact_display}</span>
+                </td>
+                <td style={{ color: "var(--accent-warning)", fontWeight: "700" }}>
+                  {study2Data.sealed_nyu_sensitivity.outcome_zone_label}<br />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>CI spans chance</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+          <Info size={16} color="var(--accent-warning)" style={{ flexShrink: 0, marginTop: "2px" }} />
+          <span>
+            <strong>Registered Interpretation:</strong> {study2Data.section_8_2_inconclusive_zone.conclusion_plain}{" "}
+            Motion-only and age/sex baselines scored as high or higher than the fMRI pipeline in every regime.{" "}
+            <strong>Sealed-site status:</strong> {study2Data.preregistration.sealed_site_status}{" "}
+            Prior Study 1 overlap: {study2Data.prior_exposure.dev_overlap_subjects} development subjects and {study2Data.prior_exposure.nyu_overlap_subjects} NYU subjects.
+          </span>
+        </div>
       </div>
 
       {/* Primary KPI Grid (Balanced 4-Column) */}
@@ -242,9 +384,9 @@ export function OverviewView({ data }) {
                   {siteConfoundData.config2_118.loio_connectivity_only?.accuracy != null ? `${(siteConfoundData.config2_118.loio_connectivity_only.accuracy * 100).toFixed(1)}%` : "N/A"}<br />
                   <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{siteConfoundData.config2_118.loio_connectivity_only?.accuracy_ci ? `[${siteConfoundData.config2_118.loio_connectivity_only.accuracy_ci.map(v => (v * 100).toFixed(1) + "%").join(", ")}]` : "N/A"}</span>
                 </td>
-                <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--accent-success)" }}>
+                <td className="tabular-nums" style={{ fontWeight: "700", color: "var(--accent-warning)" }}>
                   {siteConfoundData.config2_118.loio_connectivity_only?.p_value != null ? `p = ${siteConfoundData.config2_118.loio_connectivity_only.p_value.toFixed(4)}` : "N/A"}<br />
-                  <span style={{ fontSize: "0.72rem", color: "var(--accent-success)" }}>Significant (α=0.05)</span>
+                  <span style={{ fontSize: "0.72rem", color: "var(--accent-warning)" }}>Exploratory (not replicated in Study 2)</span>
                 </td>
               </tr>
             </tbody>
@@ -254,7 +396,7 @@ export function OverviewView({ data }) {
         <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", background: "var(--bg-subtle)", padding: "12px 14px", borderRadius: "var(--radius-md)", fontSize: "0.78rem", color: "var(--text-muted)" }}>
           <Info size={16} color="var(--brand-blue)" style={{ flexShrink: 0, marginTop: "2px" }} />
           <span>
-            <strong>What the data show:</strong> While Leave-One-Institution-Out (LOIO) cross-validation prevents train-test site overlap, LOIO still lets site affect scores because demographic distributions, base rates, and scanner characteristics vary across institutions. In Config 1 ({siteConfoundData.config1_153.n_subjects} subjects), site identity alone predicts diagnosis with an in-sample ROC-AUC of {siteConfoundData.config1_153.site_only_insample_auc.toFixed(4)} because OHSU and Pittsburgh contain zero ADHD cases in this release. Under LOIO evaluation, functional connectivity drops to near-chance (AUC {siteConfoundData.config1_153.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config1_153.loio_connectivity_only.roc_auc_ci.join(", ")}]), which non-parametric permutation testing confirms is not statistically significant (p = {siteConfoundData.config1_153.loio_connectivity_only.p_value.toFixed(4)}). The {siteConfoundData.config2_118.n_subjects}-subject subset (Config 2, excluding zero-ADHD sites) was chosen after the full cohort showed no signal (exploratory). In this clean subset, demographic covariates reach LOIO AUC {siteConfoundData.config2_118.covariates_only_baseline.loio_auc.toFixed(4)} (followup_study: nested model selection on age+sex, LOIO AUC 0.5976) and {finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "0.5857"} (final_candidate: fixed logistic regression, LOIO AUC 0.5857). Connectivity achieves LOIO AUC {siteConfoundData.config2_118.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config2_118.loio_connectivity_only.roc_auc_ci.join(", ")}] (p = {siteConfoundData.config2_118.loio_connectivity_only.p_value.toFixed(3)}). Adding age and sex to connectivity yields LOIO AUC {siteConfoundData.config2_118.loio_connectivity_plus_covariates.roc_auc.toFixed(4)}, showing that connectivity offers marginal increment over demographic covariates. The difference between connectivity and age/sex alone was not statistically tested.
+            <strong>What the data show (Study 1 — Exploratory, Not Replicated):</strong> While Leave-One-Institution-Out (LOIO) cross-validation prevents train-test site overlap, LOIO still lets site affect scores because demographic distributions, base rates, and scanner characteristics vary across institutions. In Config 1 ({siteConfoundData.config1_153.n_subjects} subjects), site identity alone predicts diagnosis with an in-sample ROC-AUC of {siteConfoundData.config1_153.site_only_insample_auc.toFixed(4)} because OHSU and Pittsburgh contain zero ADHD cases in this release. Under LOIO evaluation, functional connectivity drops to near-chance (AUC {siteConfoundData.config1_153.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config1_153.loio_connectivity_only.roc_auc_ci.join(", ")}]), which non-parametric permutation testing confirms is not statistically significant (p = {siteConfoundData.config1_153.loio_connectivity_only.p_value.toFixed(4)}). The {siteConfoundData.config2_118.n_subjects}-subject subset (Config 2, excluding zero-ADHD sites) was chosen post-hoc after the full cohort showed no signal. In this exploratory subset, demographic covariates reach LOIO AUC {siteConfoundData.config2_118.covariates_only_baseline.loio_auc.toFixed(4)} (followup_study) and {finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "N/A"} (final_candidate), while connectivity reaches LOIO AUC {siteConfoundData.config2_118.loio_connectivity_only.roc_auc.toFixed(4)} [{siteConfoundData.config2_118.loio_connectivity_only.roc_auc_ci.join(", ")}] (p = {siteConfoundData.config2_118.loio_connectivity_only.p_value.toFixed(3)}). That exploratory Study 1 LOIO AUC was not replicated in Study 2 (primary LOIO AUC {study2Data.development_primary.fmri_auc_display}, p_perm = {study2Data.development_primary.p_perm_display}; sealed NYU {study2Data.sealed_nyu_primary.fmri_auc_display} {study2Data.sealed_nyu_primary.fmri_ci_95_exact_display}).
           </span>
         </div>
       </div>
@@ -265,7 +407,7 @@ export function OverviewView({ data }) {
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <BarChart3 size={18} color="var(--brand-blue)" />
             <h3 style={{ fontSize: "1rem", fontWeight: "700", color: "var(--text-primary)" }}>
-              Apples-to-Apples Model Comparison (118-Subject Clean Cohort)
+              Study 1 Exploratory Model Comparison (118-Subject Clean Cohort — Not Replicated in Study 2)
             </h3>
           </div>
           <span style={{ fontSize: "0.75rem", background: "var(--bg-subtle)", padding: "4px 8px", borderRadius: "4px", color: "var(--text-muted)", fontWeight: "500" }}>

@@ -1,6 +1,7 @@
 import React from "react";
-import { AlertTriangle, ShieldAlert, Cpu, Scale, HelpCircle, FileWarning } from "lucide-react";
+import { AlertTriangle, ShieldAlert, Cpu, Scale, HelpCircle, FileWarning, ClipboardCheck, Lock } from "lucide-react";
 import siteConfoundData from "../data/siteConfoundData.json";
+import study2Data from "../data/study2Data.json";
 
 export function LimitationsView({ data }) {
   const c1 = siteConfoundData?.config1_153;
@@ -31,13 +32,34 @@ export function LimitationsView({ data }) {
   const c2ConnCi = c2?.loio_connectivity_only?.roc_auc_ci ? `[${c2.loio_connectivity_only.roc_auc_ci.join(", ")}]` : "N/A";
   const c2PVal = c2?.loio_connectivity_only?.p_value != null ? `p = ${c2.loio_connectivity_only.p_value.toFixed(3)}` : "N/A";
 
-  const siteDesc = `In multi-site resting-state fMRI, random k-fold CV can inflate performance estimates by allowing models to exploit site-correlated demographic and scanner distributions. While Leave-One-Institution-Out (LOIO) cross-validation avoids train-test site overlap, LOIO still lets site affect scores through differences in demographic profiles, acquisition protocols, and scanner baselines. What the data show: in the full ${c1N}-subject cohort (Config 1), OHSU and Pittsburgh contain exclusively typically developing controls with zero ADHD cases, enabling site identity alone to reach an in-sample ROC-AUC of ${c1SiteAuc}. Under LOIO CV, functional connectivity drops to near-chance (LOIO AUC ${c1ConnAuc} ${c1ConnCi}, permutation ${c1PVal}). The ${c2N}-subject subset (Config 2) was chosen after the full cohort showed no signal (exploratory). Within this clean subset, demographic covariates (age and sex alone) reach LOIO AUC ${c2CovAuc} ${c2CovCi}, while connectivity achieves ${c2ConnAuc} ${c2ConnCi}, ${c2PVal}. The difference between connectivity and age/sex alone was not statistically tested.`;
+  const s2DevPrim = study2Data.development_primary;
+  const s2DevSens = study2Data.development_sensitivity;
+  const s2SealedPrim = study2Data.sealed_nyu_primary;
+  const s2SealedSens = study2Data.sealed_nyu_sensitivity;
+
+  const siteDesc = `In multi-site resting-state fMRI, random k-fold CV can inflate performance estimates by allowing models to exploit site-correlated demographic and scanner distributions. While Leave-One-Institution-Out (LOIO) cross-validation avoids train-test site overlap, LOIO still lets site affect scores through differences in demographic profiles, acquisition protocols, and scanner baselines. What the data show (Study 1): in the full ${c1N}-subject cohort (Config 1), OHSU and Pittsburgh contain exclusively typically developing controls with zero ADHD cases, enabling site identity alone to reach an in-sample ROC-AUC of ${c1SiteAuc}. Under LOIO CV, functional connectivity drops to near-chance (LOIO AUC ${c1ConnAuc} ${c1ConnCi}, permutation ${c1PVal}). The ${c2N}-subject subset (Config 2) was chosen post-hoc after the full cohort showed no signal (exploratory). Within this exploratory subset, demographic covariates (age and sex alone) reach LOIO AUC ${c2CovAuc} ${c2CovCi}, while connectivity reaches ${c2ConnAuc} ${c2ConnCi}, ${c2PVal}; that exploratory Study 1 LOIO result was not replicated in Study 2.`;
+
+  const study2Desc = `In the preregistered Study 2 replication attempt on Athena CC200 derivatives (${study2Data.preregistration.osf_primary_url}, commit ${study2Data.preregistration.commit_short}), development Section 8.1 criteria were not met in either the primary motion-filtered analysis (N=${s2DevPrim.n_scans}: fMRI LOIO AUC ${s2DevPrim.fmri_auc_display} ${s2DevPrim.fmri_ci_display}, p_perm = ${s2DevPrim.p_perm_display}; motion baseline ${s2DevPrim.motion_baseline_auc_display}; age/sex baseline ${s2DevPrim.age_sex_baseline_auc_display}) or the registered Section 5.4 no-exclusion sensitivity analysis (N=${s2DevSens.n_scans}: fMRI LOIO AUC ${s2DevSens.fmri_auc_display} ${s2DevSens.fmri_ci_display}, p_perm = ${s2DevSens.p_perm_display}; motion baseline ${s2DevSens.motion_baseline_auc_display}; age/sex baseline ${s2DevSens.age_sex_baseline_auc_display}). On the sealed NYU site, both the governing primary evaluation (N=${s2SealedPrim.n_scans}: ${s2SealedPrim.fmri_auc_display} ${s2SealedPrim.fmri_ci_95_exact_display}) and the sensitivity evaluation (N=${s2SealedSens.n_scans}: ${s2SealedSens.fmri_auc_display} ${s2SealedSens.fmri_ci_95_exact_display}) fell in the registered ${s2SealedPrim.outcome_zone_label}. Motion-only and age/sex baselines scored as high or higher than the fMRI pipeline across all four regimes.`;
+
+  const sealedUsedUpDesc = `${study2Data.preregistration.sealed_site_status} In addition, ${study2Data.prior_exposure.dev_overlap_subjects} Study 2 development subjects and ${study2Data.prior_exposure.nyu_overlap_subjects} NYU subjects overlapped with Study 1's C-PAC cohort where the locked pipeline's hyperparameters were chosen, so development LOIO estimates may be optimistic for those overlapping subjects and only the sealed NYU evaluation was close to independent. Only the OSF registrations are externally timestamped; the four freeze/results tags were pushed to origin after the sealed run.`;
 
   const p2Desc = `The held-out Peking_2 test set consists of only ${totalStr} subjects. At N=${totalStr}, each subject shifts accuracy by ${singleSubjectEffect}. The Wilson 95% confidence interval for ${countStr} accuracy spans ${testAccCiStr}, and the stratified bootstrap 95% CI for test ROC-AUC spans ${testAucCiStr}. Because 50% chance lies comfortably within both intervals, the test accuracy of ${testAcc} is not statistically distinguishable from chance (binomial p ≈ 0.25).`;
 
   const limitations = [
     {
-      title: "Site Confounding & Post-Hoc Clean Cohort Selection",
+      title: "Study 2 Preregistered Replication Outcome (Section 8.1 Not Met; Sealed NYU Inconclusive)",
+      desc: study2Desc,
+      icon: ClipboardCheck,
+      color: "var(--accent-danger)"
+    },
+    {
+      title: "Sealed Set Used Up & Prior Study 1 Subject Overlap",
+      desc: sealedUsedUpDesc,
+      icon: Lock,
+      color: "var(--accent-warning)"
+    },
+    {
+      title: "Site Confounding & Exploratory Study 1 Clean Cohort (Not Replicated)",
       desc: siteDesc,
       icon: ShieldAlert,
       color: "var(--accent-danger)"
