@@ -1,0 +1,170 @@
+{
+  "source_files": [
+    "docs/study2/DEV_RESULTS_2026-11-18.md",
+    "docs/study2/SEALED_RESULTS_2026-11-18.md",
+    "docs/study2/OSF_RECORD.md",
+    "docs/study2/PREREGISTRATION.md"
+  ],
+  "preregistration": {
+    "osf_primary_url": "https://osf.io/grbt2",
+    "osf_open_ended_url": "https://osf.io/db7nv",
+    "commit_sha": "2d7ed3b3be3780c0b8a5b3de7d3c786bb77df19e",
+    "commit_short": "2d7ed3b",
+    "protocol_sha256": "e227005c1386dddef3d8b265579f293483769c249cccf31d1cf7f8ec8e09e7ec",
+    "sealed_site_status": "Sealed NYU site has been scored once and is used up; any further modeling is exploratory."
+  },
+  "prior_exposure": {
+    "dev_overlap_subjects": 126,
+    "nyu_overlap_subjects": 6
+  },
+  "development_primary": {
+    "n_scans": 368,
+    "fmri_auc": 0.524134,
+    "fmri_auc_display": "0.5241",
+    "fmri_ci_95": [
+      0.4691,
+      0.5797
+    ],
+    "fmri_ci_display": "[0.4691, 0.5797]",
+    "p_perm": 0.2298,
+    "p_perm_display": "0.2298",
+    "motion_baseline_auc": 0.603812,
+    "motion_baseline_auc_display": "0.6038",
+    "motion_baseline_ci_95": [
+      0.5508,
+      0.6585
+    ],
+    "motion_baseline_ci_display": "[0.5508, 0.6585]",
+    "age_sex_baseline_auc": 0.616273,
+    "age_sex_baseline_auc_display": "0.6163",
+    "age_sex_baseline_ci_95": [
+      0.565,
+      0.6672
+    ],
+    "age_sex_baseline_ci_display": "[0.5650, 0.6672]",
+    "delta_vs_motion": -0.079679,
+    "delta_vs_motion_display": "-0.0797",
+    "delta_vs_motion_ci_95": [
+      -0.152,
+      -0.0099
+    ],
+    "delta_vs_motion_ci_display": "[-0.1520, -0.0099]",
+    "delta_vs_age_sex": -0.092139,
+    "delta_vs_age_sex_display": "-0.0921",
+    "delta_vs_age_sex_ci_95": [
+      -0.1649,
+      -0.0169
+    ],
+    "delta_vs_age_sex_ci_display": "[-0.1649, -0.0169]",
+    "meets_section_8_1": false
+  },
+  "development_sensitivity": {
+    "n_scans": 404,
+    "fmri_auc": 0.574023,
+    "fmri_auc_display": "0.5740",
+    "fmri_ci_95": [
+      0.5243,
+      0.6243
+    ],
+    "fmri_ci_display": "[0.5243, 0.6243]",
+    "p_perm": 0.005,
+    "p_perm_display": "0.0050",
+    "motion_baseline_auc": 0.615805,
+    "motion_baseline_auc_display": "0.6158",
+    "motion_baseline_ci_95": [
+      0.567,
+      0.6644
+    ],
+    "motion_baseline_ci_display": "[0.5670, 0.6644]",
+    "age_sex_baseline_auc": 0.585667,
+    "age_sex_baseline_auc_display": "0.5857",
+    "age_sex_baseline_ci_95": [
+      0.5369,
+      0.6363
+    ],
+    "age_sex_baseline_ci_display": "[0.5369, 0.6363]",
+    "delta_vs_motion": -0.041781,
+    "delta_vs_motion_display": "-0.0418",
+    "delta_vs_motion_ci_95": [
+      -0.089,
+      0.0087
+    ],
+    "delta_vs_motion_ci_display": "[-0.0890, +0.0087]",
+    "delta_vs_age_sex": -0.011644,
+    "delta_vs_age_sex_display": "-0.0116",
+    "delta_vs_age_sex_ci_95": [
+      -0.0795,
+      0.0568
+    ],
+    "delta_vs_age_sex_ci_display": "[-0.0795, +0.0568]",
+    "meets_section_8_1": false
+  },
+  "sealed_nyu_attrition": {
+    "excluded_total": 20,
+    "excluded_tdc": 7,
+    "excluded_adhd": 13,
+    "fisher_p": 0.3568,
+    "fisher_p_display": "0.3568"
+  },
+  "sealed_nyu_primary": {
+    "n_scans": 196,
+    "n_tdc": 91,
+    "n_adhd": 105,
+    "fmri_auc": 0.576452,
+    "fmri_auc_display": "0.5765",
+    "fmri_ci_95_exact": [
+      0.496177,
+      0.656518
+    ],
+    "fmri_ci_95_exact_display": "[0.496177, 0.656518]",
+    "outcome_zone": "inconclusive",
+    "outcome_zone_label": "Inconclusive Zone",
+    "motion_baseline_auc": 0.606907,
+    "motion_baseline_auc_display": "0.6069",
+    "motion_baseline_ci_95_exact": [
+      0.527556,
+      0.680484
+    ],
+    "motion_baseline_ci_95_exact_display": "[0.527556, 0.680484]",
+    "age_sex_baseline_auc": 0.580638,
+    "age_sex_baseline_auc_display": "0.5806",
+    "age_sex_baseline_ci_95_exact": [
+      0.500044,
+      0.659267
+    ],
+    "age_sex_baseline_ci_95_exact_display": "[0.500044, 0.659267]"
+  },
+  "sealed_nyu_sensitivity": {
+    "n_scans": 216,
+    "n_tdc": 98,
+    "n_adhd": 118,
+    "fmri_auc": 0.576963,
+    "fmri_auc_display": "0.5770",
+    "fmri_ci_95_exact": [
+      0.499996,
+      0.652819
+    ],
+    "fmri_ci_95_exact_display": "[0.499996, 0.652819]",
+    "outcome_zone": "inconclusive",
+    "outcome_zone_label": "Inconclusive Zone",
+    "motion_baseline_auc": 0.607575,
+    "motion_baseline_auc_display": "0.6076",
+    "motion_baseline_ci_95_exact": [
+      0.533531,
+      0.682467
+    ],
+    "motion_baseline_ci_95_exact_display": "[0.533531, 0.682467]",
+    "age_sex_baseline_auc": 0.615012,
+    "age_sex_baseline_auc_display": "0.6150",
+    "age_sex_baseline_ci_95_exact": [
+      0.536651,
+      0.692775
+    ],
+    "age_sex_baseline_ci_95_exact_display": "[0.536651, 0.692775]"
+  },
+  "section_8_2_inconclusive_zone": {
+    "condition": "Point estimate $> 0.50$, but 95% bootstrap CI lower bound $\\le 0.50$",
+    "conclusion": "**Results are statistically ambiguous.** While a positive discrimination point estimate is observed, the confidence interval spans chance ($0.50$). Due to the sample size constraint (the 95% CI half-width is approximately $\\pm 0.07$ at $N \\approx 216$), statistical power is insufficient to confirm discrimination, and external validity cannot be claimed.",
+    "conclusion_plain": "Results are statistically ambiguous. While a positive discrimination point estimate is observed, the confidence interval spans chance (0.50). Due to the sample size constraint (the 95% CI half-width is approximately \u00b10.07 at N \u2248 216), statistical power is insufficient to confirm discrimination, and external validity cannot be claimed."
+  }
+}
