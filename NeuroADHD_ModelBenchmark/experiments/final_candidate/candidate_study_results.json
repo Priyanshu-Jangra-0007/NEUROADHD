@@ -1943,6 +1943,6 @@
   "final_model_refit": {
     "winner_name": "Ensemble_Top3",
     "winner_auc": 0.6167647058823529,
-    "pipeline_path": "/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/final_candidate_pipeline.joblib"
+    "pipeline_path": "<repo>/NeuroADHD_ModelBenchmark/experiments/final_candidate/final_candidate_pipeline.joblib"
   }
 }

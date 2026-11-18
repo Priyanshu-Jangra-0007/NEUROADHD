@@ -88,7 +88,7 @@ Because the unweighted models suffered from severe majority-class bias (failing 
 ### 12. Which exact file contains my training dataset?
 **Answer:**  
 The authoritative feature table is:  
-`/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD/data/adhd200/features/cc200/cc200_connectivity_features.csv`  
+`<repo>/NeuroADHD/data/adhd200/features/cc200/cc200_connectivity_features.csv`  
 (153 rows, 19,903 columns: 2 metadata columns, 19,900 Fisher-$z$ connectivity features, and 1 binary `diagnosis` target column).
 
 ### 13. Which exact script trains my model?

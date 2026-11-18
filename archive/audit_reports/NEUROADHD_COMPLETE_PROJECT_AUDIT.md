@@ -27,7 +27,7 @@
 
 ## EXECUTIVE SUMMARY & AUDIT DECLARATION
 
-This report constitutes an exhaustive, evidence-based audit of the **NeuroADHD** machine learning and neuroimaging ecosystem. Every statement, metric, file path, and architectural claim within this document has been independently verified against the physical source code, serialized model artifacts, dataset manifests, execution logs, and JSON benchmark reports present within the workspace `/Users/apple/Documents/Codex/2026-09-29/down`.
+This report constitutes an exhaustive, evidence-based audit of the **NeuroADHD** machine learning and neuroimaging ecosystem. Every statement, metric, file path, and architectural claim within this document has been independently verified against the physical source code, serialized model artifacts, dataset manifests, execution logs, and JSON benchmark reports present within the workspace `<repo>`.
 
 ### Audit Status Classifications
 In accordance with strict scientific evaluation standards, all repository findings are classified under one of four unambiguous evidentiary statuses:
@@ -177,7 +177,7 @@ flowchart TD
 
 ## PART 2 — COMPLETE REPOSITORY INVENTORY
 
-Below is an exhaustive inventory of every directory and subsystem located within `/Users/apple/Documents/Codex/2026-09-29/down`:
+Below is an exhaustive inventory of every directory and subsystem located within `<repo>`:
 
 ### 2.1 Subsystem Audits
 
@@ -247,7 +247,7 @@ Below is an exhaustive inventory of every directory and subsystem located within
 ### 2.2 Complete Repository Directory Tree
 
 ```
-/Users/apple/Documents/Codex/2026-09-29/down/
+<repo>/
 ├── ADHD200_Official/
 │   ├── docs/
 │   │   ├── ADHD200_dataset_audit.html

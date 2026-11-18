@@ -268,7 +268,7 @@ Implemented in `NeuroADHD_ModelBenchmark/scripts/run_ensemble_experiment.py` (36
 ## PART 6 — FINAL MODEL DEEP INSPECTION
 
 The authoritative final model artifacts were generated during `run_20261004_182318_final_locked` on 2026-10-04 at 18:23:20 UTC and are stored under:
-`/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/results/final_locked/`
+`<repo>/NeuroADHD_ModelBenchmark/results/final_locked/`
 
 ### 6.1 Artifact Inventory & Physical File Properties
 

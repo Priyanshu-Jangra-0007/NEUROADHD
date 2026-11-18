@@ -88,7 +88,7 @@ Both primary validation schemes evaluate generalization without data leakage:
 
 ### 6. Refitted Final Model Artifact
 - **Global Winner (Inner 3-Fold Selection on All 118 Subjects)**: `Ensemble_Top3` (Inner CV AUC: 0.6168)
-- **Persisted Artifact**: [`final_candidate_pipeline.joblib`](/Users/apple/Documents/Codex/2026-09-29/down/NeuroADHD_ModelBenchmark/experiments/final_candidate/final_candidate_pipeline.joblib)
+- **Persisted Artifact**: [`final_candidate_pipeline.joblib`](<repo>/NeuroADHD_ModelBenchmark/experiments/final_candidate/final_candidate_pipeline.joblib)
 - **Verification**: Leakage unit tests in `test_candidate_leakage.py` passed with 0 failures.
 
 
