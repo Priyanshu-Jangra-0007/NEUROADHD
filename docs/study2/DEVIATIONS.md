@@ -25,7 +25,7 @@ To preserve prospective analytical discipline while resolving the availability o
   1. Stop AFNI `rp_*.1D` extraction and report exact site counts.
   2. Compute Power et al. (2012) FD (50 mm sphere radius) from the staged Neuro Bureau NIAK `motion_parameters_*.mat` $4 \times 4 \times T$ rigid-body transformation matrices with the **first 3 frames removed** (aligning length $T_{\text{NIAK}} - 3 = T_{\text{CC200}}$ across all 404 development scans).
   3. Explicitly label this substitution as a **protocol deviation** in all downstream Study 2 reports and manuscripts.
-  4. Elevate the pre-registered **no-exclusion analysis** (retaining all scans without FD-based exclusion) to a **co-primary sensitivity analysis** alongside the FD-filtered analysis.
+  4. Report the pre-registered **no-exclusion analysis** ($N = 404$, retaining all scans without FD-based exclusion) as the registered **Section 5.4 sensitivity analysis** alongside the **primary analysis** (pooled LOIO AUC at $N = 368$ after the registered Section 5.3 primary exclusion rule; Section 7.1's $N = 404$ is the preliminary pre-exclusion count from Section 4.2). *(Wording updated 2026-11-18 prior to any real-label analysis; see Section 4.1.)*
 
 ---
 
@@ -41,7 +41,7 @@ To preserve prospective analytical discipline while resolving the availability o
 
 ### 3.1. Activation of Fallback Branch (b)
 - All six development `<Site>_preproc_xfms.tar` archives contained FSL FNIRT structural-to-template warp fields only (`0 / 404` AFNI `rp_*.1D` traces; commit `08f87fe`).
-- Per Section 1 above, **Branch (b)** was activated: NIAK-derived Power et al. (2012) FD with the first 3 frames removed, labelled a protocol deviation, with no-exclusion elevated to a co-primary sensitivity analysis.
+- Per Section 1 above, **Branch (b)** was activated: NIAK-derived Power et al. (2012) FD with the first 3 frames removed, labelled a protocol deviation, with the primary analysis being pooled LOIO AUC at $N = 368$ after the registered Section 5.3 primary exclusion rule and the no-exclusion analysis at $N = 404$ being the registered Section 5.4 sensitivity analysis.
 
 ### 3.2. FD Calculator Correction: NIfTI Volume-Centre Conjugation (Pre-Label-Join)
 - **Discovery (Strictly Label-Free):** During label-free validation of NIAK-derived motion against the official Athena `*_motion.csv` extrema ([`NIAK_VS_ATHENA_MOTION_VALIDATION.md`](NIAK_VS_ATHENA_MOTION_VALIDATION.md)), executed **before any diagnosis labels were joined**, naive extraction of world-origin translation `transf[:3, 3]` exhibited a severe translation discrepancy on NeuroIMAGE ($\rho = 0.5339$, median ratio $= 1.4619$).
@@ -52,11 +52,40 @@ To preserve prospective analytical discipline while resolving the availability o
 
 ### 3.3. NeuroIMAGE Registration-Failure Scan (~86° NIAK Divergence)
 - One NeuroIMAGE development scan exhibits a NIAK `minctracc` registration failure ($\max |\theta| = 85.98^\circ$ on 203 of 258 retained frames vs. $7.34^\circ$ in Athena `NeuroIMAGE_motion.csv`).
-- **Pre-Specified Disposition (No Ad-Hoc Removal):** This scan is **excluded under the primary motion rule** ($N = 368$, automatically exceeding both primary thresholds) and **retained in the co-primary no-exclusion analysis** ($N = 404$).
+- **Pre-Specified Disposition (No Ad-Hoc Removal):** This scan is **excluded under the primary motion rule** ($N = 368$, automatically exceeding both primary thresholds) and **retained in the registered Section 5.4 no-exclusion sensitivity analysis** ($N = 404$).
 
 ### 3.4. Strict Motion Threshold (`>0.20 mm` OR `>10%` Frames) — Descriptive Only
 - Under the strict sensitivity threshold, **3 of 4 LOIO institution folds drop below 15 subjects per class** (`KKI`: ADHD $= 2$; `NeuroIMAGE`: TDC $= 11$, ADHD $= 8$; `OHSU`: TDC $= 13$, ADHD $= 6$; see [`COHORT_COUNTS_2026-11-18.md`](COHORT_COUNTS_2026-11-18.md)).
 - **Protocol Deviation Decision:** The strict threshold is retained for **descriptive attrition reporting only** and is **not run as a LOIO classification model**.
 
 ### 3.5. Unified Development ROI Set Definition
-- The valid CC200 ROI set is defined **once** across **all 404 development scans** (requiring finite, non-zero temporal variance in 100% of all 404 development scans), and that exact frozen ROI set is used identically by both the primary ($N = 368$) and co-primary no-exclusion ($N = 404$) analyses.
+- The valid CC200 ROI set is defined **once** across **all 404 development scans** (requiring finite, non-zero temporal variance in 100% of all 404 development scans), and that exact frozen ROI set is used identically by both the primary analysis ($N = 368$) and the registered Section 5.4 no-exclusion sensitivity analysis ($N = 404$).
+
+---
+
+## 4. Dated Wording Fix & Clarifications — 2026-11-18 (Pre-Real-Label Analysis)
+
+### 4.1. Wording Fix: Primary Analysis vs. Section 5.4 Sensitivity Analysis
+- **Wording Correction (Fixed Before Any Real-Label Analysis):** Earlier wording in `DEVIATIONS.md` (commit `ac517ce`) described the no-exclusion analysis as "co-primary." That wording is corrected here without rewriting Git history and **strictly before any real-label analysis has been run**:
+  - The **primary analysis** is **pooled LOIO ROC-AUC at $N = 368$** after applying the registered primary motion exclusion rule (`PREREGISTRATION.md`, Section 5.3).
+  - The **no-exclusion analysis at $N = 404$** is the registered **Section 5.4 sensitivity analysis** (`PREREGISTRATION.md`, Section 5.4).
+  - The figure $N = 404$ cited in `PREREGISTRATION.md` Section 7.1 is the **preliminary pre-exclusion count** from Section 4.2.
+
+### 4.2. Clarifications, Not Deviations (2026-11-18)
+The following implementation details clarify operational choices that conform to `PREREGISTRATION.md` and are **not protocol deviations**:
+
+- **(a) Pearson $r$ Clipping Before Fisher $z$:** Off-diagonal Pearson correlations are clipped to `[-1 + 1e-7, 1 - 1e-7]` (`FISHER_CLIP_EPS = 1e-7` in `scripts/extract_study2_dev_features.py`) prior to $\operatorname{arctanh}(r)$ strictly for numerical stability to prevent $\pm\infty$ if $|r| = 1$.
+- **(b) Why 190 ROIs Are Kept When `.1D` Headers Span `Mean_1..Mean_200`:** Direct inspection of the official Athena atlas mask inside `ADHD200_CC200_TCs_filtfix.tar.gz` (`templates/ADHD200_parcellate_200.nii.gz`, dimensions $49 \times 58 \times 47$) confirms it contains exactly **190 populated non-zero integer ROI labels** spanning `[1, 200]` — **10 cluster IDs** (`2, 5, 11, 25, 34, 68, 82, 95, 126, 191`) have 0 voxels in Craddock's 200-cluster normalized-cut parcellation and are absent from `3dROIstats` output. Consequently, every `.1D` file has **192 columns** (`File`, `Sub-brick`, plus **190** `Mean_<id>` columns), and **190 / 190** ROIs are kept (**0 dropped**), yielding $P = 190 \times 189 / 2 = 17,955$ upper-triangle edges.
+- **(c) Equivalence of the ROI Set Across $N = 404$ and $N = 368$:** The valid ROI set was defined from all **404** development scans (finite, $\text{std} > 0$ in 100% of scans; minimum temporal $\text{std} = 0.004031 > 0$). Because **0 ROIs were dropped** across all 404 scans, the resulting 190-ROI set is **mathematically identical** to the ROI set obtained on the $N = 368$ primary subset.
+- **(d) Exact Definition of "Max Displacement" Used by the Scripts (Quoted Verbatim from Code):**
+  In `scripts/compute_athena_fd.py` (lines 292–294), computed from the volume-centered, first-3-frames-dropped NIAK translations `params[:, 3:6]` (mm):
+  ```python
+  # Relative translation from first retained frame (Euclidean mm)
+  rel_trans = params[:, 3:6] - params[0, 3:6]
+  max_disp_mm = float(np.max(np.linalg.norm(rel_trans, axis=1)))
+  ```
+  And passed as the second feature of `motion_X` (`[mean_fd_mm, max_disp_mm]`) in `scripts/extract_study2_dev_features.py` (lines 257–258):
+  ```python
+  motion_X[idx, 0] = float(m_row["mean_fd_mm"])
+  motion_X[idx, 1] = float(m_row["max_disp_mm"])
+  ```
