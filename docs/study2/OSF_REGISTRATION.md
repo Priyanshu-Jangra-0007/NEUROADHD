@@ -17,16 +17,16 @@ Two public registrations were recorded on OSF Registries on 2026-11-17 to provid
 * **Registration Type:** OSF Preregistration
 * **Scope:** Contains the complete, binding research plan: formal hypotheses, sampling strategy, four-step preprocessing pipeline, locked Random Forest estimator (`50` trees, depth `3`, `balanced`), sealed-institution rule, within-institution permutation testing ($B = 1,000$), secondary $\Delta\text{AUC}$ endpoint, statistical power caveat ($18\%$ at $N = 404$, $26\%$ at $N = 620$ for true $\Delta\text{AUC} = +0.04$), and pre-defined interpretive outcome zones.
 * **Status:** Public
-* **Date Registered:** 2026-11-17 (shown as 8:28 PM local time on OSF)
+* **Date Registered:** 2026-11-17 14:58 UTC (shown as 8:28 PM IST / UTC+05:30 local time on OSF; registered 2 minutes after `db7nv`)
 * **License:** CC0 1.0 Universal
 
-### Secondary Registration (Supplementary Hashes & Descriptor)
+### Secondary ("Duplicate") Registration (Registered First — Supplementary Hashes & Descriptor)
 * **URL:** [https://osf.io/db7nv](https://osf.io/db7nv)
 * **DOI:** [10.17605/OSF.IO/DB7NV](https://doi.org/10.17605/OSF.IO/DB7NV)
 * **Registration Type:** Open-Ended Registration
 * **Scope:** Supplementary registration recording repository description, cryptographic hashes, and provenance metadata. The substantive research protocol is housed in the primary registration (`grbt2`).
 * **Status:** Public
-* **Date Registered:** 2026-11-17 (shown as 2:56 PM / 14:56 UTC on OSF)
+* **Date Registered:** 2026-11-17 14:56 UTC (registered first, 2 minutes before `grbt2`)
 * **License:** CC0 1.0 Universal
 
 ---
@@ -47,9 +47,10 @@ Two public registrations were recorded on OSF Registries on 2026-11-17 to provid
 
 To uphold strict scientific transparency, the following prior exposures to ADHD-200 metadata and derivatives were formally declared on OSF:
 1. **Phenotype Tables:** Per-site diagnostic counts (TDC vs. ADHD) from public ADHD-200 phenotype summary tables were reviewed during study design to verify institutional class balance and establish the pre-registered exclusion rule for single-class sites (e.g., WashU and Pittsburgh).
-2. **Historical C-PAC Exploration (Study 1):** Six subjects from the candidate sealed site (NYU) and fourteen controls from OHSU were included in the exploratory 153-subject C-PAC cohort during preliminary Study 1 development.
-3. **Foreknowledge Declaration:** The OSF declaration option was formally recorded as:
+2. **Historical C-PAC Exploration (Study 1 — 126 Development Subjects + 6 NYU Subjects):** **126 development subjects** (KKI 24, NeuroIMAGE 19, Peking 69, 14 OHSU controls) plus 6 subjects from the candidate sealed site (NYU) were included in the exploratory 153-subject C-PAC cohort during Study 1, where the locked pipeline's hyperparameters were chosen.
+3. **Foreknowledge Declaration (Clarification Added 2026-11-18):** The OSF declaration option was recorded as:
    > *"Authors' limited observation of the data could not influence their analysis decisions."*
+   - **Clarification (see [`OSF_RECORD.md`](OSF_RECORD.md)):** That prior-observation option **understates** the overlap: 126 development subjects (KKI 24, NeuroIMAGE 19, Peking 69, 14 OHSU controls) were also in Study 1, where the locked pipeline's hyperparameters were chosen.
 
 ---
 
