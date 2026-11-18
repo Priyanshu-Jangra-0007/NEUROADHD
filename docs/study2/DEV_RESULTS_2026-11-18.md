@@ -17,10 +17,11 @@
 
 - **Command Executed (Once, Locked Defaults):** `PYTHONPATH=. ./NeuroADHD/.venv/bin/python scripts/run_study2_dev_analysis.py --execute-real-dev`
 - **Exit Code:** `0` (zero errors, zero retries)
-- **Results JSON (`NeuroADHD/data/athena/results/study2_dev_results.json`) SHA-256:**  
+- **Results JSON (`NeuroADHD/data/athena/results/study2_dev_results.json`, 4,225 bytes) SHA-256:**  
   `6d072448bf6573cd7f6e0bd65c0b6a141bc2cf60f2ea0e4a69bcc504918dc0d5`
-- **Run Log (`NeuroADHD/data/athena/results/study2_dev_run.log`) SHA-256:**  
+- **Run Log (`NeuroADHD/data/athena/results/study2_dev_run.log`, 4,225 bytes) SHA-256:**  
   `6d072448bf6573cd7f6e0bd65c0b6a141bc2cf60f2ea0e4a69bcc504918dc0d5`
+- **File Distinction Note (Verified 2026-11-18):** `study2_dev_results.json` and `study2_dev_run.log` are two separate files (distinct inodes); their hashes match because `scripts/run_study2_dev_analysis.py` wrote the JSON text plus newline to the JSON file and printed the same JSON text to stdout with zero stderr output.
 
 ---
 
@@ -81,3 +82,11 @@ Cohort: 404 scans (`KKI`: 83 [61 TDC / 22 ADHD], `NeuroIMAGE`: 48 [23 / 25], `OH
 - **Criterion 1** ($p_{\text{perm}} < 0.05$): **MET** (`0.0050 < 0.05`).
 - **Criterion 2** ($\text{CI}_{95\%,\text{lo}}[\Delta\text{AUC}_{\text{motion}}] > 0$): **NOT MET** (`-0.0890 <= 0`).
 - **Combined Section 8.1 Criterion:** **NOT MET** (`meets_dev_success_criteria = False`).
+
+---
+
+## 4. Reading Under the Registered Rules (2026-11-18)
+
+- **Primary Analysis ($N = 368$, Registered Section 5.3 Exclusion):** Pooled LOIO ROC-AUC is `0.5241` (95% CI `[0.4691, 0.5797]`), within-institution permutation $p_{\text{perm}} = 0.2298$ (not $< 0.05$), and $\Delta\text{AUC}_{\text{motion}} = -0.0797$ (95% CI `[-0.1520, -0.0099]`, lower bound not $> 0$). Neither Section 8.1 criterion is met.
+- **Sensitivity Analysis ($N = 404$, Registered Section 5.4 No-Exclusion Analysis):** Pooled LOIO ROC-AUC is `0.5740` (95% CI `[0.5243, 0.6243]`) with $p_{\text{perm}} = 0.0050$ ($< 0.05$), while motion-only baseline AUC (`0.6158`) exceeds fMRI AUC (`0.5740`), yielding $\Delta\text{AUC}_{\text{motion}} = -0.0418$ (95% CI `[-0.0890, +0.0087]`, lower bound not $> 0$). Section 8.1 criterion 2 is not met, so combined Section 8.1 criteria are not met.
+- **Protocol Conformance:** No parameters, seeds, features, ROI definitions, or model choices are modified in response to these development results.
