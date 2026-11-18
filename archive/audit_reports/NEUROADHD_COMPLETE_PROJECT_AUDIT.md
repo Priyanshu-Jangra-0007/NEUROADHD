@@ -108,7 +108,7 @@ flowchart TD
     subgraph S3["Phase 3: Phenotype Validation & Quality Control"]
         C1["Phenotypic Manifests (participants.tsv)"]
         C2["Status Mapping: 161 Total -> 154 Labeled<br>(7 Brown DX pending excluded)"]
-        C3["Zero-Variance Signal QC:<br>Subject 0015038 excluded (83 flat ROIs)"]
+        C3["Zero-Variance Signal QC:<br>Subject <ID> excluded (83 flat ROIs)"]
         C4["Final Validated Cohort:<br>153 Subjects (103 Control, 50 ADHD)"]
         B7 --> C3
         C1 --> C2 --> C4
@@ -231,7 +231,7 @@ Below is an exhaustive inventory of every directory and subsystem located within
 - **Key Directories:**
   - `manifests/`: Phenotypic dictionaries and site summaries.
   - `metadata/`: AWS S3 inventory records (`official_cc200_summary.json`, `official_s3_inventory.csv`, `cpac_existing153_s3_object_inventory.csv`).
-  - `reports/`: S3 availability reports and variant compatibility analysis (`8191384_variant_compatibility.md`).
+  - `reports/`: S3 availability reports and variant compatibility analysis (`<ID>_variant_compatibility.md`).
   - `experiments/raw_pilot_18/`: 18-subject raw fMRI pilot logs and QC reports.
   - `experiments/modern_pilot/`: Modern C-PAC 1.8.6 resource feasibility benchmark.
 - **Implementation Status:** 100% verified.
@@ -280,7 +280,7 @@ Below is an exhaustive inventory of every directory and subsystem located within
 │   │   ├── official_cc200_summary.json
 │   │   └── provenance.json
 │   └── reports/
-│       ├── 8191384_variant_compatibility.md
+│       ├── <ID>_variant_compatibility.md
 │       ├── cc200_availability_report.md
 │       └── raw_fmri_availability_report.md
 ├── NeuroADHD/
@@ -481,7 +481,7 @@ As verified in `ADHD200_Official/experiments/raw_pilot_18/pilot_report.md` and `
 ### 11.2 Single-Subject Prediction Endpoint (`POST /api/predict/subject`)
 - **Input Validation:** Enforces a $10\text{ MB}$ upload ceiling, verifies `.csv` extension, and validates that the uploaded file matches the CC200 schema (exactly 200 ROI rows, valid time series, non-constant variance).
 - **Execution:** Calls `NeuroADHD/src/inference/predict_subject.py` which loads `final_preprocessing_pipeline.joblib` and `final_model.joblib`.
-- **Sample Download Endpoint:** `GET /api/predict/sample` provides a verified resting-state scan (`1017176_session_1_roi_CC200.csv`) for testing.
+- **Sample Download Endpoint:** `GET /api/predict/sample` provides a verified resting-state scan (`<ID>_session_1_roi_CC200.csv`) for testing.
 - **Automated Verification:** All 8 integration tests in `NeuroADHD_ModelDashboard/backend/tests/test_api_predict.py` pass with $100\%$ success.
 
 ---
@@ -491,7 +491,7 @@ As verified in `ADHD200_Official/experiments/raw_pilot_18/pilot_report.md` and `
 | Category | Max Points | Awarded Score | Evidentiary Justification |
 | :--- | :---: | :---: | :--- |
 | **1. Research Problem & Methodology** | 10 | **9.0 / 10** | Excellent formulation of an objective neuroimaging biomarker problem; sound choice of resting-state fMRI and CC200 atlas to mitigate spatial curse of dimensionality. |
-| **2. Dataset Quality & Preparation** | 15 | **12.5 / 15** | Meticulous phenotype reconciliation (161 audited $\to$ 154 labeled $\to$ 153 extracted). Documented zero-variance exclusion of subject `0015038`. Deducted 2.5 points due to modest sample size ($N=153$) and unmodeled site demographic confounders. |
+| **2. Dataset Quality & Preparation** | 15 | **12.5 / 15** | Meticulous phenotype reconciliation (161 audited $\to$ 154 labeled $\to$ 153 extracted). Documented zero-variance exclusion of subject `<ID>`. Deducted 2.5 points due to modest sample size ($N=153$) and unmodeled site demographic confounders. |
 | **3. Neuroimaging Preprocessing & Features** | 15 | **11.0 / 15** | Mathematically rigorous Fisher-$z$ connectivity extraction ($19,900$ edges) with numerical epsilon clipping. Deducted 4.0 points because raw fMRI preprocessing from NIfTI is blocked and unreproducible locally. |
 | **4. Machine Learning Implementation** | 15 | **14.5 / 15** | Exemplary implementation of scikit-learn `Pipeline`. Completely leakage-safe fitting on training data only. Evaluated 7 distinct algorithms plus Soft Voting, Hard Voting, and Stacking. Deducted 0.5 points for hardcoded $K=100$ ANOVA in benchmark runs. |
 | **5. Model Performance & Generalization** | 20 | **12.0 / 20** | Rigorous evaluation on locked out-of-site test set (`Peking_2`). Balanced RF achieved $60\%$ accuracy and $60\%$ sensitivity (a $30\%$ sensitivity gain over baseline). However, absolute test ROC-AUC ($0.5600$) is modest, reflecting substantial cross-site scanner domain shift. |

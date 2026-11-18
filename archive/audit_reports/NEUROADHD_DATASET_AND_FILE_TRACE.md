@@ -35,7 +35,7 @@ This document provides a line-by-line, byte-verified audit tracing every input f
 [Phenotypic participants.tsv] ──► [cc200_subject_label_mapping.csv (154 Labeled)]
                                                                     │
                                                                     ▼
-                                                    [QC: Exclude 0015038 (83 flat ROIs)]
+                                                    [QC: Exclude <ID> (83 flat ROIs)]
                                                                     │
                                                                     ▼
                                              [extract_cc200_connectivity.py (153 Subjects)]
@@ -90,7 +90,7 @@ This document provides a line-by-line, byte-verified audit tracing every input f
 
 ### 2.1 Physical Storage of CC200 Derivatives
 - **Local Path:** `<repo>/NeuroADHD/data/adhd200/raw/cc200/`
-- **Total Sessions Downloaded:** Exactly **161 subject session directories** (e.g., `0010020_session_1/`, `1017176_session_1/`).
+- **Total Sessions Downloaded:** Exactly **161 subject session directories** (e.g., `<ID>_session_1/`, `<ID>_session_1/`).
 - **Per-Subject File:** Each directory contains exactly one `roi_CC200.csv` file.
 
 ### 2.2 Internal CSV Structure & Dimensionality
@@ -102,17 +102,17 @@ Inspected via `NeuroADHD/src/features/extract_cc200_connectivity.py` (`load_roi_
 - **Missing Data:** Zero empty cells, zero non-numeric tokens.
 
 ### 2.3 Quality Control & Subject Exclusion
-- **Excluded Subject:** Subject **`0015038`** (Session: `0015038_session_1`, Site: `WashU`).
+- **Excluded Subject:** Subject **`<ID>`** (Session: `<ID>_session_1`, Site: `WashU`).
 - **Exclusion Mechanism:** `extract_cc200_connectivity.py` lines 88–92 computes temporal standard deviation:
   ```python
   std = np.std(time_by_roi, axis=0, ddof=0)
   constant_count = int(np.count_nonzero(std == 0.0))
   ```
-- **Finding:** Subject `0015038` contained **83 constant (zero-variance) ROI time courses**, rendering Pearson correlation mathematically undefined ($\frac{0}{0}$).
+- **Finding:** Subject `<ID>` contained **83 constant (zero-variance) ROI time courses**, rendering Pearson correlation mathematically undefined ($\frac{0}{0}$).
 - **Audit Record:** Automatically logged to `NeuroADHD/data/adhd200/features/cc200/cc200_skipped_subjects.csv`:
   ```csv
   subject_id,reason,input
-  0015038,83 ROI time series are constant; Pearson correlations undefined,/Users/.../data/adhd200/raw/cc200/0015038_session_1/roi_CC200.csv
+  <ID>,83 ROI time series are constant; Pearson correlations undefined,/Users/.../data/adhd200/raw/cc200/<ID>_session_1/roi_CC200.csv
   ```
 
 ---
@@ -137,7 +137,7 @@ Located under `<repo>/NeuroADHD/data/adhd200/raw/phenotypes/`:
 - **Total Audited Subjects:** 161 entries.
 - **Status Counts:**
   - `matched_labeled`: **154 subjects**
-  - `missing_or_pending_diagnosis`: **7 subjects** (All 7 are Brown University subjects whose diagnostic status was pending/unreleased in the ADHD-200 release: subjects `0026001`, `0026002`, `0026004`, `0026005`, `0026009`, `0026014`, `0026015`).
+  - `missing_or_pending_diagnosis`: **7 subjects** (All 7 are Brown University subjects whose diagnostic status was pending/unreleased in the ADHD-200 release: subjects `<ID>`, `<ID>`, `<ID>`, `<ID>`, `<ID>`, `<ID>`, `<ID>`).
 - **Binary Diagnostic Encoding (DSM-IV / DSM-5):**
   - Raw Value `0` (Typically Developing Control) $\longrightarrow$ **Control (`0`)** ($N = 104$)
   - Raw Value `1` (ADHD-Combined) $\longrightarrow$ **ADHD (`1`)**

@@ -46,7 +46,7 @@ The **CC200 atlas** (Craddock et al., 2012) is a data-driven, whole-brain functi
 **Answer:**  
 Out of 161 downloaded preprocessed C-PAC subject sessions:
 - 7 Brown University subjects were excluded due to missing/pending diagnostic labels.
-- 1 WashU subject (`0015038`) was excluded during quality control due to 83 constant (zero-variance) ROI signals.
+- 1 WashU subject (`<ID>`) was excluded during quality control due to 83 constant (zero-variance) ROI signals.
 - The **final authoritative training/evaluation dataset contains exactly 153 subjects**: **103 Typically Developing Controls** ($67.3\%$) and **50 ADHD patients** ($32.7\%$).
 
 ### 6. How did I extract features?
@@ -181,9 +181,9 @@ Spontaneous neuronal oscillations underlying functional connectivity occur prima
 **Answer:**  
 The sampling distribution of Pearson's $r$ is non-normal and constrained to $[-1, 1]$, with variance $\sigma_r^2 \approx \frac{(1 - r^2)^2}{N}$. Applying the inverse hyperbolic tangent $z = \text{arctanh}(r) = \frac{1}{2} \ln \left(\frac{1+r}{1-r}\right)$ transforms the variable to the real line $(-\infty, \infty)$ with an approximately constant variance $\sigma_z^2 \approx \frac{1}{T - 3}$, fulfilling the Gaussian error assumptions of ANOVA and linear scaling.
 
-#### Q10: Why did subject `0015038` have to be excluded during extraction?
+#### Q10: Why did subject `<ID>` have to be excluded during extraction?
 **Answer:**  
-Subject `0015038` exhibited 83 constant ROI time series where the temporal standard deviation was exactly zero ($\sigma = 0$). In the denominator of Pearson's correlation, $\sigma_x \sigma_y = 0$, producing an indeterminate form $\frac{0}{0}$ ($NaN$). Excluding this subject preserved the integrity of the feature matrix.
+Subject `<ID>` exhibited 83 constant ROI time series where the temporal standard deviation was exactly zero ($\sigma = 0$). In the denominator of Pearson's correlation, $\sigma_x \sigma_y = 0$, producing an indeterminate form $\frac{0}{0}$ ($NaN$). Excluding this subject preserved the integrity of the feature matrix.
 
 ---
 
@@ -274,7 +274,7 @@ The dashboard implements a dual-mode data architecture. During build time, `comp
 
 #### Q28: How are patient privacy and HIPAA compliance maintained in your repository?
 **Answer:**  
-The ADHD-200 Consortium provides fully de-identified, anonymized research identifiers (e.g., `1017176`). No Protected Health Information (PHI)—such as patient names, birth dates, medical record numbers, or facial reconstructions—exists in the dataset. Furthermore, single-subject inference endpoints process files in ephemeral temporary directories that are immediately deleted post-inference.
+The ADHD-200 Consortium provides fully de-identified, anonymized research identifiers (e.g., `<ID>`). No Protected Health Information (PHI)—such as patient names, birth dates, medical record numbers, or facial reconstructions—exists in the dataset. Furthermore, single-subject inference endpoints process files in ephemeral temporary directories that are immediately deleted post-inference.
 
 #### Q29: What happens if a user uploads a raw NIfTI scan (.nii.gz) to your current web dashboard?
 **Answer:**  
