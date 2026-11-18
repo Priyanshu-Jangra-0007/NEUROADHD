@@ -18,8 +18,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import math
 import re
+import struct
 import tarfile
 from collections import defaultdict
 from pathlib import Path
@@ -38,6 +40,48 @@ DEV_NIAK_ARCHIVES = {
 
 HEAD_RADIUS_MM = 50.0
 DUMMY_FRAMES_DROPPED = 3
+
+
+def read_nifti_volume_center_world(nii_gz_bytes: bytes) -> np.ndarray:
+    """
+    Read a NIfTI-1 .nii.gz header and return the 3D world coordinate (mm) of the
+    volume geometric center [(nx-1)/2, (ny-1)/2, (nz-1)/2] via the sform affine.
+    """
+    raw = gzip.decompress(nii_gz_bytes)
+    if len(raw) < 348:
+        raise ValueError(f"Invalid NIfTI-1 header length: {len(raw)}")
+    dim = struct.unpack("<8h", raw[40:56])
+    nx, ny, nz = dim[1], dim[2], dim[3]
+    sform_code = struct.unpack("<h", raw[254:256])[0]
+    if sform_code <= 0:
+        raise ValueError(f"Expected positive sform_code in NIfTI header, got {sform_code}")
+    srow_x = struct.unpack("<4f", raw[280:296])
+    srow_y = struct.unpack("<4f", raw[296:312])
+    srow_z = struct.unpack("<4f", raw[312:328])
+    sform = np.array([srow_x, srow_y, srow_z, [0.0, 0.0, 0.0, 1.0]], dtype=np.float64)
+    center_vox = np.array([(nx - 1) / 2.0, (ny - 1) / 2.0, (nz - 1) / 2.0, 1.0], dtype=np.float64)
+    return (sform @ center_vox)[:3]
+
+
+def center_shift_transf(transf: np.ndarray, center_mm: np.ndarray) -> np.ndarray:
+    """
+    Conjugate a (4, 4, T) world-space affine series to the volume center c:
+        M_centered(t) = T(-c) @ M(t) @ T(+c)
+    This leaves rotation R(t) unchanged and extracts physical brain-center translation
+    t_center(t) = M(t) c - c, removing spurious (I - R) c lever-arm coupling when
+    the NIfTI world origin (0,0,0) does not coincide with the volume center.
+    """
+    if transf.ndim != 3 or transf.shape[:2] != (4, 4):
+        raise ValueError(f"Expected shape (4, 4, T), got {transf.shape}")
+    c = np.asarray(center_mm, dtype=np.float64).reshape(3)
+    t_pos = np.eye(4, dtype=np.float64)
+    t_pos[:3, 3] = c
+    t_neg = np.eye(4, dtype=np.float64)
+    t_neg[:3, 3] = -c
+    out = np.empty_like(transf, dtype=np.float64)
+    for t in range(transf.shape[2]):
+        out[:, :, t] = t_neg @ transf[:, :, t] @ t_pos
+    return out
 
 
 def parse_octave_transf_text(text: str) -> np.ndarray:
@@ -190,7 +234,19 @@ def compute_development_fd(
             raise FileNotFoundError(f"NIAK intermediate archive not found: {arc_path}")
 
         with tarfile.open(arc_path, "r") as tf:
-            for member in tf.getmembers():
+            members = tf.getmembers()
+            target_members: Dict[str, tarfile.TarInfo] = {}
+            for member in members:
+                if (
+                    member.isfile()
+                    and "motion_target" in member.name
+                    and member.name.endswith(".nii.gz")
+                ):
+                    t_match = re.search(r"X_(\d+)_session_1_run1", member.name)
+                    if t_match:
+                        target_members[t_match.group(1).lstrip("0") or "0"] = member
+
+            for member in members:
                 if not member.isfile():
                     continue
                 if "motion_parameters" not in member.name or not member.name.endswith(".mat"):
@@ -206,23 +262,29 @@ def compute_development_fd(
                 key = (inst_group, sub_norm)
                 if key not in cc200_dev:
                     continue
+                if sub_norm not in target_members:
+                    raise FileNotFoundError(
+                        f"Missing motion_target NIfTI for {inst_group} session_1_run1"
+                    )
 
                 exact_site, cc200_frames = cc200_dev[key]
+                t_stream = tf.extractfile(target_members[sub_norm])
                 stream = tf.extractfile(member)
-                if stream is None:
+                if stream is None or t_stream is None:
                     continue
+                center_world = read_nifti_volume_center_world(t_stream.read())
                 transf = parse_octave_transf_text(stream.read().decode("utf-8", errors="replace"))
                 n_raw = transf.shape[2]
 
                 if n_raw <= drop_frames:
                     raise ValueError(f"Too few frames ({n_raw}) to drop {drop_frames}")
 
-                transf_trimmed = transf[:, :, drop_frames:]
-                n_retained = transf_trimmed.shape[2]
+                transf_centered = center_shift_transf(transf[:, :, drop_frames:], center_world)
+                n_retained = transf_centered.shape[2]
                 if n_retained != cc200_frames:
                     frame_mismatches += 1
 
-                params = extract_6dof_params(transf_trimmed)
+                params = extract_6dof_params(transf_centered)
                 fd = compute_power_fd(params, radius_mm=HEAD_RADIUS_MM)
 
                 mean_fd = float(np.mean(fd))

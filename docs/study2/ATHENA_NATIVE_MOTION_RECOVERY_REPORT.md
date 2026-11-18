@@ -41,7 +41,7 @@ All six archives were moved cleanly from `/Users/apple/Downloads/NeuroAdhd NITRC
 ## 3. Development-Site Framewise Displacement Summary (Branch b — Protocol Deviation, No Diagnosis Labels)
 
 Computed via [`scripts/compute_athena_fd.py`](../../scripts/compute_athena_fd.py) (output written to Git-ignored `NeuroADHD/data/athena/motion/dev_niak_fd_metrics.csv`):
-- **Motion Source:** Staged NIAK `intermediate_*.tar` `motion_parameters_*_session_1_run1.mat` ($4 \times 4 \times T_{\text{raw}}$ rigid-body matrices, $\det(R) = 1.0$, orthogonality error $< 10^{-4}$), with the **first 3 frames dropped** (`transf[:, :, 3:]`).
+- **Motion Source:** Staged NIAK `intermediate_*.tar` `motion_parameters_*_session_1_run1.mat` ($4 \times 4 \times T_{\text{raw}}$ rigid-body matrices, $\det(R) = 1.0$, orthogonality error $< 10^{-4}$), shifted to each scan's NIfTI volume geometric center (`motion_target_*_session_1_run1.nii.gz` via $T(-\mathbf{c}) M(t) T(+\mathbf{c})$ to remove world-origin $(I - R)\mathbf{c}$ lever-arm coupling), with the **first 3 frames dropped** (`transf[:, :, 3:]`).
 - **CC200 Frame-Count Alignment (Development Sites Only):** **404 / 404 matched** with **0 frame-count mismatches** (NYU, WashU, and Pittsburgh skipped completely).
 - **Power et al. (2012) Formula:** Sphere radius $r = 50\text{ mm}$, $\text{FD}_0 = 0.0$ per `PREREGISTRATION.md` Section 5.3.
 - **Diagnosis Labels Joined:** **NONE.**
@@ -52,29 +52,29 @@ Computed via [`scripts/compute_athena_fd.py`](../../scripts/compute_athena_fd.py
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **KKI** | 83 | 2 | 4 | **4** | 79 |
 | **NeuroIMAGE** | 48 | 6 | 5 | **6** | 42 |
-| **OHSU** | 79 | 19 | 23 | **23** | 56 |
-| **Peking_1** | 85 | 1 | 2 | **2** | 83 |
+| **OHSU** | 79 | 18 | 21 | **21** | 58 |
+| **Peking_1** | 85 | 1 | 1 | **1** | 84 |
 | **Peking_2** | 67 | 3 | 3 | **3** | 64 |
 | **Peking_3** | 42 | 0 | 1 | **1** | 41 |
-| *(Peking Combined)* | *(194)* | *(4)* | *(6)* | *(6)* | *(188)* |
-| **TOTAL (Dev)** | **404** | **31** | **38** | **39** | **365** |
+| *(Peking Combined)* | *(194)* | *(4)* | *(5)* | *(5)* | *(189)* |
+| **TOTAL (Dev)** | **404** | **30** | **35** | **36** | **368** |
 
 ### 3.2. Stricter Sensitivity Threshold ($\text{Mean FD} > 0.20\text{ mm}$ OR $>10\%$ frames with $\text{FD} > 0.20\text{ mm}$)
 
 | Site | Scans ($N$) | $\text{Mean FD} > 0.20\text{ mm}$ | $>10\%$ Frames $> 0.20\text{ mm}$ | Strict Excluded (OR) | Strict Retained |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **KKI** | 83 | 30 | 62 | **62** | 21 |
-| **NeuroIMAGE** | 48 | 13 | 36 | **36** | 12 |
-| **OHSU** | 79 | 41 | 59 | **59** | 20 |
-| **Peking_1** | 85 | 14 | 63 | **63** | 22 |
-| **Peking_2** | 67 | 11 | 40 | **40** | 27 |
-| **Peking_3** | 42 | 18 | 39 | **39** | 3 |
-| *(Peking Combined)* | *(194)* | *(43)* | *(142)* | *(142)* | *(52)* |
-| **TOTAL (Dev)** | **404** | **127** | **299** | **299** | **105** |
+| **NeuroIMAGE** | 48 | 11 | 29 | **29** | 19 |
+| **OHSU** | 79 | 40 | 60 | **60** | 19 |
+| **Peking_1** | 85 | 12 | 47 | **47** | 38 |
+| **Peking_2** | 67 | 9 | 39 | **39** | 28 |
+| **Peking_3** | 42 | 9 | 34 | **34** | 8 |
+| *(Peking Combined)* | *(194)* | *(30)* | *(120)* | *(120)* | *(74)* |
+| **TOTAL (Dev)** | **404** | **111** | **271** | **271** | **133** |
 
 ### 3.3. Co-Primary No-Exclusion Sensitivity & Denominator Check
 - **No-Exclusion Co-Primary Sensitivity (`DEVIATIONS.md` Branch b):** **404 / 404** development scans retained (0 excluded).
-- **Denominator Check ($T$ including $\text{FD}_0 = 0$ vs. $T - 1$ excluding $\text{FD}_0$):** Primary exclusions = 39 (denominator $T$, matching `PREREGISTRATION.md` Section 5.3) vs. 40 (denominator $T - 1$); strict exclusions = 299 under both denominators.
+- **Denominator Check ($T$ including $\text{FD}_0 = 0$ vs. $T - 1$ excluding $\text{FD}_0$):** Primary exclusions = 36 (denominator $T$, matching `PREREGISTRATION.md` Section 5.3) vs. 37 (denominator $T - 1$); strict exclusions = 271 under both denominators.
 
 ---
 
