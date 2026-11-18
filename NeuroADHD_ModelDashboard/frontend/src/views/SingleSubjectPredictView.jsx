@@ -11,8 +11,17 @@ import {
   FileCheck,
   CheckCircle2
 } from "lucide-react";
+import study2Data from "../data/study2Data.json";
 
 export function SingleSubjectPredictView() {
+  const study2AucValues = [
+    study2Data.development_primary.fmri_auc,
+    study2Data.development_sensitivity.fmri_auc,
+    study2Data.sealed_nyu_primary.fmri_auc,
+    study2Data.sealed_nyu_sensitivity.fmri_auc,
+  ];
+  const study2AucMin = Math.min(...study2AucValues).toFixed(4);
+  const study2AucMax = Math.max(...study2AucValues).toFixed(4);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSample, setIsSample] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -164,6 +173,38 @@ export function SingleSubjectPredictView() {
           Upload a pre-extracted CC200 resting-state ROI time course CSV to compute 19,900 pairwise Fisher-z
           correlations and generate an exploratory machine-learning research prediction using the frozen benchmark model.
         </p>
+      </div>
+
+      {/* Persistent Study 2 Generalization & No-Individual-Information Banner (values read from study2Data.json) */}
+      <div
+        role="alert"
+        style={{
+          background: "var(--accent-warning-subtle)",
+          border: "1px solid rgba(217, 119, 6, 0.45)",
+          borderRadius: "var(--radius-lg)",
+          padding: "16px 20px",
+          display: "flex",
+          gap: "14px",
+          alignItems: "flex-start"
+        }}
+      >
+        <div style={{ color: "var(--accent-warning)", flexShrink: 0, marginTop: "2px" }}>
+          <AlertTriangle size={20} />
+        </div>
+        <div style={{ flex: 1, fontSize: "0.84rem", color: "var(--text-primary)", lineHeight: 1.6 }}>
+          <div style={{ fontWeight: "800", color: "var(--accent-warning)", marginBottom: "4px" }}>
+            Generalization Notice (Study 2 Pre-Registered Follow-Up) — Score Carries No Individual-Level Information
+          </div>
+          <div>
+            This approach did not generalize to held-out institutions in Study 2 (fMRI ROC-AUC range{" "}
+            <strong className="tabular-nums">{study2AucMin}–{study2AucMax}</strong> across all Study 2 regimes;
+            development Section 8.1 criteria not met; sealed NYU in the registered{" "}
+            <strong>{study2Data.sealed_nyu_primary.outcome_zone_label}</strong>; motion-only and age/sex baselines
+            scored as high or higher). <strong>The model score carries no individual-level information</strong>{" "}
+            and must be treated strictly as an exploratory software demonstration (not a medical device, diagnostic
+            tool, or calibrated probability).
+          </div>
+        </div>
       </div>
 
       {/* Input Requirements & Domain Scope Callout */}
