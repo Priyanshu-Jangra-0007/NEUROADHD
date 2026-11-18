@@ -27,13 +27,11 @@
    - Parse each Athena CC200 `.1D` file as tab/whitespace-delimited table.
    - Verify the header row (`File`, `Sub-brick`, followed by `Mean_<roi_id>` columns) and drop the 2 leading non-ROI metadata columns (`File`, `Sub-brick`) to obtain $X_i \in \mathbb{R}^{T_i \times K_{\text{raw}}}$.
    - Verify $K_{\text{raw}}$ (expected 190 valid CC200 parcels in Athena CC200 TCs) and column headers are identical across all 404 development scans.
-2. **Development-Only Non-Zero Variance Rule:**
-   - Compute per-ROI temporal standard deviation $\sigma_{i,k} = \operatorname{std}(X_i[:, k])$ across time for each analyzed development subject $i$.
-   - Keep ROI $k$ **if and only if** $\sigma_{i,k} > 0$ and all values in $X_i[:, k]$ are finite across **100% of analyzed development subjects** in the active cohort regime:
-     - **Primary Exclusion Regime ($N = 368$):** ROI mask computed across the 368 retained development subjects.
-     - **Co-Primary No-Exclusion Regime ($N = 404$):** ROI mask computed across all 404 development subjects.
-     - **Exploratory Strict Regime ($N = 133$):** ROI mask computed across the 133 retained development subjects (noting 3 of 4 LOIO folds have $< 15$ subjects in a class).
-   - Drop any ROI that is constant ($\sigma_{i,k} = 0$) or contains NaN/Inf in even one analyzed development subject.
+2. **Development-Only Non-Zero Variance Rule (Unified Across All 404 Dev Scans):**
+   - Compute per-ROI temporal standard deviation $\sigma_{i,k} = \operatorname{std}(X_i[:, k])$ across time for every development subject $i \in \{1, \dots, 404\}$.
+   - Keep ROI $k$ **if and only if** $\sigma_{i,k} > 0$ and all values in $X_i[:, k]$ are finite across **100% of all 404 development subjects**.
+   - Both the **primary exclusion analysis ($N = 368$)** and the **co-primary no-exclusion analysis ($N = 404$)** use this single unified, frozen ROI set (per [`DEVIATIONS.md`](DEVIATIONS.md) Section 3.5; strict exclusion is descriptive only and not run as LOIO).
+   - Drop any ROI that is constant ($\sigma_{i,k} = 0$) or contains NaN/Inf in even one development subject.
    - Freeze and record the retained ROI column names and indices (`K` kept, `K_raw - K` dropped).
 3. **Pre-Specified Sealed-Site ROI Rule (Deferred Until Final Scoring):**
    - The sealed site (NYU) **never** modifies the development ROI set.
