@@ -34,3 +34,29 @@ To preserve prospective analytical discipline while resolving the availability o
 1. **Motion-Only Baseline Parity:** The pre-registered motion-only baseline model uses **whichever motion source is selected by the rule above** — Branch (a) AFNI `rp_*.1D` if all 404 exist, or Branch (b) NIAK-derived parameters (first 3 frames removed) otherwise.
 2. **Strict Blinding to Diagnosis Labels:** **No FD computation, threshold check, alignment check, or fallback decision uses or joins diagnosis labels (`DX`).** All motion extraction and FD thresholding are executed strictly blind to diagnostic class.
 3. **NYU Quarantine:** This rule applies exclusively to development-site scans (KKI, NeuroIMAGE, OHSU, Peking 1–3). No NYU archive is opened, extracted, or analyzed during development.
+
+---
+
+## 3. Dated Deviation & Implementation Log — 2026-11-18
+
+### 3.1. Activation of Fallback Branch (b)
+- All six development `<Site>_preproc_xfms.tar` archives contained FSL FNIRT structural-to-template warp fields only (`0 / 404` AFNI `rp_*.1D` traces; commit `08f87fe`).
+- Per Section 1 above, **Branch (b)** was activated: NIAK-derived Power et al. (2012) FD with the first 3 frames removed, labelled a protocol deviation, with no-exclusion elevated to a co-primary sensitivity analysis.
+
+### 3.2. FD Calculator Correction: NIfTI Volume-Centre Conjugation (Pre-Label-Join)
+- **Discovery (Strictly Label-Free):** During label-free validation of NIAK-derived motion against the official Athena `*_motion.csv` extrema ([`NIAK_VS_ATHENA_MOTION_VALIDATION.md`](NIAK_VS_ATHENA_MOTION_VALIDATION.md)), executed **before any diagnosis labels were joined**, naive extraction of world-origin translation `transf[:3, 3]` exhibited a severe translation discrepancy on NeuroIMAGE ($\rho = 0.5339$, median ratio $= 1.4619$).
+- **Physical Cause:** In MINC `minctracc -est_center`, rotations occur about the brain center $\mathbf{c}$ while `transf` is stored at the world origin `(0, 0, 0)`, injecting spurious lever-arm translation $(I - R)\mathbf{c}$ whenever the NIfTI volume center $\mathbf{c} \ne \mathbf{0}$ (NeuroIMAGE offset $54.5\text{ mm}$, Peking $27.2\text{ mm}$, OHSU $24.0\text{ mm}$, KKI $0.0\text{ mm}$).
+- **Correction Applied (`3c2b7ac`):** Each scan's `transf` matrix was conjugated to its NIfTI volume geometric center (`motion_target_*_session_1_run1.nii.gz`) via $M_{\text{centered}}(t) = T(-\mathbf{c}) M(t) T(+\mathbf{c})$, raising pooled translation Spearman $\rho$ from $0.8757 \to 0.9704$ (NeuroIMAGE $0.5339 \to 0.8809$).
+- **Effect on Blinded Exclusion Counts:** Pooled primary exclusions changed from **39 to 36** (retained: $365 \to 368$; strict exclusions changed from $299 \to 271$, retained $105 \to 133$).
+- **Superseded Notice:** All earlier uncentered FD tables recorded in commit `08f87fe` are hereby marked **SUPERSEDED** by the volume-centered counts in commit `3c2b7ac` and [`COHORT_COUNTS_2026-11-18.md`](COHORT_COUNTS_2026-11-18.md).
+
+### 3.3. NeuroIMAGE Registration-Failure Scan (~86° NIAK Divergence)
+- One NeuroIMAGE development scan exhibits a NIAK `minctracc` registration failure ($\max |\theta| = 85.98^\circ$ on 203 of 258 retained frames vs. $7.34^\circ$ in Athena `NeuroIMAGE_motion.csv`).
+- **Pre-Specified Disposition (No Ad-Hoc Removal):** This scan is **excluded under the primary motion rule** ($N = 368$, automatically exceeding both primary thresholds) and **retained in the co-primary no-exclusion analysis** ($N = 404$).
+
+### 3.4. Strict Motion Threshold (`>0.20 mm` OR `>10%` Frames) — Descriptive Only
+- Under the strict sensitivity threshold, **3 of 4 LOIO institution folds drop below 15 subjects per class** (`KKI`: ADHD $= 2$; `NeuroIMAGE`: TDC $= 11$, ADHD $= 8$; `OHSU`: TDC $= 13$, ADHD $= 6$; see [`COHORT_COUNTS_2026-11-18.md`](COHORT_COUNTS_2026-11-18.md)).
+- **Protocol Deviation Decision:** The strict threshold is retained for **descriptive attrition reporting only** and is **not run as a LOIO classification model**.
+
+### 3.5. Unified Development ROI Set Definition
+- The valid CC200 ROI set is defined **once** across **all 404 development scans** (requiring finite, non-zero temporal variance in 100% of all 404 development scans), and that exact frozen ROI set is used identically by both the primary ($N = 368$) and co-primary no-exclusion ($N = 404$) analyses.
