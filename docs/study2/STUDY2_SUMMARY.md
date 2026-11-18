@@ -7,7 +7,7 @@
 **Locked Protocol SHA-256:** `e227005c1386dddef3d8b265579f293483769c249cccf31d1cf7f8ec8e09e7ec`  
 **Pipeline:** Locked Study 1 pipeline (`SimpleImputer(strategy='median')` → `VarianceThreshold(0.0)` → `StandardScaler()` → `SelectKBest(f_classif, k=100)` → `RandomForestClassifier(n_estimators=50, max_depth=3, class_weight='balanced', random_state=42)`), refitted inside each training fold on 17,955 Fisher-$z$ edges from 190 CC200 ROIs.
 
-> All numbers in this document are drawn solely from previously recorded Study 2 outputs ([`COHORT_COUNTS_2026-11-18.md`](COHORT_COUNTS_2026-11-18.md), [`DEV_RESULTS_2026-11-18.md`](DEV_RESULTS_2026-11-18.md), [`SEALED_RESULTS_2026-11-18.md`](SEALED_RESULTS_2026-11-18.md), [`DEVIATIONS.md`](DEVIATIONS.md), and [`OSF_RECORD.md`](OSF_RECORD.md)). No new analyses were run and no parameters, seeds, features, or ROI definitions were modified after inspecting results.
+> All numbers in this document are drawn solely from previously recorded Study 2 outputs ([`COHORT_COUNTS_2026-11-18.md`](COHORT_COUNTS_2026-11-18.md), [`DEV_RESULTS_2026-11-18.md`](DEV_RESULTS_2026-11-18.md), [`SEALED_RESULTS_2026-11-18.md`](SEALED_RESULTS_2026-11-18.md), [`DEVIATIONS.md`](DEVIATIONS.md), and [`OSF_RECORD.md`](OSF_RECORD.md)). No new classifier analyses were run and no parameters, seeds, features, or ROI definitions were modified after inspecting results.
 
 ---
 
@@ -109,6 +109,7 @@ All deviations and clarifications were logged in [`docs/study2/DEVIATIONS.md`](D
    rel_trans = params[:, 3:6] - params[0, 3:6]
    max_disp_mm = float(np.max(np.linalg.norm(rel_trans, axis=1)))
    ```
+4. **Label-Free 4-Frame Drop Sensitivity Check (Not a Protocol Change):** A label-free sensitivity check recomputing FD with 4 dropped NIAK frames instead of 3 changed the Section 5.3 primary-exclusion status of 1 of 404 development scans (an OHSU scan, retained to excluded) and 0 of 216 NYU scans; no classifier was re-run and no registered result was changed (see [`DEVIATIONS.md`](DEVIATIONS.md) Section 4.6).
 
 ---
 

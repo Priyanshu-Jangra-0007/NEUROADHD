@@ -5,7 +5,8 @@ An academic machine learning benchmark and exploration dashboard investigating f
 > [!WARNING]
 > Research use only: not a medical device or diagnostic tool; model scores are not calibrated probabilities.
 
-**Study 2 (Preregistered Multi-Site Athena Evaluation):** OSF Preregistration ([https://osf.io/grbt2](https://osf.io/grbt2)) and final summary ([`docs/study2/STUDY2_SUMMARY.md`](docs/study2/STUDY2_SUMMARY.md)).
+**Study 2 (Preregistered Multi-Site Athena Evaluation):** OSF Preregistration ([https://osf.io/grbt2](https://osf.io/grbt2)) and final summary ([`docs/study2/STUDY2_SUMMARY.md`](docs/study2/STUDY2_SUMMARY.md)).  
+Study 2 is aggregate-only; OSF registrations: https://osf.io/grbt2 and https://osf.io/db7nv.
 
 ---
 
