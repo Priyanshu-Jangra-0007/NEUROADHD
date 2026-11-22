@@ -439,11 +439,11 @@ export function OverviewView({ data }) {
                 </td>
                 <td className="tabular-nums">
                   <div style={{ fontSize: "0.76rem" }}>
-                    <span style={{ fontWeight: "600", color: "var(--brand-blue)" }}>followup_study:</span> nested model selection on age+sex, LOIO AUC <strong>{siteConfoundData.config2_118.covariates_only_baseline?.loio_auc != null ? siteConfoundData.config2_118.covariates_only_baseline.loio_auc.toFixed(4) : "0.5976"}</strong><br />
+                    <span style={{ fontWeight: "600", color: "var(--brand-blue)" }}>followup_study:</span> nested model selection on age+sex, LOIO AUC <strong>{siteConfoundData.config2_118.covariates_only_baseline?.loio_auc != null ? siteConfoundData.config2_118.covariates_only_baseline.loio_auc.toFixed(4) : "N/A"}</strong><br />
                     <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>{siteConfoundData.config2_118.covariates_only_baseline?.loio_auc_ci ? `[${siteConfoundData.config2_118.covariates_only_baseline.loio_auc_ci.join(", ")}]` : "N/A"}</span>
                   </div>
                   <div style={{ fontSize: "0.76rem", marginTop: "4px", paddingTop: "4px", borderTop: "1px dashed var(--border-color)" }}>
-                    <span style={{ fontWeight: "600", color: "var(--brand-blue)" }}>final_candidate:</span> fixed logistic regression, LOIO AUC <strong>{finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "0.5857"}</strong><br />
+                    <span style={{ fontWeight: "600", color: "var(--brand-blue)" }}>final_candidate:</span> fixed logistic regression, LOIO AUC <strong>{finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "N/A"}</strong><br />
                     <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>{finalCandidateData?.covariates_only_model?.loio_auc_ci ? `[${finalCandidateData.covariates_only_model.loio_auc_ci[0].toFixed(3)}, ${finalCandidateData.covariates_only_model.loio_auc_ci[1].toFixed(3)}]` : "N/A"}</span>
                   </div>
                   <div style={{ fontSize: "0.68rem", color: "var(--accent-warning)", marginTop: "4px", fontStyle: "italic" }}>
@@ -545,7 +545,7 @@ export function OverviewView({ data }) {
                 <td>
                   <strong>Demographics Alone (final_candidate)</strong><br />
                   <span style={{ fontSize: "0.72rem", color: "var(--brand-blue)", fontFamily: "var(--font-mono)" }}>
-                    final_candidate: fixed logistic regression, LOIO AUC 0.5857
+                    final_candidate: fixed logistic regression, LOIO AUC {modelComparisonData?.models?.[2]?.loio_roc_auc != null ? modelComparisonData.models[2].loio_roc_auc.toFixed(4) : "N/A"}
                   </span>
                 </td>
                 <td className="tabular-nums" style={{ fontWeight: "600" }}>
@@ -671,7 +671,7 @@ export function OverviewView({ data }) {
               {finalCandidateData?.loio?.accuracy != null ? `${(finalCandidateData.loio.accuracy * 100).toFixed(2)}%` : "N/A"}
             </div>
             <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-              Majority Baseline: {finalCandidateData?.majority_accuracy != null ? `${(finalCandidateData.majority_accuracy * 100).toFixed(2)}%` : "57.63%"} {finalCandidateData?.loio?.accuracy_ci ? `[${(finalCandidateData.loio.accuracy_ci[0] * 100).toFixed(1)}%, ${(finalCandidateData.loio.accuracy_ci[1] * 100).toFixed(1)}%]` : ""}
+              Majority Baseline: {finalCandidateData?.majority_accuracy != null ? `${(finalCandidateData.majority_accuracy * 100).toFixed(2)}%` : "N/A"} {finalCandidateData?.loio?.accuracy_ci ? `[${(finalCandidateData.loio.accuracy_ci[0] * 100).toFixed(1)}%, ${(finalCandidateData.loio.accuracy_ci[1] * 100).toFixed(1)}%]` : ""}
             </div>
           </div>
 
@@ -688,7 +688,7 @@ export function OverviewView({ data }) {
           <div style={{ background: "var(--bg-subtle)", padding: "12px", borderRadius: "var(--radius-md)" }}>
             <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Permutation Significance</span>
             <div className="tabular-nums" style={{ fontSize: "1.25rem", fontWeight: "800", color: "var(--accent-success)", marginTop: "2px" }}>
-              {finalCandidateData?.permutation_test?.p_value_display ?? "p = 0.0050"}
+              {finalCandidateData?.permutation_test?.p_value_display ?? "N/A"}
             </div>
             <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
               Null mean: {finalCandidateData?.permutation_test?.null_mean != null ? `${finalCandidateData.permutation_test.null_mean.toFixed(4)} ± ${finalCandidateData.permutation_test.null_std.toFixed(4)}` : "N/A"} (200 permutations; min possible p=0.0050)
@@ -703,10 +703,10 @@ export function OverviewView({ data }) {
             <span>Paired Statistical Test vs. Age &amp; Sex Demographics Baseline</span>
           </div>
           <div>
-            Age and sex demographic covariates alone reach a LOIO AUC of <strong>{finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "0.5857"}</strong> [95% CI: {finalCandidateData?.covariates_only_model?.loio_auc_ci ? `${finalCandidateData.covariates_only_model.loio_auc_ci[0].toFixed(3)}, ${finalCandidateData.covariates_only_model.loio_auc_ci[1].toFixed(3)}` : "0.489, 0.685"}] (permutation p = {finalCandidateData?.covariates_only_model?.p_value != null ? finalCandidateData.covariates_only_model.p_value.toFixed(4) : "0.0498"}).
+            Age and sex demographic covariates alone reach a LOIO AUC of <strong>{finalCandidateData?.covariates_only_model?.loio_auc != null ? finalCandidateData.covariates_only_model.loio_auc.toFixed(4) : "N/A"}</strong> [95% CI: {finalCandidateData?.covariates_only_model?.loio_auc_ci ? `${finalCandidateData.covariates_only_model.loio_auc_ci[0].toFixed(3)}, ${finalCandidateData.covariates_only_model.loio_auc_ci[1].toFixed(3)}` : "N/A"}] (permutation p = {finalCandidateData?.covariates_only_model?.p_value != null ? finalCandidateData.covariates_only_model.p_value.toFixed(4) : "N/A"}).
             The paired subject-level bootstrap test between the final candidate and demographics yields:
             <br />
-            <strong>ΔAUC = {finalCandidateData?.paired_bootstrap_vs_covars?.delta_mean != null ? `${finalCandidateData.paired_bootstrap_vs_covars.delta_mean >= 0 ? "+" : ""}${finalCandidateData.paired_bootstrap_vs_covars.delta_mean.toFixed(4)}` : "+0.0400"}</strong> [95% Bootstrap CI: {finalCandidateData?.paired_bootstrap_vs_covars?.delta_ci_95 ? `${finalCandidateData.paired_bootstrap_vs_covars.delta_ci_95[0].toFixed(4)}, ${finalCandidateData.paired_bootstrap_vs_covars.delta_ci_95[1].toFixed(4)}` : "-0.1038, +0.1714"}], <strong>p = {finalCandidateData?.paired_bootstrap_vs_covars?.p_value != null ? finalCandidateData.paired_bootstrap_vs_covars.p_value.toFixed(4) : "0.2685"}</strong>.
+            <strong>ΔAUC = {finalCandidateData?.paired_bootstrap_vs_covars?.delta_mean != null ? `${finalCandidateData.paired_bootstrap_vs_covars.delta_mean >= 0 ? "+" : ""}${finalCandidateData.paired_bootstrap_vs_covars.delta_mean.toFixed(4)}` : "N/A"}</strong> [95% Bootstrap CI: {finalCandidateData?.paired_bootstrap_vs_covars?.delta_ci_95 ? `${finalCandidateData.paired_bootstrap_vs_covars.delta_ci_95[0].toFixed(4)}, ${finalCandidateData.paired_bootstrap_vs_covars.delta_ci_95[1].toFixed(4)}` : "N/A"}], <strong>p = {finalCandidateData?.paired_bootstrap_vs_covars?.p_value != null ? finalCandidateData.paired_bootstrap_vs_covars.p_value.toFixed(4) : "N/A"}</strong>.
             Because the 95% confidence interval spans zero, the difference between functional connectivity and demographic covariates alone is not statistically significant.
           </div>
         </div>
