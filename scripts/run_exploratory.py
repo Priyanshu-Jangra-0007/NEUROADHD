@@ -9,9 +9,11 @@ Implements the protocol in docs/exploratory/EXPLORATORY_PLAN_DRAFT.md:
     2) Git tag 'exploratory-frozen' is an ancestor of HEAD.
 - 12 Primary LOIO configurations across 5 multi-class sites (Peking, KKI, NeuroIMAGE, OHSU, NYU).
 - 4 Multi-Run configurations (NYU + OHSU sub-analysis, subject-grouped folds).
-- Motion-matched evaluation (1:1 within-site matching on mean FD).
-- Primary exploratory contrast: Motion+Age+Sex vs Motion+Age+Sex+Connectivity (paired bootstrap, 2,000 resamples).
-- Family-wise within-site permutation test repeating full configuration selection.
+- Deterministic motion-matched evaluation (1:1 within-site matching on mean FD).
+- Primary exploratory contrast: Motion+Age+Sex vs Motion+Age+Sex+Connectivity.
+- Max-statistic within-institution permutation test repeating full configuration selection:
+    1) Label-permutation max-AUC test for AUC > 0.5.
+    2) Connectivity-permutation max-delta-AUC test for incremental contrast (covariates & labels stay paired).
 - NEVER prints subject IDs.
 """
 
@@ -281,7 +283,7 @@ def paired_bootstrap_auc_diff(
 
 
 # =====================================================================
-# Motion Matching (1:1 within-site nearest neighbor)
+# Deterministic Motion Matching (1:1 within-site nearest neighbor)
 # =====================================================================
 
 def match_subjects_on_motion_within_site(
@@ -292,34 +294,58 @@ def match_subjects_on_motion_within_site(
     caliper_mm: float = 0.05,
 ) -> List[int]:
     """
-    Greedy 1:1 nearest-neighbor matching without replacement between ADHD (1) and TDC (0)
-    within each site based on mean_fd_mm <= caliper_mm.
-    Returns list of matched row indices.
+    Fully deterministic greedy 1:1 nearest-neighbor matching without replacement between
+    ADHD (1) and TDC (0) within each site.
+
+    Deterministic Rules (Zero Randomness):
+    1. ADHD subjects sorted by (mean_fd_mm ascending, normalized_subject_id ascending).
+    2. TDC subjects sorted by (mean_fd_mm ascending, normalized_subject_id ascending).
+    3. Tie-breaking rule for multiple TDC candidates with equal distance |FD_tdc - FD_adhd|:
+       a) Minimum absolute distance.
+       b) Candidate with smaller mean_fd_mm.
+       c) Candidate with lexicographically smaller subject_id.
     """
     matched_indices: List[int] = []
     unique_sites = sorted(set(site_names))
 
     for site in unique_sites:
-        site_mask = np.array([s == site for s in site_names])
-        site_idx = np.where(site_mask)[0]
+        site_indices = [i for i, s in enumerate(site_names) if s == site]
 
-        tdc_indices = [i for i in site_idx if labels[i] == 0]
-        adhd_indices = [i for i in site_idx if labels[i] == 1]
+        adhd_rows = [i for i in site_indices if labels[i] == 1]
+        tdc_rows = [i for i in site_indices if labels[i] == 0]
 
-        avail_tdc = set(tdc_indices)
-        for a_idx in adhd_indices:
+        # Deterministic sorting
+        adhd_sorted = sorted(adhd_rows, key=lambda i: (mean_fd_values[i], str(subject_ids[i])))
+        avail_tdc = set(tdc_rows)
+
+        for a_idx in adhd_sorted:
             if not avail_tdc:
                 break
             a_fd = mean_fd_values[a_idx]
-            best_t_idx = None
-            best_dist = float("inf")
-            for t_idx in avail_tdc:
-                dist = abs(mean_fd_values[t_idx] - a_fd)
-                if dist < best_dist:
-                    best_dist = dist
-                    best_t_idx = t_idx
 
-            if best_dist <= caliper_mm and best_t_idx is not None:
+            # Find matching TDC candidate with deterministic tie-breaking
+            best_t_idx: Optional[int] = None
+            best_dist = float("inf")
+            best_t_fd = float("inf")
+            best_t_id = ""
+
+            for t_idx in sorted(avail_tdc, key=lambda i: (mean_fd_values[i], str(subject_ids[i]))):
+                dist = abs(mean_fd_values[t_idx] - a_fd)
+                if dist <= caliper_mm:
+                    t_fd = mean_fd_values[t_idx]
+                    t_id = str(subject_ids[t_idx])
+                    # Check if strictly closer, or tied with smaller FD, or tied with smaller ID
+                    if (
+                        dist < best_dist
+                        or (abs(dist - best_dist) < 1e-12 and t_fd < best_t_fd)
+                        or (abs(dist - best_dist) < 1e-12 and abs(t_fd - best_t_fd) < 1e-12 and t_id < best_t_id)
+                    ):
+                        best_dist = dist
+                        best_t_idx = t_idx
+                        best_t_fd = t_fd
+                        best_t_id = t_id
+
+            if best_t_idx is not None:
                 matched_indices.append(a_idx)
                 matched_indices.append(best_t_idx)
                 avail_tdc.remove(best_t_idx)
@@ -360,7 +386,6 @@ def evaluate_loio_pipeline(
         y_train = labels[train_mask]
         y_test = labels[test_mask]
 
-        # Extract features for train and test according to feature_kind
         if feature_kind == "pearson_fisher_z":
             X_train = pearson_z_edges[train_mask]
             X_test = pearson_z_edges[test_mask]
@@ -380,10 +405,8 @@ def evaluate_loio_pipeline(
         else:
             raise ValueError(f"Unknown feature kind: {feature_kind}")
 
-        # Feature selection
         X_tr_sel, X_te_sel, _ = apply_feature_selection(X_train, y_train, X_test, selection_mode)
 
-        # Classifier fit & predict
         clf = build_classifier(classifier_name, random_state=random_state)
         clf.fit(X_tr_sel, y_train)
 
@@ -414,7 +437,6 @@ def evaluate_non_imaging_baselines(
         train_mask = institutions != test_site
         test_mask = institutions == test_site
 
-        # Standardize strictly on training fold
         s_m = StandardScaler().fit(motion_covariates[train_mask])
         m_tr = s_m.transform(motion_covariates[train_mask])
         m_te = s_m.transform(motion_covariates[test_mask])
@@ -429,17 +451,14 @@ def evaluate_non_imaging_baselines(
         y_tr = labels[train_mask]
         test_idx = np.where(test_mask)[0]
 
-        # Motion baseline
         clf_m = LogisticRegression(C=1.0, class_weight="balanced", solver="lbfgs", random_state=random_state)
         clf_m.fit(m_tr, y_tr)
         probs_motion[test_idx] = clf_m.predict_proba(m_te)[:, 1]
 
-        # Age/Sex baseline
         clf_a = LogisticRegression(C=1.0, class_weight="balanced", solver="lbfgs", random_state=random_state)
         clf_a.fit(a_tr, y_tr)
         probs_agesex[test_idx] = clf_a.predict_proba(a_te)[:, 1]
 
-        # Combined baseline
         clf_c = LogisticRegression(C=1.0, class_weight="balanced", solver="lbfgs", random_state=random_state)
         clf_c.fit(c_tr, y_tr)
         probs_combined[test_idx] = clf_c.predict_proba(c_te)[:, 1]
@@ -451,11 +470,78 @@ def evaluate_non_imaging_baselines(
     }
 
 
+def evaluate_combined_covariates_and_connectivity(
+    feature_kind: str,
+    selection_mode: str,
+    classifier_name: str,
+    timeseries_list: Sequence[np.ndarray],
+    pearson_z_edges: np.ndarray,
+    motion_covariates: np.ndarray,
+    age_sex_covariates: np.ndarray,
+    labels: np.ndarray,
+    institutions: np.ndarray,
+    unique_institutions: Optional[Sequence[str]] = None,
+    random_state: int = DEFAULT_RANDOM_STATE,
+) -> np.ndarray:
+    """
+    Evaluate LOIO predictions for Motion + Age + Sex + Connectivity.
+    Returns: out_of_fold_probabilities
+    """
+    if unique_institutions is None:
+        unique_institutions = sorted(set(institutions))
+
+    n = len(labels)
+    probs_out = np.zeros(n, dtype=np.float64)
+
+    for test_site in unique_institutions:
+        train_mask = institutions != test_site
+        test_mask = institutions == test_site
+        y_tr = labels[train_mask]
+
+        # Standardize covariates strictly on training fold
+        covariates = np.column_stack([motion_covariates, age_sex_covariates])
+        s_cov = StandardScaler().fit(covariates[train_mask])
+        cov_tr = s_cov.transform(covariates[train_mask])
+        cov_te = s_cov.transform(covariates[test_mask])
+
+        # Connectivity features
+        if feature_kind == "pearson_fisher_z":
+            X_tr = pearson_z_edges[train_mask]
+            X_te = pearson_z_edges[test_mask]
+        elif feature_kind == "tangent_space":
+            ts_train = [timeseries_list[i] for i in np.where(train_mask)[0]]
+            ts_test = [timeseries_list[i] for i in np.where(test_mask)[0]]
+            X_tr, X_te, _ = fit_transform_tangent_space(ts_train, ts_test, vectorize=True)
+        elif feature_kind == "motion_residualized":
+            X_tr_raw = pearson_z_edges[train_mask]
+            X_te_raw = pearson_z_edges[test_mask]
+            M_tr = motion_covariates[train_mask]
+            M_te = motion_covariates[test_mask]
+            X_tr, X_te, _, _ = fit_transform_motion_residualization(X_tr_raw, M_tr, X_te_raw, M_te)
+        else:
+            X_tr = pearson_z_edges[train_mask]
+            X_te = pearson_z_edges[test_mask]
+
+        X_tr_sel, X_te_sel, _ = apply_feature_selection(X_tr, y_tr, X_te, selection_mode)
+
+        # Concatenate standardized covariates and selected connectivity
+        full_tr = np.column_stack([cov_tr, X_tr_sel])
+        full_te = np.column_stack([cov_te, X_te_sel])
+
+        clf = build_classifier(classifier_name, random_state=random_state)
+        clf.fit(full_tr, y_tr)
+
+        test_indices = np.where(test_mask)[0]
+        probs_out[test_indices] = clf.predict_proba(full_te)[:, 1]
+
+    return probs_out
+
+
 # =====================================================================
-# Max-Statistic Permutation Testing
+# Permutation Tests (Label Permutation & Connectivity Permutation)
 # =====================================================================
 
-def run_within_site_permutation_test(
+def run_within_site_label_permutation_test(
     configs: Sequence[Tuple[str, str, str]],
     timeseries_list: Sequence[np.ndarray],
     pearson_z_edges: np.ndarray,
@@ -467,45 +553,38 @@ def run_within_site_permutation_test(
     seed: int = DEFAULT_RANDOM_STATE,
 ) -> Tuple[float, np.ndarray]:
     """
-    Max-statistic permutation test repeating the full selection across candidate configurations.
-    Permutes labels strictly within each institution to preserve scanner/demographic prevalence.
+    Label-permutation max-AUC test for H0: AUC = 0.5.
+    Permutes labels strictly within each institution, repeating full selection across configurations.
     Returns: (empirical_p_value, max_null_distribution)
     """
     rng = np.random.default_rng(seed)
     unique_sites = sorted(set(institutions))
     null_max_aucs = np.empty(n_permutations, dtype=np.float64)
 
-    # Pre-extract tangent space features for each LOIO fold once, since tangent projection
-    # depends only on timeseries covariance (X), NOT on labels (y).
-    tangent_features_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+    # Pre-extract tangent space and residualized features once per fold
+    tangent_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+    resid_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
     for test_site in unique_sites:
         train_mask = institutions != test_site
         test_mask = institutions == test_site
         ts_train = [timeseries_list[i] for i in np.where(train_mask)[0]]
         ts_test = [timeseries_list[i] for i in np.where(test_mask)[0]]
         X_tr_tang, X_te_tang, _ = fit_transform_tangent_space(ts_train, ts_test, vectorize=True)
-        tangent_features_by_fold[test_site] = (X_tr_tang, X_te_tang)
+        tangent_by_fold[test_site] = (X_tr_tang, X_te_tang)
 
-    # Pre-extract motion residualized features for each fold once, since OLS depends only on motion and X
-    resid_features_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
-    for test_site in unique_sites:
-        train_mask = institutions != test_site
-        test_mask = institutions == test_site
         X_tr_raw = pearson_z_edges[train_mask]
         X_te_raw = pearson_z_edges[test_mask]
         M_tr = motion_covariates[train_mask]
         M_te = motion_covariates[test_mask]
         X_tr_res, X_te_res, _, _ = fit_transform_motion_residualization(X_tr_raw, M_tr, X_te_raw, M_te)
-        resid_features_by_fold[test_site] = (X_tr_res, X_te_res)
+        resid_by_fold[test_site] = (X_tr_res, X_te_res)
 
     for b in range(n_permutations):
-        # Permute labels strictly within site
         y_perm = labels.copy()
         for site in unique_sites:
             s_idx = np.where(institutions == site)[0]
             y_perm[s_idx] = rng.permutation(y_perm[s_idx])
 
-        # Evaluate all configurations under permuted labels
         perm_aucs: List[float] = []
         for feat_kind, sel_mode, clf_name in configs:
             probs = np.zeros(len(labels), dtype=np.float64)
@@ -518,9 +597,9 @@ def run_within_site_permutation_test(
                     X_tr = pearson_z_edges[train_mask]
                     X_te = pearson_z_edges[test_mask]
                 elif feat_kind == "tangent_space":
-                    X_tr, X_te = tangent_features_by_fold[test_site]
+                    X_tr, X_te = tangent_by_fold[test_site]
                 elif feat_kind == "motion_residualized":
-                    X_tr, X_te = resid_features_by_fold[test_site]
+                    X_tr, X_te = resid_by_fold[test_site]
                 else:
                     X_tr = pearson_z_edges[train_mask]
                     X_te = pearson_z_edges[test_mask]
@@ -536,6 +615,108 @@ def run_within_site_permutation_test(
 
     p_val = float((1.0 + np.sum(null_max_aucs >= observed_max_auc)) / (1.0 + n_permutations))
     return p_val, null_max_aucs
+
+
+def run_incremental_contrast_permutation_test(
+    configs: Sequence[Tuple[str, str, str]],
+    timeseries_list: Sequence[np.ndarray],
+    pearson_z_edges: np.ndarray,
+    motion_covariates: np.ndarray,
+    age_sex_covariates: np.ndarray,
+    labels: np.ndarray,
+    institutions: np.ndarray,
+    baseline_probs: np.ndarray,
+    observed_max_delta_auc: float,
+    n_permutations: int = DEFAULT_PERMUTATION_B,
+    seed: int = DEFAULT_RANDOM_STATE,
+) -> Tuple[float, np.ndarray]:
+    """
+    Max-statistic permutation test for the Incremental Contrast:
+        delta_AUC = AUC(motion + age + sex + connectivity) - AUC(motion + age + sex)
+
+    New Null Specification:
+    - Diagnostic labels (y) and non-imaging covariates (motion + age + sex) stay PAIRED and intact.
+    - Only the connectivity feature rows (X) are permuted among subjects WITHIN each institution.
+    - Test statistic: max delta_AUC over the 12 candidate configurations.
+    Returns: (empirical_p_value, null_max_delta_distribution)
+    """
+    rng = np.random.default_rng(seed)
+    unique_sites = sorted(set(institutions))
+    baseline_auc = roc_auc_score(labels, baseline_probs)
+    null_max_deltas = np.empty(n_permutations, dtype=np.float64)
+
+    # Standardize covariates once per LOIO fold
+    cov_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+    all_cov = np.column_stack([motion_covariates, age_sex_covariates])
+    for test_site in unique_sites:
+        train_mask = institutions != test_site
+        test_mask = institutions == test_site
+        s_cov = StandardScaler().fit(all_cov[train_mask])
+        cov_by_fold[test_site] = (s_cov.transform(all_cov[train_mask]), s_cov.transform(all_cov[test_mask]))
+
+    for b in range(n_permutations):
+        # Permute connectivity rows strictly within each site
+        conn_perm_indices = np.arange(len(labels))
+        for site in unique_sites:
+            s_idx = np.where(institutions == site)[0]
+            conn_perm_indices[s_idx] = rng.permutation(s_idx)
+
+        ts_perm = [timeseries_list[i] for i in conn_perm_indices]
+        pearson_perm = pearson_z_edges[conn_perm_indices]
+
+        # Tangent space on permuted timeseries
+        tangent_perm_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+        resid_perm_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+        for test_site in unique_sites:
+            train_mask = institutions != test_site
+            test_mask = institutions == test_site
+            ts_tr = [ts_perm[i] for i in np.where(train_mask)[0]]
+            ts_te = [ts_perm[i] for i in np.where(test_mask)[0]]
+            t_tr, t_te, _ = fit_transform_tangent_space(ts_tr, ts_te, vectorize=True)
+            tangent_perm_by_fold[test_site] = (t_tr, t_te)
+
+            X_tr_raw = pearson_perm[train_mask]
+            X_te_raw = pearson_perm[test_mask]
+            M_tr = motion_covariates[train_mask]
+            M_te = motion_covariates[test_mask]
+            r_tr, r_te, _, _ = fit_transform_motion_residualization(X_tr_raw, M_tr, X_te_raw, M_te)
+            resid_perm_by_fold[test_site] = (r_tr, r_te)
+
+        deltas: List[float] = []
+        for feat_kind, sel_mode, clf_name in configs:
+            comb_probs = np.zeros(len(labels), dtype=np.float64)
+            for test_site in unique_sites:
+                train_mask = institutions != test_site
+                test_mask = institutions == test_site
+                y_tr = labels[train_mask]
+                cov_tr, cov_te = cov_by_fold[test_site]
+
+                if feat_kind == "pearson_fisher_z":
+                    X_tr = pearson_perm[train_mask]
+                    X_te = pearson_perm[test_mask]
+                elif feat_kind == "tangent_space":
+                    X_tr, X_te = tangent_perm_by_fold[test_site]
+                elif feat_kind == "motion_residualized":
+                    X_tr, X_te = resid_perm_by_fold[test_site]
+                else:
+                    X_tr = pearson_perm[train_mask]
+                    X_te = pearson_perm[test_mask]
+
+                X_tr_sel, X_te_sel, _ = apply_feature_selection(X_tr, y_tr, X_te, sel_mode)
+                full_tr = np.column_stack([cov_tr, X_tr_sel])
+                full_te = np.column_stack([cov_te, X_te_sel])
+
+                clf = build_classifier(clf_name, random_state=seed + b)
+                clf.fit(full_tr, y_tr)
+                comb_probs[test_mask] = clf.predict_proba(full_te)[:, 1]
+
+            comb_auc = roc_auc_score(labels, comb_probs)
+            deltas.append(comb_auc - baseline_auc)
+
+        null_max_deltas[b] = max(deltas)
+
+    p_val = float((1.0 + np.sum(null_max_deltas >= observed_max_delta_auc)) / (1.0 + n_permutations))
+    return p_val, null_max_deltas
 
 
 def main() -> None:

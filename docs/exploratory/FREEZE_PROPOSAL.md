@@ -14,9 +14,9 @@ The following SHA-256 hashes uniquely identify the protocol specification, execu
 
 | Component | Path | SHA-256 Checksum |
 | :--- | :--- | :--- |
-| **Protocol Specification** | [`docs/exploratory/EXPLORATORY_PLAN_DRAFT.md`](EXPLORATORY_PLAN_DRAFT.md) | `3dd24c122dd6dcdf70bf29a67aedd7a5211d0a686bfc8ee98dbfbef356f740f3` |
-| **Analysis Runner** | [`scripts/run_exploratory.py`](../../scripts/run_exploratory.py) | `302fb58b52ecf9bd95826eacd0fbefdc26e8361870edd4a323781efa599a9c1a` |
-| **Synthetic Test Suite** | [`tests/test_run_exploratory.py`](../../tests/test_run_exploratory.py) | `cca7025e216d4fa9b76ef8ffbf9971abbf6de7d77cf5fc34252fb41941801b25` |
+| **Protocol Specification** | [`docs/exploratory/EXPLORATORY_PLAN_DRAFT.md`](EXPLORATORY_PLAN_DRAFT.md) | `bbe8d27784d75f485b4b858290b0d73df5767b1d1714017442eea1dab0ed0f73` |
+| **Analysis Runner** | [`scripts/run_exploratory.py`](../../scripts/run_exploratory.py) | `a1af1c1029c676a3fda871e89db777dcf439f382a3c774c72df456e48e429b3b` |
+| **Synthetic Test Suite** | [`tests/test_run_exploratory.py`](../../tests/test_run_exploratory.py) | `0e9d7ed415c9a716562c66035df85e7289aa64533d3f1f8bb128914027161a4c` |
 
 ---
 
@@ -39,18 +39,24 @@ git tag -a exploratory-frozen -m "freeze: lock exploratory analysis runner, plan
 ```
 
 ### Step B: Execute the Exploratory Analysis Run
-Once the tag exists and approval is granted:
+Once the tag exists and approval is granted, execute using the dedicated project virtual environment:
 
 ```bash
-python3 scripts/run_exploratory.py --execute-real --n-permutations 200
+./NeuroADHD/.venv/bin/python scripts/run_exploratory.py --execute-real --n-permutations 200
 ```
 
 ---
 
-## 4. Benchmark & Runtime Profile (Estimated from Synthetic Folds)
+## 4. Benchmark & Runtime Profile (Estimated from Exact Real Shapes)
+*(All timings labeled as estimates, measured on synthetic cohort at exact primary dimensions: $N = 564, K = 190$, exact scan lengths $T \in [78, 257]$)*:
 
-- **Single LOIO 5-Fold Evaluation (All 12 Configurations):** $2.70\text{ seconds}$
-- **Primary Permutation Test (200 Within-Site Iterations):** $\approx 9.0\text{ minutes}$ (recommended)
-- **Extended Permutation Test (1,000 Within-Site Iterations):** $\approx 45.0\text{ minutes}$
-- **Bootstrap Confidence Intervals (2,000 Resamples):** $\approx 15\text{ seconds}$
-- **Total Expected Run Time (with $B = 200$ permutations):** $\mathbf{\approx 9.5\text{ minutes}}$
+- **Tangent Feature Construction:** $3.75\text{ s}$ per fold ($18.75\text{ s}$ across all 5 folds).
+- **Motion Residualization (OLS):** $0.055\text{ s}$ per fold.
+- **Single Fold Model Fitting & Scoring (All 12 Configurations):** $0.861\text{ s}$ per fold.
+- **Single Complete 5-Fold LOIO Evaluation:** $4.30\text{ s}$.
+- **Permutation Cost with Cached Features:** **$3.58\text{ s}$ per iteration**.
+- **200 Permutations Total:** $\approx \mathbf{11.9\text{ minutes}}$ ($\approx 716\text{ s}$).
+- **1,000 Permutations Total:** $\approx \mathbf{59.7\text{ minutes}}$ ($\approx 3,581\text{ s}$).
+- **Bootstrap Confidence Intervals (2,000 Resamples):** $\approx 15\text{ s}$.
+- **Total Expected Run Time ($B = 200$ permutations):** $\mathbf{\approx 12.5\text{ minutes}}$.
+Both 200 and 1,000 permutations fall comfortably below the 3-hour budget threshold.

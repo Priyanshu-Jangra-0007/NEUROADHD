@@ -2,12 +2,14 @@
 """
 Unit and Leakage Tests for scripts/run_exploratory.py (Synthetic Data Only).
 
-Covers all 5 pre-specified properties:
+Covers all 7 pre-specified properties:
 (a) Planted signal gives AUC clearly above 0.5.
-(b) No signal gives about 0.5 and a non-significant permutation p.
+(b) No signal gives about 0.5 and a non-significant label permutation p.
 (c) Leakage test: changing held-out rows changes no fitted statistic, tangent reference mean, or selected edges.
 (d) Subject-grouped folds keep all runs of a subject together.
 (e) The guard refuses without the flag and tag.
+(f) Incremental contrast null: covariates carry signal, connectivity is noise -> delta ~ 0, p not significant.
+(g) Incremental contrast signal: connectivity carries signal beyond covariates -> delta > 0, p significant.
 """
 
 from __future__ import annotations
@@ -23,11 +25,14 @@ from scripts.run_exploratory import (
     apply_feature_selection,
     build_classifier,
     enforce_exploratory_guards,
+    evaluate_combined_covariates_and_connectivity,
     evaluate_loio_pipeline,
+    evaluate_non_imaging_baselines,
     fit_transform_motion_residualization,
     fit_transform_tangent_space,
     match_subjects_on_motion_within_site,
-    run_within_site_permutation_test,
+    run_incremental_contrast_permutation_test,
+    run_within_site_label_permutation_test,
     timeseries_to_fisher_z,
 )
 
@@ -41,16 +46,17 @@ class TestRunExploratorySynthetic(unittest.TestCase):
         n_per_site: int = 40,
         n_rois: int = 15,
         t_len: int = 50,
-        planted: bool = False,
-    ) -> Tuple[List[np.ndarray], np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Generate synthetic LOIO multi-site dataset."""
+        planted_connectivity: bool = False,
+        planted_covariates: bool = False,
+    ) -> Tuple[List[np.ndarray], np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Generate synthetic LOIO multi-site dataset with optional planted signals."""
         sites = ["Site_A", "Site_B", "Site_C", "Site_D", "Site_E"]
         timeseries_list: List[np.ndarray] = []
         labels: List[int] = []
         institutions: List[str] = []
         motion_covariates: List[List[float]] = []
+        age_sex_covariates: List[List[float]] = []
 
-        p_edges = n_rois * (n_rois - 1) // 2
         pearson_z_edges = []
 
         for site_idx, site in enumerate(sites):
@@ -59,16 +65,25 @@ class TestRunExploratorySynthetic(unittest.TestCase):
                 labels.append(y)
                 institutions.append(site)
 
-                # Motion covariates
-                mean_fd = 0.15 + (0.05 * y) + 0.02 * self.rng.normal()
-                max_disp = mean_fd * 3.0 + 0.05 * self.rng.normal()
+                if planted_covariates:
+                    # Covariates strongly separate labels
+                    mean_fd = 0.15 + (0.15 * y) + 0.02 * self.rng.normal()
+                    max_disp = 0.30 + (0.30 * y) + 0.04 * self.rng.normal()
+                    age = 10.0 + (3.0 * y) + 0.5 * self.rng.normal()
+                    sex = float(y)
+                else:
+                    mean_fd = 0.15 + (0.02 * y) + 0.02 * self.rng.normal()
+                    max_disp = mean_fd * 3.0 + 0.05 * self.rng.normal()
+                    age = 10.0 + 2.0 * self.rng.normal()
+                    sex = float(self.rng.integers(0, 2))
+
                 motion_covariates.append([mean_fd, max_disp])
+                age_sex_covariates.append([age, sex])
 
                 # Generate BOLD timeseries
                 ts = self.rng.normal(size=(t_len, n_rois))
-                if planted and y == 1:
-                    # Inject strong positive correlation between ROI 0 and ROI 1
-                    shared_signal = self.rng.normal(size=t_len) * 3.0
+                if planted_connectivity and y == 1:
+                    shared_signal = self.rng.normal(size=t_len) * 3.5
                     ts[:, 0] += shared_signal
                     ts[:, 1] += shared_signal
 
@@ -79,6 +94,7 @@ class TestRunExploratorySynthetic(unittest.TestCase):
             timeseries_list,
             np.array(pearson_z_edges, dtype=np.float64),
             np.array(motion_covariates, dtype=np.float64),
+            np.array(age_sex_covariates, dtype=np.float64),
             np.array(labels, dtype=np.int64),
             np.array(institutions, dtype="<U16"),
         )
@@ -87,8 +103,8 @@ class TestRunExploratorySynthetic(unittest.TestCase):
     # Test (a): Planted signal gives AUC clearly above 0.5
     # -----------------------------------------------------------------
     def test_a_planted_signal_gives_high_auc(self) -> None:
-        ts_list, z_edges, motion, labels, sites = self._generate_synthetic_loio_data(
-            n_per_site=30, n_rois=10, planted=True
+        ts_list, z_edges, motion, _, labels, sites = self._generate_synthetic_loio_data(
+            n_per_site=30, n_rois=10, planted_connectivity=True
         )
         probs, y_out = evaluate_loio_pipeline(
             feature_kind="pearson_fisher_z",
@@ -112,8 +128,8 @@ class TestRunExploratorySynthetic(unittest.TestCase):
     # Test (b): No signal gives ~0.5 and non-significant permutation p
     # -----------------------------------------------------------------
     def test_b_null_signal_gives_chance_auc_and_nonsignificant_permutation_p(self) -> None:
-        ts_list, z_edges, motion, labels, sites = self._generate_synthetic_loio_data(
-            n_per_site=25, n_rois=8, planted=False
+        ts_list, z_edges, motion, _, labels, sites = self._generate_synthetic_loio_data(
+            n_per_site=25, n_rois=8, planted_connectivity=False
         )
         configs = [
             ("pearson_fisher_z", "k100", "l2_lr"),
@@ -134,8 +150,7 @@ class TestRunExploratorySynthetic(unittest.TestCase):
         observed_auc = roc_auc_score(y_out, probs)
         self.assertAlmostEqual(observed_auc, 0.50, delta=0.20)
 
-        # Fast permutation test on null data
-        p_val, null_dist = run_within_site_permutation_test(
+        p_val, _ = run_within_site_label_permutation_test(
             configs=configs,
             timeseries_list=ts_list,
             pearson_z_edges=z_edges,
@@ -156,14 +171,13 @@ class TestRunExploratorySynthetic(unittest.TestCase):
     # Test (c): Leakage test (modifying held-out rows changes no fitted stat)
     # -----------------------------------------------------------------
     def test_c_zero_leakage_across_held_out_site(self) -> None:
-        ts_list, z_edges, motion, labels, sites = self._generate_synthetic_loio_data(
-            n_per_site=20, n_rois=10, planted=False
+        ts_list, z_edges, motion, _, labels, sites = self._generate_synthetic_loio_data(
+            n_per_site=20, n_rois=10, planted_connectivity=False
         )
         test_site = "Site_E"
         train_mask = sites != test_site
         test_mask = sites == test_site
 
-        # Baseline fit on training fold
         ts_train = [ts_list[i] for i in np.where(train_mask)[0]]
         ts_test_orig = [ts_list[i] for i in np.where(test_mask)[0]]
 
@@ -175,12 +189,11 @@ class TestRunExploratorySynthetic(unittest.TestCase):
             z_edges[train_mask], labels[train_mask], z_edges[test_mask], "k100"
         )
 
-        # Now heavily corrupt / modify held-out test site data
+        # Corrupt held-out test site data
         ts_test_corrupt = [ts + 1000.0 * self.rng.normal(size=ts.shape) for ts in ts_test_orig]
         z_test_corrupt = z_edges[test_mask] + 999.0
         motion_test_corrupt = motion[test_mask] * 50.0
 
-        # Refit on same training fold with corrupted test data
         X_tr_tang_new, _, cm_new = fit_transform_tangent_space(ts_train, ts_test_corrupt)
         _, _, w_new, b_new = fit_transform_motion_residualization(
             z_edges[train_mask], motion[train_mask], z_test_corrupt, motion_test_corrupt
@@ -189,7 +202,6 @@ class TestRunExploratorySynthetic(unittest.TestCase):
             z_edges[train_mask], labels[train_mask], z_test_corrupt, "k100"
         )
 
-        # Assert zero leakage into training statistics
         np.testing.assert_array_equal(
             cm_orig.mean_,
             cm_new.mean_,
@@ -220,7 +232,6 @@ class TestRunExploratorySynthetic(unittest.TestCase):
     # Test (d): Subject-grouped folds keep all runs of a subject together
     # -----------------------------------------------------------------
     def test_d_subject_grouped_folds_keep_runs_together(self) -> None:
-        # Simulate multi-run cohort
         synthetic_subjects = [f"SYN_SUBJ_{i:03d}" for i in range(50)]
         runs_per_subject = [1 if i < 20 else (2 if i < 40 else 3) for i in range(50)]
 
@@ -235,7 +246,6 @@ class TestRunExploratorySynthetic(unittest.TestCase):
         all_run_sub_ids_arr = np.array(all_run_sub_ids)
         all_run_site_arr = np.array(all_run_site)
 
-        # Check Leave-One-Institution-Out splitting on sites
         for test_site in ["Site_NYU", "Site_OHSU"]:
             train_mask = all_run_site_arr != test_site
             test_mask = all_run_site_arr == test_site
@@ -250,7 +260,6 @@ class TestRunExploratorySynthetic(unittest.TestCase):
                 f"Subject leakage detected in LOIO: {len(overlap)} subjects span both train and test!",
             )
 
-        # Test within-site motion matching
         fake_labels = [i % 2 for i in range(len(all_run_sub_ids))]
         fake_mean_fd = [0.10 + 0.05 * (i % 3) for i in range(len(all_run_sub_ids))]
         matched_idx = match_subjects_on_motion_within_site(
@@ -267,18 +276,129 @@ class TestRunExploratorySynthetic(unittest.TestCase):
     # Test (e): Guard refuses without flag and tag
     # -----------------------------------------------------------------
     def test_e_guard_refuses_without_flag_and_tag(self) -> None:
-        # Refuse when execute_real is False
         with self.assertRaises(RuntimeError) as ctx1:
             enforce_exploratory_guards(execute_real=False)
         self.assertIn("Refusing to read real labels without --execute-real", str(ctx1.exception))
 
-        # Refuse when execute_real is True but tag does not exist
         with self.assertRaises(RuntimeError) as ctx2:
             enforce_exploratory_guards(
                 execute_real=True,
                 tag_name="nonexistent-exploratory-tag-9999",
             )
         self.assertIn("does not exist on an ancestor of HEAD", str(ctx2.exception))
+
+    # -----------------------------------------------------------------
+    # Test (f): Incremental contrast null (covariates have signal, conn is noise)
+    # -----------------------------------------------------------------
+    def test_f_incremental_null_covariates_carry_signal_connectivity_is_noise(self) -> None:
+        ts_list, z_edges, motion, age_sex, labels, sites = self._generate_synthetic_loio_data(
+            n_per_site=25, n_rois=8, planted_connectivity=False, planted_covariates=True
+        )
+        baselines = evaluate_non_imaging_baselines(
+            motion_covariates=motion,
+            age_sex_covariates=age_sex,
+            labels=labels,
+            institutions=sites,
+            random_state=42,
+        )
+        base_auc = roc_auc_score(labels, baselines["motion_age_sex"])
+        self.assertGreater(base_auc, 0.70, f"Covariates should carry signal, base_auc={base_auc:.4f}")
+
+        configs = [("pearson_fisher_z", "k100", "l2_lr")]
+        comb_probs = evaluate_combined_covariates_and_connectivity(
+            feature_kind="pearson_fisher_z",
+            selection_mode="k100",
+            classifier_name="l2_lr",
+            timeseries_list=ts_list,
+            pearson_z_edges=z_edges,
+            motion_covariates=motion,
+            age_sex_covariates=age_sex,
+            labels=labels,
+            institutions=sites,
+            random_state=42,
+        )
+        comb_auc = roc_auc_score(labels, comb_probs)
+        delta_auc = comb_auc - base_auc
+        self.assertLess(
+            delta_auc,
+            0.05,
+            f"Noise connectivity should not increase AUC over signal covariates, delta={delta_auc:.4f}",
+        )
+
+        p_val, _ = run_incremental_contrast_permutation_test(
+            configs=configs,
+            timeseries_list=ts_list,
+            pearson_z_edges=z_edges,
+            motion_covariates=motion,
+            age_sex_covariates=age_sex,
+            labels=labels,
+            institutions=sites,
+            baseline_probs=baselines["motion_age_sex"],
+            observed_max_delta_auc=delta_auc,
+            n_permutations=20,
+            seed=42,
+        )
+        self.assertGreater(
+            p_val,
+            0.05,
+            f"Incremental contrast should be non-significant (p > 0.05) when connectivity is noise, got p={p_val:.4f}",
+        )
+
+    # -----------------------------------------------------------------
+    # Test (g): Incremental contrast signal (connectivity carries signal beyond covariates)
+    # -----------------------------------------------------------------
+    def test_g_incremental_signal_connectivity_carries_signal_beyond_covariates(self) -> None:
+        ts_list, z_edges, motion, age_sex, labels, sites = self._generate_synthetic_loio_data(
+            n_per_site=30, n_rois=8, planted_connectivity=True, planted_covariates=False
+        )
+        baselines = evaluate_non_imaging_baselines(
+            motion_covariates=motion,
+            age_sex_covariates=age_sex,
+            labels=labels,
+            institutions=sites,
+            random_state=42,
+        )
+        base_auc = roc_auc_score(labels, baselines["motion_age_sex"])
+
+        configs = [("pearson_fisher_z", "k100", "l2_lr")]
+        comb_probs = evaluate_combined_covariates_and_connectivity(
+            feature_kind="pearson_fisher_z",
+            selection_mode="k100",
+            classifier_name="l2_lr",
+            timeseries_list=ts_list,
+            pearson_z_edges=z_edges,
+            motion_covariates=motion,
+            age_sex_covariates=age_sex,
+            labels=labels,
+            institutions=sites,
+            random_state=42,
+        )
+        comb_auc = roc_auc_score(labels, comb_probs)
+        delta_auc = comb_auc - base_auc
+        self.assertGreater(
+            delta_auc,
+            0.15,
+            f"Connectivity signal should strongly boost AUC beyond noise covariates, delta={delta_auc:.4f}",
+        )
+
+        p_val, _ = run_incremental_contrast_permutation_test(
+            configs=configs,
+            timeseries_list=ts_list,
+            pearson_z_edges=z_edges,
+            motion_covariates=motion,
+            age_sex_covariates=age_sex,
+            labels=labels,
+            institutions=sites,
+            baseline_probs=baselines["motion_age_sex"],
+            observed_max_delta_auc=delta_auc,
+            n_permutations=20,
+            seed=42,
+        )
+        self.assertLessEqual(
+            p_val,
+            0.10,
+            f"Incremental contrast should be statistically significant, got p={p_val:.4f}",
+        )
 
 
 if __name__ == "__main__":

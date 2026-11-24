@@ -4,7 +4,8 @@
 > **STRICTLY EXPLORATORY PROTOCOL — NO CONFIRMATORY CLAIMS**  
 > This protocol specifies an exploratory, hypothesis-generating investigation across the five multi-class ADHD-200 institutions in the Athena preprocessing release.  
 > **The sealed NYU holdout is unsealed and permanently exhausted** (unblinded and evaluated during Study 2 under OSF registration [https://osf.io/grbt2](https://osf.io/grbt2)). Consequently, **NYU is no longer an external test site**; it is incorporated into the open development and cross-validation pool.  
-> **No confirmatory claims of generalizable diagnostic discrimination may be drawn from any run under this protocol.** Any observed performance gain is strictly hypothesis-generating. Any confirmatory claim of clinical utility or external generalization strictly requires a new, previously unexamined, and externally pre-registered independent clinical cohort.
+> **No confirmatory claims of generalizable diagnostic discrimination may be drawn from any run under this protocol.** Any observed performance gain is strictly hypothesis-generating. Any confirmatory claim of clinical utility or external generalization strictly requires a new, previously unexamined, and externally pre-registered independent clinical cohort.  
+> **Dashboard Integration Policy:** Results from this exploratory protocol do NOT go on the production research dashboard unless placed in a dedicated panel explicitly labeled *"Exploratory / Hypothesis-Generating Follow-Up"*.
 
 ---
 
@@ -22,15 +23,16 @@ The objective of this exploratory protocol is to investigate whether methodologi
    - Logistic Regression on Rigid-Body Motion Summary Statistics (`mean_fd_mm`, `max_disp_mm`).
    - Logistic Regression on Demographic Covariates (`age`, biological `sex`).
    - Primary Combined Baseline: Logistic Regression on Motion + Age + Sex (`[mean_fd_mm, max_disp_mm, age, sex]`).
-4. **Primary Exploratory Contrast:**
+4. **Primary Incremental Exploratory Contrast:**
    $$\Delta \text{AUC}_{\text{incremental}} = \text{AUC}\Big(\text{Motion} + \text{Age} + \text{Sex} + \text{Connectivity}\Big) - \text{AUC}\Big(\text{Motion} + \text{Age} + \text{Sex}\Big)$$
    evaluated on identical cross-validation folds with a paired cluster-bootstrap (2,000 resamples at the subject level).
-5. **Pre-Declared Criterion for an "Interesting" Finding:**
+5. **Pre-Declared Criteria for an "Interesting" Finding:**
    To be declared "interesting" (worthy of further exploration in a new cohort), the top-ranking configuration must satisfy:
-   - $\Delta \text{AUC}$ vs. Motion Baseline $> 0$ with 95% paired bootstrap CI lower bound $> 0$.
-   - $\Delta \text{AUC}$ vs. Age/Sex Baseline $> 0$ with 95% paired bootstrap CI lower bound $> 0$.
-   - $\Delta \text{AUC}_{\text{incremental}}$ (Motion + Age + Sex + Connectivity vs. Motion + Age + Sex) $> 0$ with 95% paired bootstrap CI lower bound $> 0$.
-   If the lower bound of any of these intervals encompasses zero, the connectivity features provide no statistically credible incremental utility beyond non-imaging confounders.
+   - **Max-Statistic Incremental Contrast Permutation Test:** $p_{\text{incremental}} < 0.05$ under the connectivity-row permutation null (repeating full selection over the 12 configurations).
+   - **Paired Bootstrap Confidence Interval:** 95% paired bootstrap CI lower bound for $\Delta \text{AUC}_{\text{incremental}} > 0$.
+     *(Note: This confidence interval is conditional on configuration selection and is thus subject to selection optimism / winner's curse; the permutation test provides the formal family-wise control).*
+   - **Benchmark Superiority:** Empirical point estimates $\Delta \text{AUC} > 0$ relative to both the motion-only baseline and the age/sex baseline.
+   If any of these conditions fails, the connectivity features provide no statistically credible incremental utility beyond non-imaging confounders.
 6. **Zero Individual Data Leakage:** Reports, tables, logs, and artifacts must never print individual subject IDs, raw timeseries, or per-subject prediction rows.
 
 ---
@@ -64,26 +66,38 @@ Both the clean primary cohort ($N = 564$) and full scanned cohort ($N = 620$) ar
 
 ---
 
-## 3. Motion-Matched Evaluation Protocol
+## 3. Deterministic Motion-Matched Evaluation Protocol
 
-Because head motion is significantly elevated in ADHD subjects, diagnostic classifiers can exploit residual motion patterns rather than neurobiological connectivity. To isolate neural connectivity signal:
+Because head motion is significantly elevated in ADHD subjects, diagnostic classifiers can exploit residual motion patterns rather than neurobiological connectivity. To isolate neural connectivity signal, an explicit 1:1 motion-matched subset is constructed.
 
-1. **Matching Procedure:**
-   - 1:1 nearest-neighbor matching without replacement between ADHD and TDC subjects within each institution, based on `mean_fd_mm` with a caliper distance $\le 0.05\text{ mm}$.
-2. **Primary Motion Matching (Performed AFTER Section 5.3 FD Exclusion):**
-   - Matching within the quality-controlled clean primary cohort ($N = 564$) ensures all evaluated subjects have clean scans and strictly balanced motion distributions.
-   - **Resulting Cohort: 215 Matched Pairs ($N = 430$ Subjects: 215 TDC, 215 ADHD):**
-     - **Peking:** 73 matched pairs ($N = 146$; 73 TDC, 73 ADHD)
-     - **KKI:** 19 matched pairs ($N = 38$; 19 TDC, 19 ADHD)
-     - **NeuroIMAGE:** 16 matched pairs ($N = 32$; 16 TDC, 16 ADHD)
-     - **OHSU:** 21 matched pairs ($N = 42$; 21 TDC, 21 ADHD)
-     - **NYU:** 86 matched pairs ($N = 172$; 86 TDC, 86 ADHD)
-3. **Sensitivity Motion Matching (Performed BEFORE Section 5.3 FD Exclusion):**
-   - Matching across all $N = 620$ scanned subjects:
-   - **Resulting Cohort: 226 Matched Pairs ($N = 452$ Subjects: 226 TDC, 226 ADHD):**
-     - Peking: 73 pairs ($N = 146$), KKI: 20 pairs ($N = 40$), NeuroIMAGE: 16 pairs ($N = 32$), OHSU: 28 pairs ($N = 56$), NYU: 89 pairs ($N = 178$).
-4. **Reporting Strategy:**
-   - The primary evaluation reports both the **unmatched analysis** ($N = 564$ clean, $N = 620$ scanned) and the **motion-matched analysis** ($N = 430$) side-by-side to directly measure the performance drop under motion control.
+### 3.1 Fully Deterministic Matching Algorithm
+To eliminate order dependency and guarantee bit-for-bit reproducibility:
+1. Cohort rows are pre-filtered to the target evaluation set (clean primary $N = 564$ or full scanned $N = 620$).
+2. Within each of the 5 institutions:
+   - ADHD subjects are sorted deterministically by `(mean_fd_mm ascending, normalized_subject_id ascending)`.
+   - Candidate TDC subjects are sorted deterministically by `(mean_fd_mm ascending, normalized_subject_id ascending)`.
+   - The algorithm iterates through sorted ADHD subjects one by one.
+   - For each ADHD subject, candidate TDC subjects within a maximum caliper distance of $|FD_{\text{TDC}} - FD_{\text{ADHD}}| \le 0.05\text{ mm}$ are evaluated.
+   - **Tie-Breaking Rule:** From all eligible TDC candidates, the match is chosen by:
+     a) Minimum absolute distance $|FD_{\text{TDC}} - FD_{\text{ADHD}}|$.
+     b) If distances are tied, candidate with smaller $FD_{\text{TDC}}$.
+     c) If still tied, candidate with lexicographically smaller normalized `subject_id`.
+   - The selected TDC subject is assigned and removed from the available pool.
+   - Entire procedure contains zero stochastic components.
+
+### 3.2 Explanation of the 227 vs. 226 Pre-Exclusion Count
+- In greedy nearest-neighbor matching without optimal bipartite matching (Hungarian assignment), match cardinality is sensitive to the processing order of the source subjects.
+- When phenotypic rows were loaded in unsorted iteration order from concatenated per-site CSVs, a specific ADHD subject in Peking and NeuroIMAGE matched a TDC subject that allowed another ADHD subject to also find a match within caliper (yielding 227 pairs).
+- When records were loaded in file order from `adhd200_preprocessed_phenotypics.tsv`, an earlier ADHD subject claimed that TDC subject, leaving a subsequent ADHD subject without any candidate within the 0.05 mm caliper (yielding 226 pairs).
+- Specifying deterministic sorting by `(mean_fd_mm, normalized_subject_id)` locks the algorithm to an unambiguous, unique count.
+
+### 3.3 Resulting Matched Cohorts
+- **Primary Matching (AFTER Section 5.3 FD Exclusion, $N = 564$):**
+  - **215 Matched Pairs ($N = 430$ Subjects: 215 TDC, 215 ADHD):**
+    - Peking: 73 pairs ($N = 146$), KKI: 19 pairs ($N = 38$), NeuroIMAGE: 16 pairs ($N = 32$), OHSU: 21 pairs ($N = 42$), NYU: 86 pairs ($N = 172$).
+- **Sensitivity Matching (BEFORE Section 5.3 FD Exclusion, $N = 620$):**
+  - **226 Matched Pairs ($N = 452$ Subjects: 226 TDC, 226 ADHD):**
+    - Peking: 73 pairs ($N = 146$), KKI: 20 pairs ($N = 40$), NeuroIMAGE: 16 pairs ($N = 32$), OHSU: 28 pairs ($N = 56$), NYU: 89 pairs ($N = 178$).
 
 ---
 
@@ -97,17 +111,14 @@ Evaluated across all 5 institutions ($3 \text{ Feature Kinds} \times 2 \text{ Fe
    - Pairwise sample Pearson correlation matrix $R$ across 190 CC200 ROIs, clipped to $[-1 + 10^{-7}, 1 - 10^{-7}]$, Fisher-$z$ transformed ($z = \operatorname{arctanh}(r)$).
    - Off-diagonal upper triangle: $p = 190 \times 189 / 2 = 17,955$ features.
 2. **`A2` (Riemannian Tangent Space Connectivity):**
-   - Ledoit-Wolf shrinkage covariance matrices $S_i$ estimated per subject.
-   - Fréchet geometric mean covariance $\bar{\Sigma}$ estimated **strictly on training fold subjects** on the manifold of symmetric positive definite (SPD) matrices.
-   - Manifold tangent projection: $\Omega_i = \operatorname{Logm}(\bar{\Sigma}^{-1/2} S_i \bar{\Sigma}^{-1/2})$.
-   - State vector length:
-     - **With diagonal (standard Riemannian isometry):** $p = 190 \times 191 / 2 = 18,145$ features (diagonal elements retained, off-diagonals scaled by $\sqrt{2}$ to preserve the Riemannian manifold metric in Euclidean space, matching `nilearn.connectome.ConnectivityMeasure(kind='tangent', vectorize=True)`).
-     - **Without diagonal:** $p = 17,955$ features (strictly off-diagonal tangent coordinates).
-     - Primary specification uses the standard isometry with diagonal ($p = 18,145$).
+   - **Shrinkage Rule:** Ledoit-Wolf shrinkage covariance estimator ($\ell_2$-regularized convex combination between sample covariance and identity/spherical shrinkage target).
+   - **Fréchet Mean:** Fréchet geometric mean covariance $\bar{\Sigma}$ estimated **strictly on training fold subjects** on the manifold of symmetric positive definite (SPD) matrices.
+   - **Manifold Projection:** $\Omega_i = \operatorname{Logm}(\bar{\Sigma}^{-1/2} S_i \bar{\Sigma}^{-1/2})$.
+   - **Pre-Specified Vector Length:** $p = 190 \times 191 / 2 = 18,145$ features (retaining diagonal elements and scaling off-diagonals by $\sqrt{2}$ to preserve the Riemannian manifold metric in Euclidean space, matching `nilearn.connectome.ConnectivityMeasure(kind='tangent', vectorize=True)`).
 3. **`A3` (Pearson + Motion-Covariate Residualization):**
    - Edge-level ordinary least squares (OLS) regression fit **strictly on training fold subjects**:
      $$z_{ij} = \beta_0 + \beta_1 \cdot \text{mean\_fd\_mm} + \beta_2 \cdot \text{max\_disp\_mm} + \epsilon_{ij}$$
-   - Regression weights applied out-of-sample to compute residual connectivity $z_{ij}^{\text{resid}} = z_{ij} - \hat{z}_{ij}$ on both training and test folds. Vector length: $p = 17,955$.
+   - Regression weights applied out-of-sample to compute residual connectivity $z_{ij}^{\text{resid}} = z_{ij} - \hat{z}_{ij}$ on both training and test folds ($p = 17,955$).
 
 #### Dimension B: Feature Selection (2 Levels)
 1. **`B1` (ANOVA $k=100$):** Univariate feature selection retaining the top $k = 100$ features with highest $F$-statistic, fit strictly on training fold labels.
@@ -122,7 +133,16 @@ Evaluated across all 5 institutions ($3 \text{ Feature Kinds} \times 2 \text{ Fe
 
 ---
 
-### 4.2 The 4 Multi-Run Configurations (NYU + OHSU Sub-Analysis)
+### 4.2 Limitation: Scan Length Heterogeneity & Rank Deficiency at OHSU ($T = 78 < K = 190$)
+A critical neuroimaging limitation must be formally recognized:
+- At OHSU, resting-state fMRI runs have only $T = 78$ retained volumes after dropping dummy frames, whereas the CC200 brain atlas contains $K = 190$ populated ROIs.
+- Because $T = 78 < K = 190$, the empirical sample covariance matrix $S_i$ is **mathematically singular** ($\text{rank}(S_i) \le 77$).
+- Ledoit-Wolf shrinkage regularization is strictly mandatory to pull the singular covariance toward a well-conditioned spherical target, ensuring full rank and invertibility prior to the matrix logarithm.
+- However, the geometric covariance estimation on $T = 78$ is substantially noisier and less constrained than at sites with $T > 190$ (e.g. Peking $T = 233$, NeuroIMAGE $T = 257$).
+
+---
+
+### 4.3 The 4 Multi-Run Configurations (NYU + OHSU Sub-Analysis)
 Because only NYU ($180$ `rest_2` runs) and OHSU ($78$ `rest_2`, $78$ `rest_3` runs) acquired multiple resting-state sessions, multi-run aggregation is evaluated as an **isolated, exploratory sub-analysis**:
 - **Design:** Averaging Fisher-$z$ Pearson correlation matrices across all available runs of each subject, boosting temporal scan duration ($T_{\text{eff}} \approx 2\times\text{--}3\times$) and SNR.
 - **Subject-Grouped Cross-Validation:** Folds are strictly grouped by unique subject ID; all runs of a subject remain in the same split. Effective sample size $N$ remains the number of unique subjects (one feature vector and one label row per subject).
@@ -130,7 +150,7 @@ Because only NYU ($180$ `rest_2` runs) and OHSU ($78$ `rest_2`, $78$ `rest_3` ru
 
 ---
 
-### 4.3 Complete Enumeration Table ($12 + 4 = 16$ Configurations)
+### 4.4 Complete Enumeration Table ($12 + 4 = 16$ Configurations)
 
 | Config ID | Target Scope | Feature Representation | Feature Selection | Classifier Architecture | Input Data & Constraints |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -153,31 +173,38 @@ Because only NYU ($180$ `rest_2` runs) and OHSU ($78$ `rest_2`, $78$ `rest_3` ru
 
 ---
 
-## 5. Statistical Inference & Full-Selection Permutation Testing
+## 5. Statistical Inference & Two Permutation Tests
 
-### 5.1 Max-Statistic Within-Institution Permutation Test
-To control the family-wise error rate across all candidate configurations ("winner's curse"):
-1. Diagnostic labels ($y$) are permuted **strictly within each institution**, preserving site sample sizes, class balance, and site-scanner distributions.
-2. In each permutation iteration $b = 1, \dots, B$:
-   - All 12 primary LOIO configurations are re-fit and evaluated on the permuted labels.
-   - The maximum LOIO ROC-AUC across all configurations is recorded: $\text{AUC}_{\max}^{(b)} = \max_{c} \text{AUC}_c^{(b)}$.
-3. The empirical family-wise $p$-value for the observed winning configuration $\text{AUC}_{\max}^{\text{obs}}$ is:
-   $$p_{\text{perm}} = \frac{1 + \sum_{b=1}^{B} \mathbb{I}\left(\text{AUC}_{\max}^{(b)} \ge \text{AUC}_{\max}^{\text{obs}}\right)}{1 + B}$$
+Two distinct non-parametric permutation tests are conducted to evaluate performance:
 
-### 5.2 Permutation Budget & Runtime Estimates
-Benchmark measurements on a full synthetic 5-site cohort ($N = 564, p = 17,955$):
-- 1 complete 5-fold LOIO evaluation across all 12 configurations: **$2.70\text{ seconds}$**.
-- **200 Permutations:** Estimated runtime $\approx \mathbf{9.0\text{ minutes}}$ (recommended operational default).
-- **1,000 Permutations:** Estimated runtime $\approx \mathbf{45.0\text{ minutes}}$.
-The protocol specifies $B = 200$ iterations as primary, with $B = 1,000$ optional if compute budget allows.
+### 5.1 Test 1: Label Permutation for Discrimination (H0: AUC = 0.5)
+- **Null Hypothesis:** Diagnosis labels ($y$) are uncoupled from imaging and non-imaging features.
+- Labels are permuted strictly within each institution.
+- In each permutation $b = 1, \dots, B$, all 12 candidate configurations are re-fit, and the maximum LOIO ROC-AUC is recorded: $\text{AUC}_{\max}^{(b)} = \max_c \text{AUC}_c^{(b)}$.
+- Family-wise empirical $p$-value:
+  $$p_{\text{label}} = \frac{1 + \sum_{b=1}^{B} \mathbb{I}\left(\text{AUC}_{\max}^{(b)} \ge \text{AUC}_{\max}^{\text{obs}}\right)}{1 + B}$$
+
+### 5.2 Test 2: Connectivity-Row Permutation for Incremental Contrast (H0: $\Delta\text{AUC}_{\text{incremental}} \le 0$)
+- **Null Hypothesis:** Connectivity features carry zero diagnostic information beyond motion, age, and sex covariates.
+- **Specification:** Diagnostic labels ($y$) and non-imaging covariates (`motion + age + sex`) stay **strictly paired and intact**.
+- Only the **connectivity feature rows** ($X$) are permuted among subjects **strictly within each institution**.
+- In each permutation $b = 1, \dots, B$:
+  - The combined model `[motion + age + sex + connectivity_perm]` is evaluated on identical LOIO folds.
+  - The incremental contrast $\Delta \text{AUC}_c^{(b)} = \text{AUC}_{\text{combined}, c}^{(b)} - \text{AUC}_{\text{baseline}}$ is computed relative to the fixed non-imaging baseline.
+  - The maximum delta-AUC across all 12 configurations is recorded: $\Delta \text{AUC}_{\max}^{(b)} = \max_c \Delta \text{AUC}_c^{(b)}$.
+- Family-wise empirical $p$-value:
+  $$p_{\text{incremental}} = \frac{1 + \sum_{b=1}^{B} \mathbb{I}\left(\Delta \text{AUC}_{\max}^{(b)} \ge \Delta \text{AUC}_{\max}^{\text{obs}}\right)}{1 + B}$$
 
 ---
 
-## 6. Output Reporting Standards
+## 6. Real-Shape Benchmark & Execution Budget
 
-The final summary report must tabulate:
-1. **Pooled LOIO Metrics:** Pooled ROC-AUC (95% CI), Balanced Accuracy (95% CI), $\Delta \text{AUC}$ vs. Motion Baseline, $\Delta \text{AUC}$ vs. Age/Sex Baseline, Primary Contrast $\Delta \text{AUC}_{\text{incremental}}$ (Motion+Age+Sex+Connectivity vs. Motion+Age+Sex), and Permutation $p$-value.
-2. **Per-Institution Metrics:** Individual held-out ROC-AUC and 95% CIs for Peking, KKI, NeuroIMAGE, OHSU, and NYU.
-3. **Motion-Matched vs. Unmatched:** Direct side-by-side comparison across all metrics.
-4. **Mandatory Concluding Clause:**
-   > *"These exploratory findings represent post-hoc analyses on previously analyzed data and do not establish clinical validity. Confirmatory testing requires pre-registration and replication on a novel, untouched external clinical cohort."*
+Benchmarking on synthetic data at the exact clean primary dimensions ($N = 564, K = 190$, exact scan lengths $T \in [78, 257]$):
+- **Tangent Feature Construction:** $3.75\text{ s}$ per fold ($18.75\text{ s}$ across all 5 folds).
+- **Motion Residualization (OLS):** $0.055\text{ s}$ per fold.
+- **Single Fold Model Fitting & Scoring (All 12 Configurations):** $0.861\text{ s}$ per fold.
+- **Single Complete 5-Fold LOIO Evaluation:** $4.30\text{ s}$.
+- **Permutation Cost with Cached Features:** **$3.58\text{ s}$ per iteration**.
+- **200 Permutations Total:** $\approx \mathbf{11.9\text{ minutes}}$ ($\approx 716\text{ s}$).
+- **1,000 Permutations Total:** $\approx \mathbf{59.7\text{ minutes}}$ ($\approx 3,581\text{ s}$).
+*(All timings labeled as estimates).* Both 200 and 1,000 permutations fall comfortably below the 3-hour budget threshold.
