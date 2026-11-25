@@ -47,7 +47,8 @@ The objective of this exploratory protocol is to investigate whether methodologi
      - Synthetic power simulation seeds: `30000 + int(sig * 1000) + ds_idx` (`ds_idx in 0..49`, i.e. `30000–30049` for Null, `30240–30289` for Weak 1, `30280–30329` for Weak 2).
      - Motion matching: zero randomness (fully deterministic).
 6. **Zero Individual Data Leakage:** Reports, tables, logs, and artifacts must never print individual subject IDs, raw timeseries, or per-subject prediction rows.
-7. **Pre-Flight Check, Null-Only Checkpointing, Write-Once Output, and Crash/Deviation Policy:**
+7. **Data Flow (Label-Free First, Labels Last), Pre-Flight Check, Null-Only Checkpointing, Write-Once Output, and Crash/Deviation Policy:**
+   - **Strict Label-Free-First Data Flow:** `load_label_free_inputs()` first computes and caches all imaging features (CC200 Fisher-$z$ edges, timeseries for tangent space), motion covariates (saved dev FD + NYU FD from `intermediate_nyu.tar` via `compute_athena_fd.py`), age, and sex **without reading any label column**. `load_labels_last()` reads diagnosis (`DX`) **only** after all label-free inputs are built and only inside `--execute-real` after the `exploratory-frozen` guard passes.
    - Before any real execution, `--preflight` verifies that all required inputs (features, covariates including `NYU_motion.csv` with 396 rows = 216 `rest_1` + 180 `rest_2` covering all 216 NYU `rest_1` scans, `intermediate_nyu.tar` with 2,665 entries = 1,368 regular files + 1,297 directories, scan lengths, and matching inputs) exist with expected shapes and counts **without reading any label column**.
    - **Null-Only Checkpointing:** During permutation testing, `--checkpoint` stores **only** the completed permutation null statistics (`test1_null_max_aucs`, `test2_null_max_deltas`)—never any observed AUCs, deltas, or partial results—allowing crash recovery under `caffeinate -dimsu` without exposing partial findings.
    - The results JSON file is strictly **write-once** (refuses to overwrite an existing file).
@@ -163,7 +164,7 @@ A critical neuroimaging limitation must be formally recognized:
 ### 4.3 The 4 Multi-Run Configurations (NYU + OHSU Separate Family)
 Because only NYU ($180$ `rest_2` runs) and OHSU ($78$ `rest_2`, $78$ `rest_3` runs) acquired multiple resting-state sessions, multi-run aggregation (configurations `CFG_13`–`CFG_16`) is evaluated as a **separate family**:
 - **Design:** Averaging Fisher-$z$ Pearson correlation matrices across all available runs of each subject, boosting temporal scan duration ($T_{\text{eff}} \approx 2\times\text{--}3\times$) and SNR. One row and one label per unique subject.
-- **Subject-Grouped Cross-Validation:** Folds are strictly grouped by unique subject ID; all runs of a subject remain in the same split. Effective sample size $N$ remains the number of unique subjects.
+- **Subject-Grouped 2-Fold Cross-Validation:** Evaluated across **2 outer folds** (`NYU` vs. `OHSU`: train on one institution, test on the other). Because each outer fold trains on a single institution, late-fusion inner OOF scores use **5-fold subject-grouped `StratifiedKFold`** strictly within the training institution. Effective sample size $N$ remains the number of unique subjects.
 - **Separate Multiple-Testing Correction:** Because `CFG_13`–`CFG_16` are evaluated on NYU + OHSU only and are **not comparable across the 5 sites** (KKI, NeuroIMAGE, and Peking have only single runs; WashU runs are excluded as single-class), this family uses **its own Bonferroni correction across its 4 tests** ($\alpha_{\text{adj}} = 0.05 / 4 = 0.0125$).
 
 ---
