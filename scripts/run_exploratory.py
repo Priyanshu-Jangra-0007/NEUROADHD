@@ -7,13 +7,13 @@ Implements the protocol in docs/exploratory/EXPLORATORY_PLAN_DRAFT.md:
 - Strictly guarded: refuses to read real label files unless BOTH:
     1) --execute-real is passed on CLI, AND
     2) Git tag 'exploratory-frozen' is an ancestor of HEAD.
-- 12 Primary LOIO configurations across 5 multi-class sites (Peking, KKI, NeuroIMAGE, OHSU, NYU).
-- 4 Multi-Run configurations (NYU + OHSU sub-analysis, subject-grouped folds).
+- 12 Primary LOIO configurations across 5 multi-class sites (Peking, KKI, NeuroIMAGE, OHSU, NYU) using CC200 (190 populated ROIs).
+- 4 Multi-Run configurations (NYU + OHSU sub-analysis, subject-grouped folds, separate family with Bonferroni correction for 4 tests).
 - Deterministic motion-matched evaluation (1:1 within-site matching on mean FD).
 - Primary exploratory contrast: Motion+Age+Sex vs Motion+Age+Sex+Connectivity.
 - Max-statistic within-institution permutation test repeating full configuration selection:
-    1) Label-permutation max-AUC test for AUC > 0.5.
-    2) Connectivity-permutation max-delta-AUC test for incremental contrast (covariates & labels stay paired).
+    1) Test 1 (AUC > 0.5): Label-permutation max-AUC test, permuting labels strictly WITHIN each institution (as in Study 2).
+    2) Test 2 (Incremental contrast): Connectivity-permutation max-delta-AUC test (covariates & labels stay paired).
 - NEVER prints subject IDs.
 """
 
@@ -719,8 +719,170 @@ def run_incremental_contrast_permutation_test(
     return p_val, null_max_deltas
 
 
+# =====================================================================
+# "Interesting" Criteria Conjunction, Preflight, and Write-Once Output
+# =====================================================================
+
+def evaluate_interesting_criteria(
+    y_true: np.ndarray,
+    institutions: np.ndarray,
+    probs_combined: np.ndarray,
+    probs_motion_baseline: np.ndarray,
+    probs_agesex_baseline: np.ndarray,
+    probs_combined_baseline: np.ndarray,
+    incremental_perm_p: float,
+    n_boot: int = DEFAULT_BOOTSTRAP_B,
+    seed: int = DEFAULT_RANDOM_STATE,
+) -> Dict[str, object]:
+    """
+    Evaluate the strict 3-part conjunction required for an "interesting" finding:
+      (a) Beats motion-only baseline AND age/sex baseline with 95% paired-bootstrap CI
+          lower bounds strictly > 0.
+      (b) Max-statistic permutation p < 0.05 for the incremental contrast.
+      (c) Per-institution delta-AUC > 0 in at least 4 of 5 institutions.
+    Anything short of all three is "not interesting".
+    """
+    diff_motion, ci_lo_motion, ci_hi_motion = paired_bootstrap_auc_diff(
+        y_true, probs_combined, probs_motion_baseline, n_boot=n_boot, seed=seed
+    )
+    diff_agesex, ci_lo_agesex, ci_hi_agesex = paired_bootstrap_auc_diff(
+        y_true, probs_combined, probs_agesex_baseline, n_boot=n_boot, seed=seed
+    )
+    cond_a = (ci_lo_motion > 0.0) and (ci_lo_agesex > 0.0)
+    cond_b = incremental_perm_p < 0.05
+
+    per_site_deltas: Dict[str, float] = {}
+    unique_sites = sorted(set(institutions))
+    for site in unique_sites:
+        mask = institutions == site
+        auc_comb = float(roc_auc_score(y_true[mask], probs_combined[mask]))
+        auc_base = float(roc_auc_score(y_true[mask], probs_combined_baseline[mask]))
+        per_site_deltas[str(site)] = auc_comb - auc_base
+
+    n_sites_positive = sum(1 for d in per_site_deltas.values() if d > 0.0)
+    cond_c = n_sites_positive >= 4
+
+    is_interesting = cond_a and cond_b and cond_c
+    return {
+        "verdict": "interesting" if is_interesting else "not interesting",
+        "is_interesting": is_interesting,
+        "cond_a_beats_baselines_ci_gt_0": cond_a,
+        "diff_vs_motion": (diff_motion, ci_lo_motion, ci_hi_motion),
+        "diff_vs_agesex": (diff_agesex, ci_lo_agesex, ci_hi_agesex),
+        "cond_b_incremental_perm_p_lt_005": cond_b,
+        "incremental_perm_p": incremental_perm_p,
+        "cond_c_sites_positive_ge_4": cond_c,
+        "n_sites_positive": n_sites_positive,
+        "per_site_deltas": per_site_deltas,
+    }
+
+
+def run_preflight(data_root: Path = Path("NeuroADHD/data/athena")) -> Dict[str, object]:
+    """
+    Verify that every required input exists and has expected shapes, columns, and counts
+    WITHOUT reading any diagnostic label column (DX, Secondary Dx, ADHD Measure, etc.).
+    Fails clearly if any required input is missing or malformed.
+    """
+    required_files = {
+        "features_primary368": data_root / "features" / "dev_cc200_fisher_z_primary368.npz",
+        "features_all404": data_root / "features" / "dev_cc200_fisher_z_all404.npz",
+        "valid_roi_set": data_root / "features" / "dev_valid_roi_set.json",
+        "phenotypes_tsv": data_root / "phenotypes" / "adhd200_preprocessed_phenotypics.tsv",
+        "dev_fd_csv": data_root / "motion" / "dev_niak_fd_metrics.csv",
+        "nyu_motion_csv": data_root / "staging" / "NYU_motion.csv",
+        "nyu_intermediate_tar": data_root / "staging" / "intermediate_nyu.tar",
+        "cc200_tcs_tar": data_root / "staging" / "ADHD200_CC200_TCs_filtfix.tar.gz",
+    }
+    for name, path in required_files.items():
+        if not path.is_file():
+            raise FileNotFoundError(f"Preflight failed: missing required input '{name}' at {path}")
+
+    # 1. Check NPZ feature shapes WITHOUT reading 'y'
+    summary: Dict[str, object] = {}
+    for key, expected_n in [("features_primary368", 368), ("features_all404", 404)]:
+        with np.load(required_files[key], allow_pickle=False) as d:
+            for req_arr in ["X", "motion_X", "age_sex_X", "t_lengths", "institutions"]:
+                if req_arr not in d.files:
+                    raise ValueError(f"Preflight failed: '{req_arr}' missing in {required_files[key]}")
+            x_shape = d["X"].shape
+            m_shape = d["motion_X"].shape
+            a_shape = d["age_sex_X"].shape
+            t_shape = d["t_lengths"].shape
+            if x_shape != (expected_n, 17955):
+                raise ValueError(f"Preflight failed: {key} X shape {x_shape} != ({expected_n}, 17955)")
+            if m_shape != (expected_n, 2) or a_shape != (expected_n, 2) or t_shape != (expected_n,):
+                raise ValueError(f"Preflight failed: {key} covariate/length shape mismatch")
+            summary[key] = {"X_shape": x_shape, "motion_shape": m_shape, "age_sex_shape": a_shape}
+
+    # 2. Check ROI set JSON (190 populated CC200 ROIs)
+    with open(required_files["valid_roi_set"], "r", encoding="utf-8") as f:
+        roi_meta = json.load(f)
+    summary["valid_roi_keys"] = len(roi_meta)
+
+    # 3. Check phenotype TSV non-label columns ONLY (never read DX or ADHD columns)
+    with open(required_files["phenotypes_tsv"], "r", encoding="utf-8", errors="replace") as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        cols = reader.fieldnames or []
+        for req_col in ["ScanDir ID", "Site", "Gender", "Age"]:
+            if req_col not in cols:
+                raise ValueError(f"Preflight failed: missing column '{req_col}' in phenotypes TSV")
+        n_pheno_rows = sum(1 for _ in reader)
+    if n_pheno_rows < 900:
+        raise ValueError(f"Preflight failed: unexpected phenotype row count {n_pheno_rows}")
+    summary["phenotypes_rows"] = n_pheno_rows
+
+    # 4. Check motion & matching inputs (dev_niak_fd_metrics.csv and NYU_motion.csv)
+    with open(required_files["dev_fd_csv"], "r", encoding="utf-8", errors="replace") as f:
+        reader = csv.DictReader(f)
+        fd_cols = reader.fieldnames or []
+        for req_col in ["subject_id_norm", "institution", "mean_fd_mm", "max_disp_mm", "frames_cc200"]:
+            if req_col not in fd_cols:
+                raise ValueError(f"Preflight failed: missing column '{req_col}' in dev_niak_fd_metrics.csv")
+        n_fd_rows = sum(1 for _ in reader)
+    summary["dev_fd_rows"] = n_fd_rows
+
+    with open(required_files["nyu_motion_csv"], "r", encoding="utf-8", errors="replace") as f:
+        reader = csv.DictReader(f)
+        nyu_cols = reader.fieldnames or []
+        if "File" not in nyu_cols or "Max Motion (mm)" not in nyu_cols:
+            raise ValueError("Preflight failed: missing expected columns in NYU_motion.csv")
+        n_nyu_motion = sum(1 for _ in reader)
+    if n_nyu_motion == 0:
+        raise ValueError("Preflight failed: NYU_motion.csv is empty")
+    summary["nyu_motion_rows"] = n_nyu_motion
+
+    # 5. Check archives are readable tar files (no full extraction needed)
+    with tarfile.open(required_files["nyu_intermediate_tar"], "r:") as tf:
+        n_nyu_tar = len(tf.getmembers())
+    if n_nyu_tar == 0:
+        raise ValueError("Preflight failed: intermediate_nyu.tar is empty")
+    summary["nyu_tar_entries"] = n_nyu_tar
+    summary["cc200_tcs_tar_bytes"] = required_files["cc200_tcs_tar"].stat().st_size
+
+    return summary
+
+
+def write_results_once(output_path: Path, payload: Dict[str, object]) -> None:
+    """
+    Write final results JSON strictly once. Refuses to overwrite if output_path already exists.
+    """
+    if output_path.exists():
+        raise FileExistsError(
+            f"Refusing to overwrite existing results file: {output_path}. "
+            "Results are write-once to prevent re-running after viewing partial/prior output."
+        )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "x", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Exploratory Analysis Runner (Guarded).")
+    parser.add_argument(
+        "--preflight",
+        action="store_true",
+        help="Check that all required inputs exist with expected shapes/counts WITHOUT reading labels.",
+    )
     parser.add_argument(
         "--execute-real",
         action="store_true",
@@ -732,9 +894,22 @@ def main() -> None:
         default=DEFAULT_PERMUTATION_B,
         help=f"Number of within-site permutation iterations (default: {DEFAULT_PERMUTATION_B}).",
     )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("NeuroADHD/data/athena/results/exploratory_results.json"),
+        help="Write-once output JSON path.",
+    )
     args = parser.parse_args()
 
+    if args.preflight:
+        summary = run_preflight()
+        print("Preflight passed (no label columns read):", json.dumps(summary))
+        return
+
     enforce_exploratory_guards(execute_real=args.execute_real)
+    if args.output.exists():
+        raise FileExistsError(f"Refusing to overwrite existing results file: {args.output}")
     print("Guards passed. Real execution permitted under exploratory-frozen.")
 
 

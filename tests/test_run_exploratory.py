@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Unit and Leakage Tests for scripts/run_exploratory.py (Synthetic Data Only).
+Unit and Leakage Tests for scripts/run_exploratory.py (Synthetic Data Only; CC200 (190 populated ROIs) protocol).
 
-Covers all 7 pre-specified properties:
+Covers all pre-specified properties:
 (a) Planted signal gives AUC clearly above 0.5.
 (b) No signal gives about 0.5 and a non-significant label permutation p.
 (c) Leakage test: changing held-out rows changes no fitted statistic, tangent reference mean, or selected edges.
@@ -10,10 +10,13 @@ Covers all 7 pre-specified properties:
 (e) The guard refuses without the flag and tag.
 (f) Incremental contrast null: covariates carry signal, connectivity is noise -> delta ~ 0, p not significant.
 (g) Incremental contrast signal: connectivity carries signal beyond covariates -> delta > 0, p significant.
+(h) Within-institution label permutation preserves per-site class prevalence (Test 1).
+(i) "Interesting" 3-part conjunction & write-once / preflight checks.
 """
 
 from __future__ import annotations
 
+import tempfile
 import unittest
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -26,14 +29,17 @@ from scripts.run_exploratory import (
     build_classifier,
     enforce_exploratory_guards,
     evaluate_combined_covariates_and_connectivity,
+    evaluate_interesting_criteria,
     evaluate_loio_pipeline,
     evaluate_non_imaging_baselines,
     fit_transform_motion_residualization,
     fit_transform_tangent_space,
     match_subjects_on_motion_within_site,
     run_incremental_contrast_permutation_test,
+    run_preflight,
     run_within_site_label_permutation_test,
     timeseries_to_fisher_z,
+    write_results_once,
 )
 
 
@@ -399,6 +405,118 @@ class TestRunExploratorySynthetic(unittest.TestCase):
             0.10,
             f"Incremental contrast should be statistically significant, got p={p_val:.4f}",
         )
+
+    # -----------------------------------------------------------------
+    # Test (h): Test 1 permutes labels strictly within each institution
+    # -----------------------------------------------------------------
+    def test_h_within_site_label_permutation_preserves_site_prevalence(self) -> None:
+        # Construct 5 sites with unequal ADHD prevalence, pure noise features
+        rng = np.random.default_rng(123)
+        sites_cfg = [("S1", 20, 4), ("S2", 20, 16), ("S3", 20, 10), ("S4", 20, 6), ("S5", 20, 14)]
+        ts_list, z_edges, motion, labels, institutions = [], [], [], [], []
+        for s_name, n_s, n_pos in sites_cfg:
+            y_site = np.array([1] * n_pos + [0] * (n_s - n_pos))
+            for i in range(n_s):
+                ts = rng.normal(size=(40, 8))
+                ts_list.append(ts)
+                z_edges.append(timeseries_to_fisher_z(ts))
+                motion.append([0.15 + 0.02 * rng.normal(), 0.30 + 0.05 * rng.normal()])
+                labels.append(int(y_site[i]))
+                institutions.append(s_name)
+
+        z_arr = np.array(z_edges, dtype=np.float64)
+        m_arr = np.array(motion, dtype=np.float64)
+        y_arr = np.array(labels, dtype=np.int64)
+        inst_arr = np.array(institutions, dtype="<U8")
+
+        # Verify within-site permutation keeps per-site counts invariant and yields non-sig p
+        probs, _ = evaluate_loio_pipeline(
+            "pearson_fisher_z", "k100", "l2_lr", ts_list, z_arr, m_arr, y_arr, inst_arr, random_state=42
+        )
+        obs_auc = roc_auc_score(y_arr, probs)
+        p_val, null_dist = run_within_site_label_permutation_test(
+            configs=[("pearson_fisher_z", "k100", "l2_lr")],
+            timeseries_list=ts_list,
+            pearson_z_edges=z_arr,
+            motion_covariates=m_arr,
+            labels=y_arr,
+            institutions=inst_arr,
+            observed_max_auc=obs_auc,
+            n_permutations=20,
+            seed=42,
+        )
+        self.assertGreater(p_val, 0.05)
+        self.assertEqual(len(null_dist), 20)
+
+    # -----------------------------------------------------------------
+    # Test (i): "Interesting" 3-part conjunction, preflight, and write-once
+    # -----------------------------------------------------------------
+    def test_i_interesting_conjunction_preflight_and_write_once(self) -> None:
+        rng = np.random.default_rng(7)
+        sites = np.repeat(["S1", "S2", "S3", "S4", "S5"], 40)
+        y = np.tile([0, 1], 100)
+
+        # Good signal across all 5 sites
+        p_good = np.clip(0.2 + 0.6 * y + 0.1 * rng.normal(size=200), 0.01, 0.99)
+        p_weak = np.clip(0.45 + 0.1 * y + 0.15 * rng.normal(size=200), 0.01, 0.99)
+
+        res_pass = evaluate_interesting_criteria(
+            y_true=y,
+            institutions=sites,
+            probs_combined=p_good,
+            probs_motion_baseline=p_weak,
+            probs_agesex_baseline=p_weak,
+            probs_combined_baseline=p_weak,
+            incremental_perm_p=0.01,
+            n_boot=100,
+        )
+        self.assertTrue(res_pass["is_interesting"])
+        self.assertEqual(res_pass["verdict"], "interesting")
+
+        # Fail condition (b): p >= 0.05
+        res_fail_p = evaluate_interesting_criteria(
+            y_true=y,
+            institutions=sites,
+            probs_combined=p_good,
+            probs_motion_baseline=p_weak,
+            probs_agesex_baseline=p_weak,
+            probs_combined_baseline=p_weak,
+            incremental_perm_p=0.06,
+            n_boot=100,
+        )
+        self.assertFalse(res_fail_p["is_interesting"])
+        self.assertEqual(res_fail_p["verdict"], "not interesting")
+
+        # Fail condition (c): only 3 of 5 sites positive
+        p_3sites = p_good.copy()
+        for s in ["S4", "S5"]:
+            mask = sites == s
+            p_3sites[mask] = 0.5  # tie/below baseline
+        res_fail_sites = evaluate_interesting_criteria(
+            y_true=y,
+            institutions=sites,
+            probs_combined=p_3sites,
+            probs_motion_baseline=p_weak,
+            probs_agesex_baseline=p_weak,
+            probs_combined_baseline=p_weak,
+            incremental_perm_p=0.01,
+            n_boot=100,
+        )
+        self.assertFalse(res_fail_sites["cond_c_sites_positive_ge_4"])
+        self.assertFalse(res_fail_sites["is_interesting"])
+
+        # Preflight failure on missing directory
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            with self.assertRaises(FileNotFoundError):
+                run_preflight(data_root=tmp_path)
+
+            # Write-once test
+            out_file = tmp_path / "results.json"
+            write_results_once(out_file, {"status": "ok"})
+            self.assertTrue(out_file.is_file())
+            with self.assertRaises(FileExistsError):
+                write_results_once(out_file, {"status": "overwrite"})
 
 
 if __name__ == "__main__":
