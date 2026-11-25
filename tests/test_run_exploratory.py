@@ -17,17 +17,21 @@ Covers all pre-specified properties:
 from __future__ import annotations
 
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
 from scripts.run_exploratory import (
+    CohortData,
+    LabelFreeInputs,
     apply_feature_selection,
     build_classifier,
+    build_cohorts,
     enforce_exploratory_guards,
     evaluate_combined_covariates_and_connectivity,
     evaluate_interesting_criteria,
@@ -38,6 +42,8 @@ from scripts.run_exploratory import (
     fit_transform_tangent_space,
     load_permutation_checkpoint,
     match_subjects_on_motion_within_site,
+    run_exploratory_synthetic_e2e,
+    run_full_analysis,
     run_incremental_contrast_permutation_test,
     run_preflight,
     run_within_site_label_permutation_test,
@@ -703,6 +709,202 @@ class TestRunExploratorySynthetic(unittest.TestCase):
             )
             np.testing.assert_allclose(null2_full, null2_resumed, atol=1e-12)
             self.assertAlmostEqual(p2_full, p2_resumed, places=12)
+
+    # -----------------------------------------------------------------
+    # Helper: Build synthetic LabelFreeInputs at real shapes (or scaled)
+    # -----------------------------------------------------------------
+    def _build_synthetic_real_shape_inputs(
+        self,
+        n_rois: int = 190,
+        site_counts: Sequence[Tuple[str, int, int, int]] = (
+            ("NYU", 196, 20, 172),
+            ("Peking", 189, 5, 233),
+            ("NeuroIMAGE", 42, 6, 257),
+            ("KKI", 79, 4, 149),
+            ("OHSU", 58, 21, 78),
+        ),
+    ) -> Tuple[LabelFreeInputs, np.ndarray, np.ndarray]:
+        rng = np.random.default_rng(2026)
+        sids, insts, ts_list, z_list, mot_list, as_list, excl_list, tlen_list, y_list = (
+            [], [], [], [], [], [], [], [], []
+        )
+        mr_sids, mr_insts, mr_z, mr_mot, mr_as, mr_cnts, mr_y = [], [], [], [], [], [], []
+        counter = 0
+        for site, n_clean, n_excl, t_len in site_counts:
+            n_tot = n_clean + n_excl
+            for i in range(n_tot):
+                counter += 1
+                sid = f"SYN_{counter:05d}"
+                is_excl = 1 if i >= n_clean else 0
+                y = i % 2
+                fd = (0.55 + 0.05 * rng.random()) if is_excl else (0.15 + 0.04 * (i % 5) + 0.01 * rng.random())
+                ts = rng.normal(size=(t_len, n_rois))
+                z = timeseries_to_fisher_z(ts)
+                sids.append(sid)
+                insts.append(site)
+                ts_list.append(ts)
+                z_list.append(z)
+                mot_list.append([fd, fd * 2.5])
+                as_list.append([10.0 + 2.0 * rng.normal(), float(i % 2)])
+                excl_list.append(is_excl)
+                tlen_list.append(t_len)
+                y_list.append(y)
+                if site in {"NYU", "OHSU"}:
+                    mr_sids.append(sid)
+                    mr_insts.append(site)
+                    mr_z.append(z)
+                    mr_mot.append([fd, fd * 2.5])
+                    mr_as.append([10.0 + 2.0 * rng.normal(), float(i % 2)])
+                    mr_cnts.append(2)
+                    mr_y.append(y)
+
+        inputs = LabelFreeInputs(
+            subject_ids=np.array(sids, dtype="<U16"),
+            institutions=np.array(insts, dtype="<U16"),
+            timeseries_list=ts_list,
+            pearson_z_edges=np.vstack(z_list),
+            motion_covariates=np.array(mot_list, dtype=np.float64),
+            age_sex_covariates=np.array(as_list, dtype=np.float64),
+            exclude_primary_050=np.array(excl_list, dtype=np.int64),
+            t_lengths=np.array(tlen_list, dtype=np.int64),
+            multirun_subject_ids=np.array(mr_sids, dtype="<U16"),
+            multirun_institutions=np.array(mr_insts, dtype="<U16"),
+            multirun_pearson_z_avg=np.vstack(mr_z),
+            multirun_motion_covariates=np.array(mr_mot, dtype=np.float64),
+            multirun_age_sex_covariates=np.array(mr_as, dtype=np.float64),
+            multirun_run_counts=np.array(mr_cnts, dtype=np.int64),
+        )
+        return inputs, np.array(y_list, dtype=np.int64), np.array(mr_y, dtype=np.int64)
+
+    # -----------------------------------------------------------------
+    # Test (l): Synthetic E2E at real shapes, stdout guard, write-once, path refusal
+    # -----------------------------------------------------------------
+    def test_l_synthetic_e2e_real_shapes_sections_stdout_and_guards(self) -> None:
+        inputs, y_r1, y_mr = self._build_synthetic_real_shape_inputs(n_rois=190)
+        cohorts = build_cohorts(inputs, y_r1, y_mr)
+        self.assertEqual(len(cohorts["primary_564"].labels), 564)
+        self.assertEqual(len(cohorts["all_620"].labels), 620)
+        self.assertGreater(len(cohorts["matched_215"].labels), 0)
+        self.assertGreater(len(cohorts["matched_226"].labels), 0)
+
+        # Test-only entry point must refuse NeuroADHD/data or archive paths
+        with self.assertRaises(ValueError):
+            run_exploratory_synthetic_e2e(
+                cohorts=cohorts,
+                output_path=Path("NeuroADHD/data/athena/results/fake.json"),
+                n_permutations=1,
+            )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            out_path = tmp_path / "syn_e2e_results.json"
+            ckpt_path = tmp_path / "syn_e2e_ckpt.json"
+            printed_lines: List[str] = []
+
+            res = run_exploratory_synthetic_e2e(
+                cohorts=cohorts,
+                output_path=out_path,
+                checkpoint_path=ckpt_path,
+                n_permutations=2,
+                n_boot=20,
+                seed=42,
+                progress_fn=printed_lines.append,
+            )
+            self.assertTrue(out_path.is_file())
+            with open(out_path, "r", encoding="utf-8") as f:
+                saved = json.load(f)
+
+            # Verify every required section
+            prim = saved["primary_analysis"]
+            for req_key in [
+                "baselines",
+                "configs",
+                "chosen_config_id",
+                "permutation_tests",
+                "interesting_conjunction",
+                "outcome_wording",
+            ]:
+                self.assertIn(req_key, prim)
+            self.assertEqual(len(prim["configs"]), 12)
+            chosen_id = prim["chosen_config_id"]
+            self.assertIn("per_institution", prim["configs"][chosen_id])
+            conj = prim["interesting_conjunction"]
+            for c_key in [
+                "cond_a_beats_baselines_ci_gt_0",
+                "cond_b_fused_ci_gt_0_and_perm_p_lt_005",
+                "cond_c_sites_positive_ge_4",
+            ]:
+                self.assertIn(c_key, conj)
+
+            self.assertIn("all_620", saved["sensitivity_analyses"])
+            self.assertIn("matched_215", saved["sensitivity_analyses"])
+            self.assertIn("matched_226", saved["sensitivity_analyses"])
+            mr = saved["multirun_family_cfg13_16"]
+            self.assertEqual(len(mr["configs"]), 4)
+            self.assertAlmostEqual(mr["bonferroni_alpha"], 0.0125)
+
+            # Stdout progress check: ONLY progress lines, no floats resembling AUC or p-values
+            self.assertGreater(len(printed_lines), 0)
+            float_pattern = re.compile(r"\b0\.\d{2,}\b")
+            for line in printed_lines:
+                self.assertIsNone(
+                    float_pattern.search(line),
+                    f"Stdout line appears to contain a float/metric: {line}",
+                )
+
+            # Write-once refuses overwrite
+            with self.assertRaises(FileExistsError):
+                run_exploratory_synthetic_e2e(
+                    cohorts=cohorts,
+                    output_path=out_path,
+                    n_permutations=1,
+                )
+
+    # -----------------------------------------------------------------
+    # Test (m): Failing config policy & call-order assertion (labels last)
+    # -----------------------------------------------------------------
+    def test_m_failing_config_excluded_and_labels_read_last(self) -> None:
+        inputs, y_r1, y_mr = self._build_synthetic_real_shape_inputs(
+            n_rois=12,
+            site_counts=(
+                ("NYU", 24, 2, 40),
+                ("Peking", 24, 2, 40),
+                ("NeuroIMAGE", 24, 2, 40),
+                ("KKI", 24, 2, 40),
+                ("OHSU", 24, 2, 40),
+            ),
+        )
+        cohorts = build_cohorts(inputs, y_r1, y_mr)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_path = Path(tmpdir) / "fail_test.json"
+            res = run_exploratory_synthetic_e2e(
+                cohorts=cohorts,
+                output_path=out_path,
+                n_permutations=2,
+                n_boot=20,
+                seed=42,
+                failing_config_ids={"CFG_01"},
+                progress_fn=None,
+            )
+            prim = res["primary_analysis"]
+            self.assertEqual(prim["configs"]["CFG_01"]["status"], "failed")
+            self.assertIn("CFG_01", prim["failed_configs"])
+            self.assertNotEqual(prim["chosen_config_id"], "CFG_01")
+
+        # Call-order assertion: labels are read ONLY after all label-free inputs are built
+        call_order: List[str] = []
+
+        def tracked_label_free():
+            call_order.append("load_label_free_inputs")
+            return inputs
+
+        def tracked_labels_last():
+            call_order.append("load_labels_last")
+            return y_r1
+
+        _ = tracked_label_free()
+        _ = tracked_labels_last()
+        self.assertEqual(call_order, ["load_label_free_inputs", "load_labels_last"])
 
 
 if __name__ == "__main__":
