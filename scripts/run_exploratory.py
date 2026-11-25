@@ -470,6 +470,50 @@ def evaluate_non_imaging_baselines(
     }
 
 
+def _fit_predict_connectivity_fold(
+    feature_kind: str,
+    selection_mode: str,
+    classifier_name: str,
+    X_tr_conn: np.ndarray,
+    X_te_conn: np.ndarray,
+    y_tr: np.ndarray,
+    random_state: int = DEFAULT_RANDOM_STATE,
+) -> np.ndarray:
+    """Apply feature selection and fit classifier on a connectivity fold, returning test probabilities."""
+    X_tr_sel, X_te_sel, _ = apply_feature_selection(X_tr_conn, y_tr, X_te_conn, selection_mode)
+    clf = build_classifier(classifier_name, random_state=random_state)
+    clf.fit(X_tr_sel, y_tr)
+    return clf.predict_proba(X_te_sel)[:, 1]
+
+
+def _build_conn_fold_features(
+    feature_kind: str,
+    train_mask: np.ndarray,
+    test_mask: np.ndarray,
+    timeseries_list: Sequence[np.ndarray],
+    pearson_z_edges: np.ndarray,
+    motion_covariates: np.ndarray,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Extract connectivity features for a train/test split without touching test labels."""
+    if feature_kind == "pearson_fisher_z" or feature_kind == "multi_run_avg":
+        return pearson_z_edges[train_mask], pearson_z_edges[test_mask]
+    elif feature_kind == "tangent_space":
+        ts_train = [timeseries_list[i] for i in np.where(train_mask)[0]]
+        ts_test = [timeseries_list[i] for i in np.where(test_mask)[0]]
+        X_tr, X_te, _ = fit_transform_tangent_space(ts_train, ts_test, vectorize=True)
+        return X_tr, X_te
+    elif feature_kind == "motion_residualized":
+        X_tr, X_te, _, _ = fit_transform_motion_residualization(
+            pearson_z_edges[train_mask],
+            motion_covariates[train_mask],
+            pearson_z_edges[test_mask],
+            motion_covariates[test_mask],
+        )
+        return X_tr, X_te
+    else:
+        raise ValueError(f"Unknown feature kind: {feature_kind}")
+
+
 def evaluate_combined_covariates_and_connectivity(
     feature_kind: str,
     selection_mode: str,
@@ -484,55 +528,77 @@ def evaluate_combined_covariates_and_connectivity(
     random_state: int = DEFAULT_RANDOM_STATE,
 ) -> np.ndarray:
     """
-    Evaluate LOIO predictions for Motion + Age + Sex + Connectivity.
-    Returns: out_of_fold_probabilities
+    Evaluate outer LOIO predictions for Motion + Age + Sex + Connectivity via LATE FUSION:
+    For each outer held-out institution `test_site`:
+      1. Build inner 4-fold LOIO splits strictly within the 4 training institutions
+         (no held-out institution ever touches the inner models or fusion weights).
+      2. Compute inner out-of-fold probabilities `s_cov_oof` (covariate-only LR) and
+         `s_conn_oof` (connectivity configuration) for all training-institution subjects.
+      3. Fit a 2-parameter LogisticRegression meta-learner on `[s_cov_oof, s_conn_oof]`
+         using training-institution labels only.
+      4. Fit covariate-only LR and connectivity configuration on all 4 training institutions,
+         predict `[s_cov_test, s_conn_test]` on `test_site`, and return meta-learner probabilities.
     """
     if unique_institutions is None:
         unique_institutions = sorted(set(institutions))
 
     n = len(labels)
     probs_out = np.zeros(n, dtype=np.float64)
+    covariates = np.column_stack([motion_covariates, age_sex_covariates])
 
     for test_site in unique_institutions:
-        train_mask = institutions != test_site
-        test_mask = institutions == test_site
-        y_tr = labels[train_mask]
+        outer_train_mask = institutions != test_site
+        outer_test_mask = institutions == test_site
+        inner_sites = [s for s in unique_institutions if s != test_site]
 
-        # Standardize covariates strictly on training fold
-        covariates = np.column_stack([motion_covariates, age_sex_covariates])
-        s_cov = StandardScaler().fit(covariates[train_mask])
-        cov_tr = s_cov.transform(covariates[train_mask])
-        cov_te = s_cov.transform(covariates[test_mask])
+        # 1-2. Inner LOIO out-of-fold scores strictly within the 4 training institutions
+        s_cov_oof = np.zeros(n, dtype=np.float64)
+        s_conn_oof = np.zeros(n, dtype=np.float64)
 
-        # Connectivity features
-        if feature_kind == "pearson_fisher_z":
-            X_tr = pearson_z_edges[train_mask]
-            X_te = pearson_z_edges[test_mask]
-        elif feature_kind == "tangent_space":
-            ts_train = [timeseries_list[i] for i in np.where(train_mask)[0]]
-            ts_test = [timeseries_list[i] for i in np.where(test_mask)[0]]
-            X_tr, X_te, _ = fit_transform_tangent_space(ts_train, ts_test, vectorize=True)
-        elif feature_kind == "motion_residualized":
-            X_tr_raw = pearson_z_edges[train_mask]
-            X_te_raw = pearson_z_edges[test_mask]
-            M_tr = motion_covariates[train_mask]
-            M_te = motion_covariates[test_mask]
-            X_tr, X_te, _, _ = fit_transform_motion_residualization(X_tr_raw, M_tr, X_te_raw, M_te)
-        else:
-            X_tr = pearson_z_edges[train_mask]
-            X_te = pearson_z_edges[test_mask]
+        for inner_val_site in inner_sites:
+            inner_tr_mask = outer_train_mask & (institutions != inner_val_site)
+            inner_val_mask = institutions == inner_val_site
+            y_in_tr = labels[inner_tr_mask]
 
-        X_tr_sel, X_te_sel, _ = apply_feature_selection(X_tr, y_tr, X_te, selection_mode)
+            sc_in = StandardScaler().fit(covariates[inner_tr_mask])
+            clf_cov_in = LogisticRegression(
+                C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
+            )
+            clf_cov_in.fit(sc_in.transform(covariates[inner_tr_mask]), y_in_tr)
+            s_cov_oof[inner_val_mask] = clf_cov_in.predict_proba(sc_in.transform(covariates[inner_val_mask]))[:, 1]
 
-        # Concatenate standardized covariates and selected connectivity
-        full_tr = np.column_stack([cov_tr, X_tr_sel])
-        full_te = np.column_stack([cov_te, X_te_sel])
+            X_in_tr, X_in_val = _build_conn_fold_features(
+                feature_kind, inner_tr_mask, inner_val_mask, timeseries_list, pearson_z_edges, motion_covariates
+            )
+            s_conn_oof[inner_val_mask] = _fit_predict_connectivity_fold(
+                feature_kind, selection_mode, classifier_name, X_in_tr, X_in_val, y_in_tr, random_state=random_state
+            )
 
-        clf = build_classifier(classifier_name, random_state=random_state)
-        clf.fit(full_tr, y_tr)
+        # 3. Fit 2-parameter LogisticRegression meta-learner on inner OOF scores
+        meta_X_tr = np.column_stack([s_cov_oof[outer_train_mask], s_conn_oof[outer_train_mask]])
+        meta_clf = LogisticRegression(
+            C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
+        )
+        meta_clf.fit(meta_X_tr, labels[outer_train_mask])
 
-        test_indices = np.where(test_mask)[0]
-        probs_out[test_indices] = clf.predict_proba(full_te)[:, 1]
+        # 4. Fit base models on all 4 training institutions and predict on outer test_site
+        y_out_tr = labels[outer_train_mask]
+        sc_out = StandardScaler().fit(covariates[outer_train_mask])
+        clf_cov_out = LogisticRegression(
+            C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
+        )
+        clf_cov_out.fit(sc_out.transform(covariates[outer_train_mask]), y_out_tr)
+        s_cov_test = clf_cov_out.predict_proba(sc_out.transform(covariates[outer_test_mask]))[:, 1]
+
+        X_out_tr, X_out_te = _build_conn_fold_features(
+            feature_kind, outer_train_mask, outer_test_mask, timeseries_list, pearson_z_edges, motion_covariates
+        )
+        s_conn_test = _fit_predict_connectivity_fold(
+            feature_kind, selection_mode, classifier_name, X_out_tr, X_out_te, y_out_tr, random_state=random_state
+        )
+
+        meta_X_te = np.column_stack([s_cov_test, s_conn_test])
+        probs_out[outer_test_mask] = meta_clf.predict_proba(meta_X_te)[:, 1]
 
     return probs_out
 
@@ -540,6 +606,41 @@ def evaluate_combined_covariates_and_connectivity(
 # =====================================================================
 # Permutation Tests (Label Permutation & Connectivity Permutation)
 # =====================================================================
+
+def save_permutation_checkpoint(
+    checkpoint_path: Optional[Path],
+    test_key: str,
+    completed_values: Sequence[float],
+) -> None:
+    """
+    Save ONLY the completed permutation null statistics to disk so a crash can resume
+    without exposing any observed AUCs, deltas, or partial results.
+    """
+    if checkpoint_path is None:
+        return
+    data: Dict[str, List[float]] = {}
+    if checkpoint_path.exists():
+        with open(checkpoint_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    data[test_key] = [float(v) for v in completed_values]
+    checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = checkpoint_path.with_suffix(".tmp")
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f)
+    tmp_path.replace(checkpoint_path)
+
+
+def load_permutation_checkpoint(
+    checkpoint_path: Optional[Path],
+    test_key: str,
+) -> List[float]:
+    """Load previously completed permutation null statistics from checkpoint, if present."""
+    if checkpoint_path is None or not checkpoint_path.exists():
+        return []
+    with open(checkpoint_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return [float(v) for v in data.get(test_key, [])]
+
 
 def run_within_site_label_permutation_test(
     configs: Sequence[Tuple[str, str, str]],
@@ -551,15 +652,20 @@ def run_within_site_label_permutation_test(
     observed_max_auc: float,
     n_permutations: int = DEFAULT_PERMUTATION_B,
     seed: int = DEFAULT_RANDOM_STATE,
+    checkpoint_path: Optional[Path] = None,
 ) -> Tuple[float, np.ndarray]:
     """
-    Label-permutation max-AUC test for H0: AUC = 0.5.
-    Permutes labels strictly within each institution, repeating full selection across configurations.
+    Test 1 (AUC > 0.5): Label-permutation max-AUC test.
+    Permutes labels strictly WITHIN each institution (as in Study 2), repeating full
+    selection across configurations. Supports null-only checkpointing for crash recovery.
     Returns: (empirical_p_value, max_null_distribution)
     """
     rng = np.random.default_rng(seed)
     unique_sites = sorted(set(institutions))
+    completed = load_permutation_checkpoint(checkpoint_path, "test1_null_max_aucs")
     null_max_aucs = np.empty(n_permutations, dtype=np.float64)
+    for idx, val in enumerate(completed[:n_permutations]):
+        null_max_aucs[idx] = val
 
     # Pre-extract tangent space and residualized features once per fold
     tangent_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
@@ -584,6 +690,9 @@ def run_within_site_label_permutation_test(
         for site in unique_sites:
             s_idx = np.where(institutions == site)[0]
             y_perm[s_idx] = rng.permutation(y_perm[s_idx])
+
+        if b < len(completed):
+            continue
 
         perm_aucs: List[float] = []
         for feat_kind, sel_mode, clf_name in configs:
@@ -612,6 +721,7 @@ def run_within_site_label_permutation_test(
             perm_aucs.append(roc_auc_score(y_perm, probs))
 
         null_max_aucs[b] = max(perm_aucs)
+        save_permutation_checkpoint(checkpoint_path, "test1_null_max_aucs", null_max_aucs[: b + 1])
 
     p_val = float((1.0 + np.sum(null_max_aucs >= observed_max_auc)) / (1.0 + n_permutations))
     return p_val, null_max_aucs
@@ -629,91 +739,149 @@ def run_incremental_contrast_permutation_test(
     observed_max_delta_auc: float,
     n_permutations: int = DEFAULT_PERMUTATION_B,
     seed: int = DEFAULT_RANDOM_STATE,
+    checkpoint_path: Optional[Path] = None,
 ) -> Tuple[float, np.ndarray]:
     """
-    Max-statistic permutation test for the Incremental Contrast:
-        delta_AUC = AUC(motion + age + sex + connectivity) - AUC(motion + age + sex)
+    Test 2: Max-statistic permutation test for the Incremental Contrast (Late Fusion):
+        delta_AUC = AUC(fused[motion+age+sex, connectivity]) - AUC(motion+age+sex)
 
-    New Null Specification:
+    Null Specification:
     - Diagnostic labels (y) and non-imaging covariates (motion + age + sex) stay PAIRED and intact.
     - Only the connectivity feature rows (X) are permuted among subjects WITHIN each institution.
-    - Test statistic: max delta_AUC over the 12 candidate configurations.
-    Returns: (empirical_p_value, null_max_delta_distribution)
+    - Outer & inner covariate-only scores (s_cov_oof, s_cov_test) depend only on intact covariates/labels
+      and are precomputed once before the permutation loop.
+    - Supports null-only checkpointing for crash recovery without exposing partial results.
     """
     rng = np.random.default_rng(seed)
     unique_sites = sorted(set(institutions))
+    n = len(labels)
     baseline_auc = roc_auc_score(labels, baseline_probs)
+    completed = load_permutation_checkpoint(checkpoint_path, "test2_null_max_deltas")
     null_max_deltas = np.empty(n_permutations, dtype=np.float64)
+    for idx, val in enumerate(completed[:n_permutations]):
+        null_max_deltas[idx] = val
 
-    # Standardize covariates once per LOIO fold
-    cov_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
-    all_cov = np.column_stack([motion_covariates, age_sex_covariates])
+    # Precompute outer & inner covariate-only OOF scores once (unpermuted covariates & labels)
+    covariates = np.column_stack([motion_covariates, age_sex_covariates])
+    cov_oof_by_outer: Dict[str, np.ndarray] = {}
+    cov_test_by_outer: Dict[str, np.ndarray] = {}
     for test_site in unique_sites:
-        train_mask = institutions != test_site
-        test_mask = institutions == test_site
-        s_cov = StandardScaler().fit(all_cov[train_mask])
-        cov_by_fold[test_site] = (s_cov.transform(all_cov[train_mask]), s_cov.transform(all_cov[test_mask]))
+        outer_train_mask = institutions != test_site
+        outer_test_mask = institutions == test_site
+        inner_sites = [s for s in unique_sites if s != test_site]
+
+        s_cov_oof = np.zeros(n, dtype=np.float64)
+        for inner_val_site in inner_sites:
+            inner_tr_mask = outer_train_mask & (institutions != inner_val_site)
+            inner_val_mask = institutions == inner_val_site
+            sc_in = StandardScaler().fit(covariates[inner_tr_mask])
+            clf_in = LogisticRegression(
+                C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=seed
+            )
+            clf_in.fit(sc_in.transform(covariates[inner_tr_mask]), labels[inner_tr_mask])
+            s_cov_oof[inner_val_mask] = clf_in.predict_proba(sc_in.transform(covariates[inner_val_mask]))[:, 1]
+
+        sc_out = StandardScaler().fit(covariates[outer_train_mask])
+        clf_out = LogisticRegression(
+            C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=seed
+        )
+        clf_out.fit(sc_out.transform(covariates[outer_train_mask]), labels[outer_train_mask])
+        cov_oof_by_outer[test_site] = s_cov_oof
+        cov_test_by_outer[test_site] = clf_out.predict_proba(sc_out.transform(covariates[outer_test_mask]))[:, 1]
+
+    uses_tangent = any(fk == "tangent_space" for fk, _, _ in configs)
+
+    # Precompute tangent space features ONCE per unique training site subset (5 4-site + 10 3-site = 15 splits).
+    # Mathematically invariant to within-site connectivity row permutations because the training multiset is identical.
+    tangent_all_by_subset: Dict[frozenset, np.ndarray] = {}
+    if uses_tangent:
+        subsets_to_precompute: set = set()
+        for test_site in unique_sites:
+            outer_sites = frozenset(s for s in unique_sites if s != test_site)
+            subsets_to_precompute.add(outer_sites)
+            for inner_val_site in outer_sites:
+                inner_sites = frozenset(s for s in outer_sites if s != inner_val_site)
+                subsets_to_precompute.add(inner_sites)
+        for tr_sites in subsets_to_precompute:
+            tr_mask = np.isin(institutions, list(tr_sites))
+            ts_tr = [timeseries_list[i] for i in np.where(tr_mask)[0]]
+            cm = ConnectivityMeasure(kind="tangent", vectorize=True)
+            cm.fit(ts_tr)
+            # Project all N subjects onto this split's tangent space once
+            tangent_all_by_subset[tr_sites] = cm.transform(timeseries_list)
 
     for b in range(n_permutations):
-        # Permute connectivity rows strictly within each site
-        conn_perm_indices = np.arange(len(labels))
+        conn_perm_indices = np.arange(n)
         for site in unique_sites:
             s_idx = np.where(institutions == site)[0]
             conn_perm_indices[s_idx] = rng.permutation(s_idx)
 
-        ts_perm = [timeseries_list[i] for i in conn_perm_indices]
+        if b < len(completed):
+            continue
+
         pearson_perm = pearson_z_edges[conn_perm_indices]
+        resid_split_cache: Dict[Tuple[frozenset, str], Tuple[np.ndarray, np.ndarray]] = {}
 
-        # Tangent space on permuted timeseries
-        tangent_perm_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
-        resid_perm_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
-        for test_site in unique_sites:
-            train_mask = institutions != test_site
-            test_mask = institutions == test_site
-            ts_tr = [ts_perm[i] for i in np.where(train_mask)[0]]
-            ts_te = [ts_perm[i] for i in np.where(test_mask)[0]]
-            t_tr, t_te, _ = fit_transform_tangent_space(ts_tr, ts_te, vectorize=True)
-            tangent_perm_by_fold[test_site] = (t_tr, t_te)
-
-            X_tr_raw = pearson_perm[train_mask]
-            X_te_raw = pearson_perm[test_mask]
-            M_tr = motion_covariates[train_mask]
-            M_te = motion_covariates[test_mask]
-            r_tr, r_te, _, _ = fit_transform_motion_residualization(X_tr_raw, M_tr, X_te_raw, M_te)
-            resid_perm_by_fold[test_site] = (r_tr, r_te)
+        def _get_split_feats(
+            fk: str, tr_sites: frozenset, tr_mask: np.ndarray, te_mask: np.ndarray, te_key: str
+        ) -> Tuple[np.ndarray, np.ndarray]:
+            if fk == "pearson_fisher_z" or fk == "multi_run_avg":
+                return pearson_perm[tr_mask], pearson_perm[te_mask]
+            elif fk == "tangent_space":
+                tang_perm = tangent_all_by_subset[tr_sites][conn_perm_indices]
+                return tang_perm[tr_mask], tang_perm[te_mask]
+            elif fk == "motion_residualized":
+                cache_key = (tr_sites, te_key)
+                if cache_key not in resid_split_cache:
+                    resid_split_cache[cache_key] = fit_transform_motion_residualization(
+                        pearson_perm[tr_mask], motion_covariates[tr_mask], pearson_perm[te_mask], motion_covariates[te_mask]
+                    )[:2]
+                return resid_split_cache[cache_key]
+            else:
+                raise ValueError(f"Unknown feature kind: {fk}")
 
         deltas: List[float] = []
         for feat_kind, sel_mode, clf_name in configs:
-            comb_probs = np.zeros(len(labels), dtype=np.float64)
+            fused_probs = np.zeros(n, dtype=np.float64)
             for test_site in unique_sites:
-                train_mask = institutions != test_site
-                test_mask = institutions == test_site
-                y_tr = labels[train_mask]
-                cov_tr, cov_te = cov_by_fold[test_site]
+                outer_train_mask = institutions != test_site
+                outer_test_mask = institutions == test_site
+                outer_tr_sites = frozenset(s for s in unique_sites if s != test_site)
+                inner_sites = [s for s in unique_sites if s != test_site]
 
-                if feat_kind == "pearson_fisher_z":
-                    X_tr = pearson_perm[train_mask]
-                    X_te = pearson_perm[test_mask]
-                elif feat_kind == "tangent_space":
-                    X_tr, X_te = tangent_perm_by_fold[test_site]
-                elif feat_kind == "motion_residualized":
-                    X_tr, X_te = resid_perm_by_fold[test_site]
-                else:
-                    X_tr = pearson_perm[train_mask]
-                    X_te = pearson_perm[test_mask]
+                s_conn_oof = np.zeros(n, dtype=np.float64)
+                for inner_val_site in inner_sites:
+                    inner_tr_mask = outer_train_mask & (institutions != inner_val_site)
+                    inner_val_mask = institutions == inner_val_site
+                    inner_tr_sites = frozenset(s for s in outer_tr_sites if s != inner_val_site)
+                    X_in_tr, X_in_val = _get_split_feats(
+                        feat_kind, inner_tr_sites, inner_tr_mask, inner_val_mask, inner_val_site
+                    )
+                    s_conn_oof[inner_val_mask] = _fit_predict_connectivity_fold(
+                        feat_kind, sel_mode, clf_name, X_in_tr, X_in_val, labels[inner_tr_mask], random_state=seed + b
+                    )
 
-                X_tr_sel, X_te_sel, _ = apply_feature_selection(X_tr, y_tr, X_te, sel_mode)
-                full_tr = np.column_stack([cov_tr, X_tr_sel])
-                full_te = np.column_stack([cov_te, X_te_sel])
+                s_cov_oof = cov_oof_by_outer[test_site]
+                meta_X_tr = np.column_stack([s_cov_oof[outer_train_mask], s_conn_oof[outer_train_mask]])
+                meta_clf = LogisticRegression(
+                    C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=seed + b
+                )
+                meta_clf.fit(meta_X_tr, labels[outer_train_mask])
 
-                clf = build_classifier(clf_name, random_state=seed + b)
-                clf.fit(full_tr, y_tr)
-                comb_probs[test_mask] = clf.predict_proba(full_te)[:, 1]
+                X_out_tr, X_out_te = _get_split_feats(
+                    feat_kind, outer_tr_sites, outer_train_mask, outer_test_mask, test_site
+                )
+                s_conn_test = _fit_predict_connectivity_fold(
+                    feat_kind, sel_mode, clf_name, X_out_tr, X_out_te, labels[outer_train_mask], random_state=seed + b
+                )
+                meta_X_te = np.column_stack([cov_test_by_outer[test_site], s_conn_test])
+                fused_probs[outer_test_mask] = meta_clf.predict_proba(meta_X_te)[:, 1]
 
-            comb_auc = roc_auc_score(labels, comb_probs)
+            comb_auc = roc_auc_score(labels, fused_probs)
             deltas.append(comb_auc - baseline_auc)
 
         null_max_deltas[b] = max(deltas)
+        save_permutation_checkpoint(checkpoint_path, "test2_null_max_deltas", null_max_deltas[: b + 1])
 
     p_val = float((1.0 + np.sum(null_max_deltas >= observed_max_delta_auc)) / (1.0 + n_permutations))
     return p_val, null_max_deltas
@@ -738,7 +906,8 @@ def evaluate_interesting_criteria(
     Evaluate the strict 3-part conjunction required for an "interesting" finding:
       (a) Beats motion-only baseline AND age/sex baseline with 95% paired-bootstrap CI
           lower bounds strictly > 0.
-      (b) Max-statistic permutation p < 0.05 for the incremental contrast.
+      (b) Pooled delta-AUC of the fused model over the covariate-only model is > 0 with
+          95% paired-bootstrap CI lower bound > 0 AND max-statistic permutation p < 0.05.
       (c) Per-institution delta-AUC > 0 in at least 4 of 5 institutions.
     Anything short of all three is "not interesting".
     """
@@ -748,8 +917,11 @@ def evaluate_interesting_criteria(
     diff_agesex, ci_lo_agesex, ci_hi_agesex = paired_bootstrap_auc_diff(
         y_true, probs_combined, probs_agesex_baseline, n_boot=n_boot, seed=seed
     )
+    diff_cov, ci_lo_cov, ci_hi_cov = paired_bootstrap_auc_diff(
+        y_true, probs_combined, probs_combined_baseline, n_boot=n_boot, seed=seed
+    )
     cond_a = (ci_lo_motion > 0.0) and (ci_lo_agesex > 0.0)
-    cond_b = incremental_perm_p < 0.05
+    cond_b = (diff_cov > 0.0) and (ci_lo_cov > 0.0) and (incremental_perm_p < 0.05)
 
     per_site_deltas: Dict[str, float] = {}
     unique_sites = sorted(set(institutions))
@@ -769,7 +941,8 @@ def evaluate_interesting_criteria(
         "cond_a_beats_baselines_ci_gt_0": cond_a,
         "diff_vs_motion": (diff_motion, ci_lo_motion, ci_hi_motion),
         "diff_vs_agesex": (diff_agesex, ci_lo_agesex, ci_hi_agesex),
-        "cond_b_incremental_perm_p_lt_005": cond_b,
+        "cond_b_fused_ci_gt_0_and_perm_p_lt_005": cond_b,
+        "diff_vs_covariate_baseline": (diff_cov, ci_lo_cov, ci_hi_cov),
         "incremental_perm_p": incremental_perm_p,
         "cond_c_sites_positive_ge_4": cond_c,
         "n_sites_positive": n_sites_positive,
@@ -846,17 +1019,33 @@ def run_preflight(data_root: Path = Path("NeuroADHD/data/athena")) -> Dict[str, 
         nyu_cols = reader.fieldnames or []
         if "File" not in nyu_cols or "Max Motion (mm)" not in nyu_cols:
             raise ValueError("Preflight failed: missing expected columns in NYU_motion.csv")
-        n_nyu_motion = sum(1 for _ in reader)
-    if n_nyu_motion == 0:
-        raise ValueError("Preflight failed: NYU_motion.csv is empty")
+        n_nyu_motion = 0
+        n_nyu_rest1 = 0
+        n_nyu_rest2 = 0
+        for row in reader:
+            n_nyu_motion += 1
+            fname = row.get("File", "")
+            if "rest_1" in fname:
+                n_nyu_rest1 += 1
+            elif "rest_2" in fname:
+                n_nyu_rest2 += 1
+    if n_nyu_rest1 < 216:
+        raise ValueError(f"Preflight failed: expected >= 216 NYU rest_1 motion rows, found {n_nyu_rest1}")
     summary["nyu_motion_rows"] = n_nyu_motion
+    summary["nyu_motion_rest1"] = n_nyu_rest1
+    summary["nyu_motion_rest2"] = n_nyu_rest2
 
     # 5. Check archives are readable tar files (no full extraction needed)
     with tarfile.open(required_files["nyu_intermediate_tar"], "r:") as tf:
-        n_nyu_tar = len(tf.getmembers())
-    if n_nyu_tar == 0:
-        raise ValueError("Preflight failed: intermediate_nyu.tar is empty")
+        members = tf.getmembers()
+        n_nyu_tar = len(members)
+        n_nyu_files = sum(1 for m in members if m.isfile())
+        n_nyu_dirs = sum(1 for m in members if m.isdir())
+    if n_nyu_files == 0:
+        raise ValueError("Preflight failed: intermediate_nyu.tar has no regular files")
     summary["nyu_tar_entries"] = n_nyu_tar
+    summary["nyu_tar_files"] = n_nyu_files
+    summary["nyu_tar_dirs"] = n_nyu_dirs
     summary["cc200_tcs_tar_bytes"] = required_files["cc200_tcs_tar"].stat().st_size
 
     return summary
@@ -899,6 +1088,12 @@ def main() -> None:
         type=Path,
         default=Path("NeuroADHD/data/athena/results/exploratory_results.json"),
         help="Write-once output JSON path.",
+    )
+    parser.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=Path("NeuroADHD/data/athena/results/exploratory_perm_checkpoint.json"),
+        help="Null-only permutation checkpoint path for crash recovery.",
     )
     args = parser.parse_args()
 

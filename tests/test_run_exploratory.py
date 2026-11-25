@@ -34,10 +34,12 @@ from scripts.run_exploratory import (
     evaluate_non_imaging_baselines,
     fit_transform_motion_residualization,
     fit_transform_tangent_space,
+    load_permutation_checkpoint,
     match_subjects_on_motion_within_site,
     run_incremental_contrast_permutation_test,
     run_preflight,
     run_within_site_label_permutation_test,
+    save_permutation_checkpoint,
     timeseries_to_fisher_z,
     write_results_once,
 )
@@ -326,9 +328,9 @@ class TestRunExploratorySynthetic(unittest.TestCase):
         comb_auc = roc_auc_score(labels, comb_probs)
         delta_auc = comb_auc - base_auc
         self.assertLess(
-            delta_auc,
-            0.05,
-            f"Noise connectivity should not increase AUC over signal covariates, delta={delta_auc:.4f}",
+            abs(delta_auc),
+            0.03,
+            f"Late fusion with noise connectivity should stay within 0.03 of covariate-only AUC, delta={delta_auc:.4f}",
         )
 
         p_val, _ = run_incremental_contrast_permutation_test(
@@ -517,6 +519,41 @@ class TestRunExploratorySynthetic(unittest.TestCase):
             self.assertTrue(out_file.is_file())
             with self.assertRaises(FileExistsError):
                 write_results_once(out_file, {"status": "overwrite"})
+
+            # Null-only checkpoint test (resuming produces identical null distribution)
+            ts_list, z_edges, motion, age_sex, y_syn, inst_syn = self._generate_synthetic_loio_data(
+                n_per_site=12, n_rois=8, planted_connectivity=False, planted_covariates=False
+            )
+            ckpt_file = tmp_path / "perm_ckpt.json"
+            p_full, null_full = run_within_site_label_permutation_test(
+                configs=[("pearson_fisher_z", "k100", "l2_lr")],
+                timeseries_list=ts_list,
+                pearson_z_edges=z_edges,
+                motion_covariates=motion,
+                labels=y_syn,
+                institutions=inst_syn,
+                observed_max_auc=0.55,
+                n_permutations=6,
+                seed=99,
+            )
+            # Save partial checkpoint of first 3 null stats only, then resume
+            save_permutation_checkpoint(ckpt_file, "test1_null_max_aucs", null_full[:3])
+            loaded = load_permutation_checkpoint(ckpt_file, "test1_null_max_aucs")
+            self.assertEqual(len(loaded), 3)
+            p_resumed, null_resumed = run_within_site_label_permutation_test(
+                configs=[("pearson_fisher_z", "k100", "l2_lr")],
+                timeseries_list=ts_list,
+                pearson_z_edges=z_edges,
+                motion_covariates=motion,
+                labels=y_syn,
+                institutions=inst_syn,
+                observed_max_auc=0.55,
+                n_permutations=6,
+                seed=99,
+                checkpoint_path=ckpt_file,
+            )
+            np.testing.assert_allclose(null_full, null_resumed, atol=1e-12)
+            self.assertAlmostEqual(p_full, p_resumed, places=12)
 
 
 if __name__ == "__main__":

@@ -23,18 +23,24 @@ The objective of this exploratory protocol is to investigate whether methodologi
    - Logistic Regression on Rigid-Body Motion Summary Statistics (`mean_fd_mm`, `max_disp_mm`).
    - Logistic Regression on Demographic Covariates (`age`, biological `sex`).
    - Primary Combined Baseline: Logistic Regression on Motion + Age + Sex (`[mean_fd_mm, max_disp_mm, age, sex]`).
-4. **Primary Incremental Exploratory Contrast:**
-   $$\Delta \text{AUC}_{\text{incremental}} = \text{AUC}\Big(\text{Motion} + \text{Age} + \text{Sex} + \text{Connectivity}\Big) - \text{AUC}\Big(\text{Motion} + \text{Age} + \text{Sex}\Big)$$
-   evaluated on identical cross-validation folds with a paired cluster-bootstrap (2,000 resamples at the subject level).
+4. **Primary Incremental Exploratory Contrast (Late Fusion):**
+   $$\Delta \text{AUC}_{\text{incremental}} = \text{AUC}\Big(\text{Fused}[\text{Motion} + \text{Age} + \text{Sex},\ \text{Connectivity}]\Big) - \text{AUC}\Big(\text{Motion} + \text{Age} + \text{Sex}\Big)$$
+   where the combined model is defined via **late fusion**:
+   - Within each outer LOIO fold (holding out 1 institution $S_{\text{test}}$, training on 4 institutions $S_{\text{train}}$), **inner 4-fold LOIO** is executed strictly across the 4 training institutions (holding out each $S_{\text{in}} \in S_{\text{train}}$ and training on the remaining 3). No held-out institution $S_{\text{test}}$ ever touches the inner models or fusion weights.
+   - Inner out-of-fold probability scores $s_{\text{cov}}^{\text{oof}}$ (covariate-only `LogisticRegression(C=1.0)`) and $s_{\text{conn}}^{\text{oof}}$ (the candidate connectivity configuration) are collected across all subjects in $S_{\text{train}}$.
+   - A 2-parameter logistic regression meta-learner (`LogisticRegression(C=1.0, class_weight='balanced')`) is fit on $[s_{\text{cov}}^{\text{oof}}, s_{\text{conn}}^{\text{oof}}]$ against $y_{\text{train}}$.
+   - Base models fit on all of $S_{\text{train}}$ predict $[s_{\text{cov}}^{\text{test}}, s_{\text{conn}}^{\text{test}}]$ on $S_{\text{test}}$, and the meta-learner outputs the final fused probability.
+   - **Why Late Fusion Replaced Feature Concatenation (Decided Before Real Labels):** Under the earlier feature-concatenation design (`[cov, X_conn]`), concatenating 4 standardized covariates with 100 or 17,955 noisy connectivity edges caused severe feature dilution and overfitting (in `All Edges + RF`, Random Forest sampled $\sqrt{17959} \approx 134$ features per split and starved the 4 covariates, depressing null $\Delta\text{AUC}$ to $-0.18$; in `k100 + L2 LR`, noise edges depressed null $\Delta\text{AUC}$ to $-0.14$). Late fusion isolates the 2-parameter combination from high-dimensional edge noise so that pure-noise connectivity preserves the covariate-only AUC ($\Delta\text{AUC} \approx 0$).
 5. **Pre-Declared Criteria for an "Interesting" Finding (Strict Conjunction):**
    To be declared **"interesting"**, the top-ranking configuration must satisfy **all three** conditions simultaneously:
-   - **(a) Baseline Superiority with Bootstrap CI > 0:** Beats both the motion-only baseline and the age/sex baseline with 95% paired-bootstrap confidence interval lower bounds strictly above zero ($\text{CI}_{\text{lo}}(\text{AUC}_{\text{comb}} - \text{AUC}_{\text{motion}}) > 0$ **and** $\text{CI}_{\text{lo}}(\text{AUC}_{\text{comb}} - \text{AUC}_{\text{age/sex}}) > 0$). *(Note: These confidence intervals are conditional on configuration selection and are thus subject to selection optimism / winner's curse).*
-   - **(b) Incremental Contrast Permutation Significance:** Max-statistic permutation $p < 0.05$ for the incremental contrast ($\Delta \text{AUC}_{\text{incremental}}$), repeating full selection over the 12 primary configurations.
-   - **(c) Cross-Site Consistency:** Per-institution $\Delta \text{AUC}_{\text{incremental}} > 0$ in at least **4 of the 5** institutions.
+   - **(a) Baseline Superiority with Bootstrap CI > 0:** Beats both the motion-only baseline and the age/sex baseline with 95% paired-bootstrap confidence interval lower bounds strictly above zero ($\text{CI}_{\text{lo}}(\text{AUC}_{\text{fused}} - \text{AUC}_{\text{motion}}) > 0$ **and** $\text{CI}_{\text{lo}}(\text{AUC}_{\text{fused}} - \text{AUC}_{\text{age/sex}}) > 0$). *(Note: These confidence intervals are conditional on configuration selection and are thus subject to selection optimism / winner's curse).*
+   - **(b) Incremental Contrast Significance & Bootstrap CI > 0:** The pooled $\Delta\text{AUC}_{\text{incremental}}$ of the fused model over the covariate-only model (`Motion + Age + Sex`) is strictly $> 0$ with a 95% paired-bootstrap CI lower bound $> 0$ **AND** the max-statistic permutation $p < 0.05$ (repeating full selection over the 12 primary configurations).
+   - **(c) Cross-Site Consistency:** Per-institution $\Delta\text{AUC}_{\text{incremental}} > 0$ in at least **4 of the 5** institutions.
    Anything short of all three conditions is declared **"not interesting"**.
 6. **Zero Individual Data Leakage:** Reports, tables, logs, and artifacts must never print individual subject IDs, raw timeseries, or per-subject prediction rows.
-7. **Pre-Flight Check, Write-Once Output, and Crash/Deviation Policy:**
-   - Before any real execution, `--preflight` verifies that all required inputs (features, covariates including NYU motion metrics, scan lengths, and matching inputs) exist with expected shapes and counts **without reading any label column**.
+7. **Pre-Flight Check, Null-Only Checkpointing, Write-Once Output, and Crash/Deviation Policy:**
+   - Before any real execution, `--preflight` verifies that all required inputs (features, covariates including `NYU_motion.csv` with 396 rows = 216 `rest_1` + 180 `rest_2` covering all 216 NYU `rest_1` scans, `intermediate_nyu.tar` with 2,665 entries = 1,368 regular files + 1,297 directories, scan lengths, and matching inputs) exist with expected shapes and counts **without reading any label column**.
+   - **Null-Only Checkpointing:** During permutation testing, `--checkpoint` stores **only** the completed permutation null statistics (`test1_null_max_aucs`, `test2_null_max_deltas`)—never any observed AUCs, deltas, or partial results—allowing crash recovery under `caffeinate -dimsu` without exposing partial findings.
    - The results JSON file is strictly **write-once** (refuses to overwrite an existing file).
    - **Crash Policy:** If the run crashes, fix **only** the cause of the crash, record the deviation in a dated file (e.g. `docs/exploratory/DEVIATION_YYYY-MM-DD.md`), and **do not re-run after viewing partial output**.
 
@@ -200,29 +206,31 @@ Two distinct non-parametric permutation tests are conducted to evaluate performa
 
 ---
 
-## 6. Real-Shape Benchmark & Execution Budget (Estimated)
+## 6. Real-Shape Benchmark & Execution Budget for Fused Design (Estimated)
 
-*(All timings below are labeled as **estimates**, measured on synthetic data at the exact real site sizes and scan lengths with logistic regression `C = 1.0`)*:
+*(All timings below are labeled as **estimates**, measured on synthetic data at the exact real site sizes and scan lengths with logistic regression `C = 1.0` and late fusion)*:
 
-- **Note on Prior `3.58 s` Figure:** The earlier `3.58 s` per-permutation estimate covered **only Test 1** (label permutation with cached features). In Test 2 (incremental contrast), permuting connectivity rows relative to motion covariates requires recomputing OLS motion residualization and (as implemented) tangent projection per permutation.
+- **Note on Prior `3.58 s` Figure:** The earlier `3.58 s` per-permutation estimate covered **only Test 1** (label permutation with cached features). In Test 2 (late-fusion incremental contrast), inner 4-fold LOIO + outer 5-fold LOIO connectivity models are re-fit per permutation, while the 15 unique training-split tangent spaces (5 4-site + 10 3-site) and covariate-only OOF scores are precomputed once before the permutation loop.
 
-| Cohort | Site Sizes ($N$) | Tangent Build / Fold | Test 1 (1 Perm, Cached) | Test 2 (1 Perm, Recompute) | 200 Perms (Test 1 + Test 2 Together) |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Primary Clean ($N = 564$)** | NYU 196, Peking 189, NeuroIMAGE 42, KKI 79, OHSU 58 | $5.71\text{ s}$ ($28.56\text{ s}$ / 5 folds) | $5.16\text{ s}$ ($17.20\text{ min}$ / 200) | $35.28\text{ s}$ ($117.59\text{ min}$ / 200) | **$\approx 134.79\text{ min}$** ($2.25\text{ hr}$) |
-| **215-Pair Matched ($N = 430$)** | NYU 172, Peking 146, NeuroIMAGE 32, KKI 38, OHSU 42 | $4.05\text{ s}$ ($20.27\text{ s}$ / 5 folds) | $3.19\text{ s}$ ($10.65\text{ min}$ / 200) | $22.64\text{ s}$ ($75.46\text{ min}$ / 200) | **$\approx 86.10\text{ min}$** ($1.44\text{ hr}$) |
+| Cohort | Site Sizes ($N$) | Test 1 (Setup + 1 Perm) | Test 1 (200 Perms) | Test 2 Fused (15-Split Setup + 1 Perm) | Test 2 Fused (200 Perms) | 200 Perms (Both Tests Together) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Clean ($N = 564$)** | NYU 196, Peking 189, NeuroIMAGE 42, KKI 79, OHSU 58 | $29.5\text{ s} + 1.53\text{ s}$ | $5.6\text{ min}$ | $63.6\text{ s} + 26.19\text{ s}$ | $88.4\text{ min}$ | **$\approx 93.9\text{ min}$** ($1.57\text{ hr}$) |
+| **215-Pair Matched ($N = 430$)** | NYU 172, Peking 146, NeuroIMAGE 32, KKI 38, OHSU 42 | $19.0\text{ s} + 2.49\text{ s}$ | $8.6\text{ min}$ | $50.6\text{ s} + 17.74\text{ s}$ | $60.0\text{ min}$ | **$\approx 68.6\text{ min}$** ($1.14\text{ hr}$) |
 
-Both 200-permutation runs (combining Test 1 + Test 2) complete comfortably below the 3-hour budget threshold.
+Both 200-permutation runs (combining Test 1 + Test 2 under late fusion) complete comfortably below the 3-hour budget threshold.
 
 ---
 
-## 7. Synthetic Power Simulation (Estimated)
+## 7. Honest Synthetic Power Simulation (Estimated, Late Fusion)
 
-To estimate statistical power for the incremental contrast test ($p < 0.05$) at the real site sizes ($N = 564$: NYU 196, Peking 189, NeuroIMAGE 42, KKI 79, OHSU 58; $p = 17,955$ edges; fixed seeds; $20$ simulated datasets per regime; $B = 39$ within-site permutations per dataset so $p = 1/40 = 0.025 < 0.05$ when zero null permutations exceed observed):
+To estimate both the **false-positive rate** and **statistical power** of the full 3-part "interesting" conjunction under realistic weak-effect regimes at the exact real site sizes ($N = 564$: NYU 196, Peking 189, NeuroIMAGE 42, KKI 79, OHSU 58; $p = 17,955$ edges; fixed seeds; covariates around $\text{AUC} \approx 0.60$):
+- **Simulation Design:** **50 simulated datasets** per regime (reduced from 100 due to compute cost—814 s total—never below 50) and **99 within-site connectivity-row permutations** per dataset with **no early stopping** (so $p = (1 + \text{exceed}) / 100$).
+- **Why Earlier 100% Figures Were Invalid:** The earlier power table reported $100\%$ power at $\Delta\text{AUC} \approx 0.03\text{--}0.05$ because (1) it used an overly strong planted signal calibrated under the flawed feature-concatenation design, and (2) under concatenation, noise-edge overfitting depressed the null $\Delta\text{AUC}$ to $-0.139$, causing any modest positive gain to separate trivially from a depressed null. Those earlier figures are discarded.
 
-| True Signal Regime | Mean Observed $\Delta\text{AUC}$ (Estimate) | Rejection Rate / Power at $p < 0.05$ (Estimate) |
-| :--- | :--- | :--- |
-| **Null ($\Delta\text{AUC}_{\text{true}} = 0.00$)** | $-0.1393$ | **$0 / 20$ ($0.0\%$)** |
-| **Small Signal ($\Delta\text{AUC}_{\text{true}} \approx 0.03$, `sig=0.32`)** | $+0.0216$ | **$20 / 20$ ($100.0\%$)** |
-| **Moderate Signal ($\Delta\text{AUC}_{\text{true}} \approx 0.05$, `sig=0.34`)** | $+0.0547$ | **$20 / 20$ ($100.0\%$)** |
+| Signal Regime (Estimated) | Mean Covariate AUC | Mean Conn-Only AUC | Mean Fused AUC | Mean $\Delta\text{AUC}$ | Perm $p < 0.05$ Alone | **Full 3-Part Conjunction Rate (Estimate)** |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Null ($\text{conn} \approx 0.50$)** | $0.603$ | $0.502$ | $0.583$ | $-0.0201$ | $5/50$ ($10.0\%$) | **$0/50$ ($0.0\%$)** *(False-Positive Rate)* |
+| **Weak 1 ($\text{conn} \approx 0.55$)** | $0.604$ | $0.569$ | $0.603$ | $-0.0008$ | $20/50$ ($40.0\%$) | **$4/50$ ($8.0\%$)** *(Power)* |
+| **Weak 2 ($\text{conn} \approx 0.60$)** | $0.609$ | $0.613$ | $0.635$ | $+0.0263$ | $40/50$ ($80.0\%$) | **$11/50$ ($22.0\%$)** *(Power)* |
 
-*(Note: Under the $p=17,955$ null, overfitting to noise edges pulls raw $\Delta\text{AUC}$ negative relative to the 4-covariate baseline; the within-site connectivity-row permutation null accounts for this dilution, yielding high power to detect genuine $+0.02\text{ to }+0.05$ incremental improvements).*
+*(All values labeled as estimates).* Under late fusion, the full conjunction has a $0.0\%$ false-positive rate under the null and $8.0\%\text{--}22.0\%$ power at weak connectivity effects ($\text{AUC} \approx 0.55\text{--}0.60$).
