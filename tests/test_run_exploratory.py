@@ -16,6 +16,7 @@ Covers all pre-specified properties:
 
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -32,6 +33,7 @@ from scripts.run_exploratory import (
     evaluate_interesting_criteria,
     evaluate_loio_pipeline,
     evaluate_non_imaging_baselines,
+    fit_evaluate_late_fusion_outer_fold,
     fit_transform_motion_residualization,
     fit_transform_tangent_space,
     load_permutation_checkpoint,
@@ -554,6 +556,153 @@ class TestRunExploratorySynthetic(unittest.TestCase):
             )
             np.testing.assert_allclose(null_full, null_resumed, atol=1e-12)
             self.assertAlmostEqual(p_full, p_resumed, places=12)
+
+    # -----------------------------------------------------------------
+    # Test (j): Late fusion isolation from held-out institution
+    # -----------------------------------------------------------------
+    def test_j_late_fusion_isolation_from_held_out_site(self) -> None:
+        ts_list, z_edges, motion, age_sex, labels, sites = self._generate_synthetic_loio_data(
+            n_per_site=20, n_rois=10, planted_connectivity=True, planted_covariates=True
+        )
+        unique_sites = sorted(set(sites))
+        held_out = "Site_E"
+        test_mask = sites == held_out
+
+        _, art_orig = fit_evaluate_late_fusion_outer_fold(
+            test_site=held_out,
+            unique_institutions=unique_sites,
+            feature_kind="pearson_fisher_z",
+            selection_mode="k100",
+            classifier_name="l2_lr",
+            timeseries_list=ts_list,
+            pearson_z_edges=z_edges,
+            motion_covariates=motion,
+            age_sex_covariates=age_sex,
+            labels=labels,
+            institutions=sites,
+            random_state=42,
+        )
+
+        # Corrupt held-out institution's features, covariates, AND labels
+        ts_corrupt = [
+            (ts + 500.0 * self.rng.normal(size=ts.shape)) if sites[i] == held_out else ts
+            for i, ts in enumerate(ts_list)
+        ]
+        z_corrupt = z_edges.copy()
+        z_corrupt[test_mask] += 999.0
+        motion_corrupt = motion.copy()
+        motion_corrupt[test_mask] *= -100.0
+        age_sex_corrupt = age_sex.copy()
+        age_sex_corrupt[test_mask] += 50.0
+        labels_corrupt = labels.copy()
+        labels_corrupt[test_mask] = 1 - labels_corrupt[test_mask]
+
+        _, art_corrupt = fit_evaluate_late_fusion_outer_fold(
+            test_site=held_out,
+            unique_institutions=unique_sites,
+            feature_kind="pearson_fisher_z",
+            selection_mode="k100",
+            classifier_name="l2_lr",
+            timeseries_list=ts_corrupt,
+            pearson_z_edges=z_corrupt,
+            motion_covariates=motion_corrupt,
+            age_sex_covariates=age_sex_corrupt,
+            labels=labels_corrupt,
+            institutions=sites,
+            random_state=42,
+        )
+
+        for key in [
+            "s_cov_oof_train",
+            "s_conn_oof_train",
+            "meta_coef",
+            "meta_intercept",
+            "base_cov_coef",
+            "base_cov_intercept",
+            "base_conn_sel_idx",
+            "base_conn_coef",
+        ]:
+            np.testing.assert_array_equal(
+                art_orig[key],
+                art_corrupt[key],
+                err_msg=f"Late fusion artifact '{key}' changed when held-out site was corrupted!",
+            )
+
+    # -----------------------------------------------------------------
+    # Test (k): Checkpoint contains ONLY null stats & Test 2 resume exactness
+    # -----------------------------------------------------------------
+    def test_k_checkpoint_keys_and_test2_resume_equivalence(self) -> None:
+        ts_list, z_edges, motion, age_sex, y_syn, inst_syn = self._generate_synthetic_loio_data(
+            n_per_site=12, n_rois=8, planted_connectivity=False, planted_covariates=True
+        )
+        baselines = evaluate_non_imaging_baselines(
+            motion_covariates=motion,
+            age_sex_covariates=age_sex,
+            labels=y_syn,
+            institutions=inst_syn,
+            random_state=42,
+        )
+        configs = [("pearson_fisher_z", "k100", "l2_lr")]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            ckpt_full = tmp_path / "ckpt_full.json"
+            run_within_site_label_permutation_test(
+                configs=configs,
+                timeseries_list=ts_list,
+                pearson_z_edges=z_edges,
+                motion_covariates=motion,
+                labels=y_syn,
+                institutions=inst_syn,
+                observed_max_auc=0.55,
+                n_permutations=5,
+                seed=77,
+                checkpoint_path=ckpt_full,
+            )
+            p2_full, null2_full = run_incremental_contrast_permutation_test(
+                configs=configs,
+                timeseries_list=ts_list,
+                pearson_z_edges=z_edges,
+                motion_covariates=motion,
+                age_sex_covariates=age_sex,
+                labels=y_syn,
+                institutions=inst_syn,
+                baseline_probs=baselines["motion_age_sex"],
+                observed_max_delta_auc=0.02,
+                n_permutations=5,
+                seed=77,
+                checkpoint_path=ckpt_full,
+            )
+
+            with open(ckpt_full, "r", encoding="utf-8") as f:
+                ckpt_json = json.load(f)
+            self.assertEqual(
+                set(ckpt_json.keys()),
+                {"test1_null_max_aucs", "test2_null_max_deltas"},
+                f"Unexpected keys in checkpoint file: {set(ckpt_json.keys())}",
+            )
+            self.assertEqual(len(ckpt_json["test1_null_max_aucs"]), 5)
+            self.assertEqual(len(ckpt_json["test2_null_max_deltas"]), 5)
+
+            # Resume Test 2 from first 3 null statistics
+            ckpt_partial = tmp_path / "ckpt_partial.json"
+            save_permutation_checkpoint(ckpt_partial, "test2_null_max_deltas", null2_full[:3])
+            p2_resumed, null2_resumed = run_incremental_contrast_permutation_test(
+                configs=configs,
+                timeseries_list=ts_list,
+                pearson_z_edges=z_edges,
+                motion_covariates=motion,
+                age_sex_covariates=age_sex,
+                labels=y_syn,
+                institutions=inst_syn,
+                baseline_probs=baselines["motion_age_sex"],
+                observed_max_delta_auc=0.02,
+                n_permutations=5,
+                seed=77,
+                checkpoint_path=ckpt_partial,
+            )
+            np.testing.assert_allclose(null2_full, null2_resumed, atol=1e-12)
+            self.assertAlmostEqual(p2_full, p2_resumed, places=12)
 
 
 if __name__ == "__main__":

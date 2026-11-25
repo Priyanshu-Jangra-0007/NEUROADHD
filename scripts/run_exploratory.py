@@ -514,6 +514,96 @@ def _build_conn_fold_features(
         raise ValueError(f"Unknown feature kind: {feature_kind}")
 
 
+def fit_evaluate_late_fusion_outer_fold(
+    test_site: str,
+    unique_institutions: Sequence[str],
+    feature_kind: str,
+    selection_mode: str,
+    classifier_name: str,
+    timeseries_list: Sequence[np.ndarray],
+    pearson_z_edges: np.ndarray,
+    motion_covariates: np.ndarray,
+    age_sex_covariates: np.ndarray,
+    labels: np.ndarray,
+    institutions: np.ndarray,
+    random_state: int = DEFAULT_RANDOM_STATE,
+) -> Tuple[np.ndarray, Dict[str, object]]:
+    """
+    Fit late fusion for a single outer LOIO fold (`test_site` held out):
+      - Inner 4-fold LOIO strictly within the 4 training institutions.
+      - 2-parameter LogisticRegression meta-learner fit on `[s_cov_oof, s_conn_oof]`.
+      - Outer base models fit on all 4 training institutions and applied to `test_site`.
+    Returns: (outer_test_probs, fold_artifacts_dict)
+    """
+    n = len(labels)
+    covariates = np.column_stack([motion_covariates, age_sex_covariates])
+    outer_train_mask = institutions != test_site
+    outer_test_mask = institutions == test_site
+    inner_sites = [s for s in unique_institutions if s != test_site]
+
+    # 1-2. Inner LOIO out-of-fold scores strictly within the 4 training institutions
+    s_cov_oof = np.zeros(n, dtype=np.float64)
+    s_conn_oof = np.zeros(n, dtype=np.float64)
+
+    for inner_val_site in inner_sites:
+        inner_tr_mask = outer_train_mask & (institutions != inner_val_site)
+        inner_val_mask = institutions == inner_val_site
+        y_in_tr = labels[inner_tr_mask]
+
+        sc_in = StandardScaler().fit(covariates[inner_tr_mask])
+        clf_cov_in = LogisticRegression(
+            C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
+        )
+        clf_cov_in.fit(sc_in.transform(covariates[inner_tr_mask]), y_in_tr)
+        s_cov_oof[inner_val_mask] = clf_cov_in.predict_proba(sc_in.transform(covariates[inner_val_mask]))[:, 1]
+
+        X_in_tr, X_in_val = _build_conn_fold_features(
+            feature_kind, inner_tr_mask, inner_val_mask, timeseries_list, pearson_z_edges, motion_covariates
+        )
+        s_conn_oof[inner_val_mask] = _fit_predict_connectivity_fold(
+            feature_kind, selection_mode, classifier_name, X_in_tr, X_in_val, y_in_tr, random_state=random_state
+        )
+
+    # 3. Fit 2-parameter LogisticRegression meta-learner on inner OOF scores
+    meta_X_tr = np.column_stack([s_cov_oof[outer_train_mask], s_conn_oof[outer_train_mask]])
+    meta_clf = LogisticRegression(
+        C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
+    )
+    meta_clf.fit(meta_X_tr, labels[outer_train_mask])
+
+    # 4. Fit base models on all 4 training institutions and predict on outer test_site
+    y_out_tr = labels[outer_train_mask]
+    sc_out = StandardScaler().fit(covariates[outer_train_mask])
+    clf_cov_out = LogisticRegression(
+        C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
+    )
+    clf_cov_out.fit(sc_out.transform(covariates[outer_train_mask]), y_out_tr)
+    s_cov_test = clf_cov_out.predict_proba(sc_out.transform(covariates[outer_test_mask]))[:, 1]
+
+    X_out_tr, X_out_te = _build_conn_fold_features(
+        feature_kind, outer_train_mask, outer_test_mask, timeseries_list, pearson_z_edges, motion_covariates
+    )
+    X_tr_sel, X_te_sel, sel_idx = apply_feature_selection(X_out_tr, y_out_tr, X_out_te, selection_mode)
+    clf_conn_out = build_classifier(classifier_name, random_state=random_state)
+    clf_conn_out.fit(X_tr_sel, y_out_tr)
+    s_conn_test = clf_conn_out.predict_proba(X_te_sel)[:, 1]
+
+    meta_X_te = np.column_stack([s_cov_test, s_conn_test])
+    probs_test = meta_clf.predict_proba(meta_X_te)[:, 1]
+
+    artifacts: Dict[str, object] = {
+        "s_cov_oof_train": s_cov_oof[outer_train_mask].copy(),
+        "s_conn_oof_train": s_conn_oof[outer_train_mask].copy(),
+        "meta_coef": meta_clf.coef_.copy(),
+        "meta_intercept": meta_clf.intercept_.copy(),
+        "base_cov_coef": clf_cov_out.coef_.copy(),
+        "base_cov_intercept": clf_cov_out.intercept_.copy(),
+        "base_conn_sel_idx": sel_idx.copy() if sel_idx is not None else None,
+        "base_conn_coef": clf_conn_out.coef_.copy() if hasattr(clf_conn_out, "coef_") else clf_conn_out.feature_importances_.copy(),
+    }
+    return probs_test, artifacts
+
+
 def evaluate_combined_covariates_and_connectivity(
     feature_kind: str,
     selection_mode: str,
@@ -528,77 +618,31 @@ def evaluate_combined_covariates_and_connectivity(
     random_state: int = DEFAULT_RANDOM_STATE,
 ) -> np.ndarray:
     """
-    Evaluate outer LOIO predictions for Motion + Age + Sex + Connectivity via LATE FUSION:
-    For each outer held-out institution `test_site`:
-      1. Build inner 4-fold LOIO splits strictly within the 4 training institutions
-         (no held-out institution ever touches the inner models or fusion weights).
-      2. Compute inner out-of-fold probabilities `s_cov_oof` (covariate-only LR) and
-         `s_conn_oof` (connectivity configuration) for all training-institution subjects.
-      3. Fit a 2-parameter LogisticRegression meta-learner on `[s_cov_oof, s_conn_oof]`
-         using training-institution labels only.
-      4. Fit covariate-only LR and connectivity configuration on all 4 training institutions,
-         predict `[s_cov_test, s_conn_test]` on `test_site`, and return meta-learner probabilities.
+    Evaluate outer LOIO predictions for Motion + Age + Sex + Connectivity via LATE FUSION.
     """
     if unique_institutions is None:
         unique_institutions = sorted(set(institutions))
 
     n = len(labels)
     probs_out = np.zeros(n, dtype=np.float64)
-    covariates = np.column_stack([motion_covariates, age_sex_covariates])
 
     for test_site in unique_institutions:
-        outer_train_mask = institutions != test_site
         outer_test_mask = institutions == test_site
-        inner_sites = [s for s in unique_institutions if s != test_site]
-
-        # 1-2. Inner LOIO out-of-fold scores strictly within the 4 training institutions
-        s_cov_oof = np.zeros(n, dtype=np.float64)
-        s_conn_oof = np.zeros(n, dtype=np.float64)
-
-        for inner_val_site in inner_sites:
-            inner_tr_mask = outer_train_mask & (institutions != inner_val_site)
-            inner_val_mask = institutions == inner_val_site
-            y_in_tr = labels[inner_tr_mask]
-
-            sc_in = StandardScaler().fit(covariates[inner_tr_mask])
-            clf_cov_in = LogisticRegression(
-                C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
-            )
-            clf_cov_in.fit(sc_in.transform(covariates[inner_tr_mask]), y_in_tr)
-            s_cov_oof[inner_val_mask] = clf_cov_in.predict_proba(sc_in.transform(covariates[inner_val_mask]))[:, 1]
-
-            X_in_tr, X_in_val = _build_conn_fold_features(
-                feature_kind, inner_tr_mask, inner_val_mask, timeseries_list, pearson_z_edges, motion_covariates
-            )
-            s_conn_oof[inner_val_mask] = _fit_predict_connectivity_fold(
-                feature_kind, selection_mode, classifier_name, X_in_tr, X_in_val, y_in_tr, random_state=random_state
-            )
-
-        # 3. Fit 2-parameter LogisticRegression meta-learner on inner OOF scores
-        meta_X_tr = np.column_stack([s_cov_oof[outer_train_mask], s_conn_oof[outer_train_mask]])
-        meta_clf = LogisticRegression(
-            C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
+        probs_test, _ = fit_evaluate_late_fusion_outer_fold(
+            test_site=test_site,
+            unique_institutions=unique_institutions,
+            feature_kind=feature_kind,
+            selection_mode=selection_mode,
+            classifier_name=classifier_name,
+            timeseries_list=timeseries_list,
+            pearson_z_edges=pearson_z_edges,
+            motion_covariates=motion_covariates,
+            age_sex_covariates=age_sex_covariates,
+            labels=labels,
+            institutions=institutions,
+            random_state=random_state,
         )
-        meta_clf.fit(meta_X_tr, labels[outer_train_mask])
-
-        # 4. Fit base models on all 4 training institutions and predict on outer test_site
-        y_out_tr = labels[outer_train_mask]
-        sc_out = StandardScaler().fit(covariates[outer_train_mask])
-        clf_cov_out = LogisticRegression(
-            C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
-        )
-        clf_cov_out.fit(sc_out.transform(covariates[outer_train_mask]), y_out_tr)
-        s_cov_test = clf_cov_out.predict_proba(sc_out.transform(covariates[outer_test_mask]))[:, 1]
-
-        X_out_tr, X_out_te = _build_conn_fold_features(
-            feature_kind, outer_train_mask, outer_test_mask, timeseries_list, pearson_z_edges, motion_covariates
-        )
-        s_conn_test = _fit_predict_connectivity_fold(
-            feature_kind, selection_mode, classifier_name, X_out_tr, X_out_te, y_out_tr, random_state=random_state
-        )
-
-        meta_X_te = np.column_stack([s_cov_test, s_conn_test])
-        probs_out[outer_test_mask] = meta_clf.predict_proba(meta_X_te)[:, 1]
+        probs_out[outer_test_mask] = probs_test
 
     return probs_out
 
