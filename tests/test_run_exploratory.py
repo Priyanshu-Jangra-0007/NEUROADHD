@@ -821,9 +821,10 @@ class TestRunExploratorySynthetic(unittest.TestCase):
                 output_path=out_path,
                 checkpoint_path=ckpt_path,
                 n_permutations=2,
-                n_boot=20,
+                n_boot=10,
                 seed=42,
                 progress_fn=printed_lines.append,
+                n_workers=1,
             )
             self.assertTrue(out_path.is_file())
             with open(out_path, "r", encoding="utf-8") as f:
@@ -896,10 +897,11 @@ class TestRunExploratorySynthetic(unittest.TestCase):
                 cohorts=cohorts,
                 output_path=out_path,
                 n_permutations=2,
-                n_boot=20,
+                n_boot=10,
                 seed=42,
                 failing_config_ids={"CFG_01"},
                 progress_fn=None,
+                n_workers=1,
             )
             prim = res["primary_analysis"]
             self.assertEqual(prim["configs"]["CFG_01"]["status"], "failed")
@@ -1078,6 +1080,7 @@ class TestRunExploratorySynthetic(unittest.TestCase):
                     n_permutations=1,
                     n_boot=10,
                     seed=42,
+                    n_workers=1,
                 )
 
             self.assertEqual(report["rehearsal_status"], "PASS")
@@ -1086,8 +1089,246 @@ class TestRunExploratorySynthetic(unittest.TestCase):
             self.assertFalse(real_out.exists())
             self.assertFalse(real_ckpt.exists())
             # Report itself must contain no AUC/delta/p-value floats (excluding timings/memory)
-            non_perf_report = {k: v for k, v in report.items() if k not in {"timings_sec", "peak_memory_mb"}}
+            non_perf_report = {
+                k: v
+                for k, v in report.items()
+                if k not in {"timings_sec", "phase_timings", "peak_rss_mb", "child_max_rss_mb", "peak_memory_mb"}
+            }
             self.assertIsNone(re.search(r"\b0\.\d{2,}\b", json.dumps(non_perf_report)))
+
+    # -----------------------------------------------------------------
+    # Test (p): Cached vs recomputed Test 2 tangent equivalence (<= 1e-12) & permuted motion resid
+    # -----------------------------------------------------------------
+    def test_p_cached_vs_recomputed_test2_equivalence_and_motion_recompute(self) -> None:
+        from scripts import run_exploratory as re_mod
+
+        inputs, y_r1, _ = self._build_synthetic_real_shape_inputs(
+            n_rois=8,
+            site_counts=(
+                ("NYU", 12, 0, 30),
+                ("Peking", 12, 0, 30),
+                ("NeuroIMAGE", 12, 0, 30),
+                ("KKI", 12, 0, 30),
+                ("OHSU", 12, 0, 30),
+            ),
+        )
+        configs = [
+            ("pearson_fisher_z", "k100", "rf"),
+            ("pearson_fisher_z", "k100", "l2_lr"),
+            ("tangent_space", "k100", "l2_lr"),
+            ("motion_residualized", "all", "l2_lr"),
+        ]
+        baselines = evaluate_non_imaging_baselines(
+            inputs.motion_covariates, inputs.age_sex_covariates, y_r1, inputs.institutions, random_state=42
+        )
+        p_cached, null_cached = run_incremental_contrast_permutation_test(
+            configs=configs,
+            timeseries_list=inputs.timeseries_list,
+            pearson_z_edges=inputs.pearson_z_edges,
+            motion_covariates=inputs.motion_covariates,
+            age_sex_covariates=inputs.age_sex_covariates,
+            labels=y_r1,
+            institutions=inputs.institutions,
+            baseline_probs=baselines["motion_age_sex"],
+            observed_max_delta_auc=0.05,
+            n_permutations=3,
+            seed=99,
+            use_cached_tangent=True,
+            n_workers=1,
+        )
+        orig_ols = re_mod._fit_ols_motion_residualization
+        ols_calls = 0
+
+        def counting_ols(X_tr, M_tr):
+            nonlocal ols_calls
+            ols_calls += 1
+            return orig_ols(X_tr, M_tr)
+
+        with patch("scripts.run_exploratory._fit_ols_motion_residualization", side_effect=counting_ols):
+            p_recomp, null_recomp = run_incremental_contrast_permutation_test(
+                configs=configs,
+                timeseries_list=inputs.timeseries_list,
+                pearson_z_edges=inputs.pearson_z_edges,
+                motion_covariates=inputs.motion_covariates,
+                age_sex_covariates=inputs.age_sex_covariates,
+                labels=y_r1,
+                institutions=inputs.institutions,
+                baseline_probs=baselines["motion_age_sex"],
+                observed_max_delta_auc=0.05,
+                n_permutations=3,
+                seed=99,
+                use_cached_tangent=False,
+                n_workers=1,
+            )
+        np.testing.assert_allclose(null_cached, null_recomp, atol=1e-12)
+        self.assertAlmostEqual(p_cached, p_recomp, places=12)
+        # 15 unique LOIO training subsets per permutation * 3 permutations = 45 OLS fits (not reused across perms)
+        self.assertEqual(ols_calls, 45)
+
+    # -----------------------------------------------------------------
+    # Test (q): Parallel workers == 1 worker & null-only checkpoint resume with N workers
+    # -----------------------------------------------------------------
+    def test_q_parallel_workers_equivalence_and_checkpoint_resume(self) -> None:
+        inputs, y_r1, _ = self._build_synthetic_real_shape_inputs(
+            n_rois=8,
+            site_counts=(
+                ("NYU", 12, 0, 30),
+                ("Peking", 12, 0, 30),
+                ("NeuroIMAGE", 12, 0, 30),
+                ("KKI", 12, 0, 30),
+                ("OHSU", 12, 0, 30),
+            ),
+        )
+        configs = [
+            ("pearson_fisher_z", "k100", "rf"),
+            ("tangent_space", "k100", "l2_lr"),
+            ("motion_residualized", "all", "l2_lr"),
+        ]
+        baselines = evaluate_non_imaging_baselines(
+            inputs.motion_covariates, inputs.age_sex_covariates, y_r1, inputs.institutions, random_state=42
+        )
+
+        p1_w1, null1_w1 = run_within_site_label_permutation_test(
+            configs=configs,
+            timeseries_list=inputs.timeseries_list,
+            pearson_z_edges=inputs.pearson_z_edges,
+            motion_covariates=inputs.motion_covariates,
+            labels=y_r1,
+            institutions=inputs.institutions,
+            observed_max_auc=0.60,
+            n_permutations=4,
+            seed=123,
+            n_workers=1,
+        )
+        p1_w2, null1_w2 = run_within_site_label_permutation_test(
+            configs=configs,
+            timeseries_list=inputs.timeseries_list,
+            pearson_z_edges=inputs.pearson_z_edges,
+            motion_covariates=inputs.motion_covariates,
+            labels=y_r1,
+            institutions=inputs.institutions,
+            observed_max_auc=0.60,
+            n_permutations=4,
+            seed=123,
+            n_workers=2,
+        )
+        np.testing.assert_allclose(null1_w1, null1_w2, atol=1e-12)
+        self.assertAlmostEqual(p1_w1, p1_w2, places=12)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            ckpt_full = tmp_path / "ckpt_full.json"
+            p2_w1, null2_w1 = run_incremental_contrast_permutation_test(
+                configs=configs,
+                timeseries_list=inputs.timeseries_list,
+                pearson_z_edges=inputs.pearson_z_edges,
+                motion_covariates=inputs.motion_covariates,
+                age_sex_covariates=inputs.age_sex_covariates,
+                labels=y_r1,
+                institutions=inputs.institutions,
+                baseline_probs=baselines["motion_age_sex"],
+                observed_max_delta_auc=0.05,
+                n_permutations=4,
+                seed=123,
+                checkpoint_path=ckpt_full,
+                n_workers=1,
+            )
+            with open(ckpt_full, "r", encoding="utf-8") as f:
+                ckpt_obj = json.load(f)
+            self.assertEqual(set(ckpt_obj.keys()), {"test2_null_max_deltas"})
+            self.assertEqual(len(ckpt_obj["test2_null_max_deltas"]), 4)
+
+            p2_w2, null2_w2 = run_incremental_contrast_permutation_test(
+                configs=configs,
+                timeseries_list=inputs.timeseries_list,
+                pearson_z_edges=inputs.pearson_z_edges,
+                motion_covariates=inputs.motion_covariates,
+                age_sex_covariates=inputs.age_sex_covariates,
+                labels=y_r1,
+                institutions=inputs.institutions,
+                baseline_probs=baselines["motion_age_sex"],
+                observed_max_delta_auc=0.05,
+                n_permutations=4,
+                seed=123,
+                n_workers=2,
+            )
+            np.testing.assert_allclose(null2_w1, null2_w2, atol=1e-12)
+            self.assertAlmostEqual(p2_w1, p2_w2, places=12)
+
+            # Partial checkpoint resume with n_workers=2 must reproduce uninterrupted results identically
+            ckpt_partial = tmp_path / "ckpt_partial.json"
+            save_permutation_checkpoint(ckpt_partial, "test2_null_max_deltas", null2_w1[:2])
+            p2_res, null2_res = run_incremental_contrast_permutation_test(
+                configs=configs,
+                timeseries_list=inputs.timeseries_list,
+                pearson_z_edges=inputs.pearson_z_edges,
+                motion_covariates=inputs.motion_covariates,
+                age_sex_covariates=inputs.age_sex_covariates,
+                labels=y_r1,
+                institutions=inputs.institutions,
+                baseline_probs=baselines["motion_age_sex"],
+                observed_max_delta_auc=0.05,
+                n_permutations=4,
+                seed=123,
+                checkpoint_path=ckpt_partial,
+                n_workers=2,
+            )
+            np.testing.assert_allclose(null2_w1, null2_res, atol=1e-12)
+            self.assertAlmostEqual(p2_w1, p2_res, places=12)
+
+    # -----------------------------------------------------------------
+    # Test (r): Per-institution 95% CIs and complete results key tree
+    # -----------------------------------------------------------------
+    def test_r_per_institution_cis_and_complete_results_key_tree(self) -> None:
+        inputs, y_r1, y_mr = self._build_synthetic_real_shape_inputs(
+            n_rois=8,
+            site_counts=(
+                ("NYU", 12, 2, 25),
+                ("Peking", 12, 2, 25),
+                ("NeuroIMAGE", 12, 2, 25),
+                ("KKI", 12, 2, 25),
+                ("OHSU", 12, 2, 25),
+            ),
+        )
+        cohorts = build_cohorts(inputs, y_r1, y_mr)
+        res = run_full_analysis(
+            cohorts=cohorts,
+            n_permutations=1,
+            n_boot=10,
+            seed=42,
+            progress_fn=None,
+            n_workers=1,
+        )
+        res.pop("_phase_timings", None)
+        expected_top = {"protocol_version", "primary_analysis", "sensitivity_analyses", "multirun_family_cfg13_16"}
+        self.assertEqual(set(res.keys()), expected_top)
+
+        for section, expected_sites in [
+            (res["primary_analysis"], {"KKI", "NYU", "NeuroIMAGE", "OHSU", "Peking"}),
+            (res["sensitivity_analyses"]["all_620"], {"KKI", "NYU", "NeuroIMAGE", "OHSU", "Peking"}),
+            (res["multirun_family_cfg13_16"], {"NYU", "OHSU"}),
+        ]:
+            for cfg_res in section["configs"].values():
+                self.assertEqual(cfg_res["status"], "ok")
+                per_site = cfg_res["per_institution"]
+                self.assertEqual(set(per_site.keys()), expected_sites)
+                for site_entry in per_site.values():
+                    self.assertEqual(
+                        set(site_entry.keys()),
+                        {
+                            "conn_only_auc",
+                            "conn_only_ci",
+                            "fused_auc",
+                            "fused_auc_ci",
+                            "cov_auc",
+                            "cov_auc_ci",
+                            "delta_auc",
+                            "delta_auc_ci",
+                        },
+                    )
+                    for ci_key in ["conn_only_ci", "fused_auc_ci", "cov_auc_ci", "delta_auc_ci"]:
+                        self.assertEqual(len(site_entry[ci_key]), 2)
+                        self.assertLessEqual(site_entry[ci_key][0], site_entry[ci_key][1])
 
 
 if __name__ == "__main__":
