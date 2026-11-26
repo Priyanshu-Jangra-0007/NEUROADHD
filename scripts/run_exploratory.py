@@ -2214,6 +2214,111 @@ def run_exploratory_synthetic_e2e(
     return results
 
 
+def run_rehearsal(
+    data_root: Path = Path("NeuroADHD/data/athena"),
+    cache_path: Optional[Path] = Path("NeuroADHD/data/athena/features/exploratory_label_free_cache.npz"),
+    rehearsal_results_path: Path = Path("NeuroADHD/data/athena/results/rehearsal_results.json"),
+    rehearsal_checkpoint_path: Path = Path("NeuroADHD/data/athena/results/rehearsal_perm_checkpoint.json"),
+    n_permutations: int = 2,
+    n_boot: int = 50,
+    seed: int = DEFAULT_RANDOM_STATE,
+) -> Dict[str, object]:
+    """
+    Full-pipeline crash/runtime rehearsal on REAL label-free arrays with SYNTHETIC labels
+    (stratified by institution at a fixed 45% positive rate).
+    - NEVER reads any real label column (DX, etc.).
+    - NEVER reads or writes exploratory_results.json or exploratory_perm_checkpoint.json.
+    - Writes ONLY to rehearsal_* paths under git-ignored NeuroADHD/data/athena/results/.
+    - Prints/returns NO AUCs, delta-AUCs, or p-values.
+    """
+    import warnings
+
+    for p in [rehearsal_results_path, rehearsal_checkpoint_path]:
+        if p.name in {"exploratory_results.json", "exploratory_perm_checkpoint.json"}:
+            raise ValueError(f"Rehearsal refuses to touch real output/checkpoint path: {p}")
+
+    # Remove prior rehearsal artifacts if re-running rehearsal
+    if rehearsal_results_path.exists():
+        rehearsal_results_path.unlink()
+    if rehearsal_checkpoint_path.exists():
+        rehearsal_checkpoint_path.unlink()
+
+    tracemalloc.start()
+    timings: Dict[str, float] = {}
+    stages: Dict[str, str] = {}
+
+    t0 = time.perf_counter()
+    inputs = load_label_free_inputs(data_root=data_root, cache_path=cache_path, force_rebuild=False)
+    timings["load_label_free_cache_sec"] = round(time.perf_counter() - t0, 3)
+    stages["load_label_free_inputs"] = "PASS"
+
+    # Generate synthetic labels stratified by institution at fixed 45% positive rate
+    rng = np.random.default_rng(seed)
+    syn_labels_r1 = np.zeros(len(inputs.subject_ids), dtype=np.int64)
+    for site in sorted(set(inputs.institutions)):
+        s_idx = np.where(inputs.institutions == site)[0]
+        n_pos = max(1, int(round(0.45 * len(s_idx))))
+        y_site = np.array([1] * n_pos + [0] * (len(s_idx) - n_pos), dtype=np.int64)
+        rng.shuffle(y_site)
+        syn_labels_r1[s_idx] = y_site
+
+    sid_to_syn = {str(sid): int(y) for sid, y in zip(inputs.subject_ids, syn_labels_r1)}
+    syn_labels_mr = np.array([sid_to_syn[str(sid)] for sid in inputs.multirun_subject_ids], dtype=np.int64)
+
+    t1 = time.perf_counter()
+    cohorts = build_cohorts(inputs, syn_labels_r1, syn_labels_mr)
+    timings["build_cohorts_sec"] = round(time.perf_counter() - t1, 3)
+    stages["build_cohorts"] = "PASS"
+
+    t2 = time.perf_counter()
+    captured_warnings: List[str] = []
+    with warnings.catch_warnings(record=True) as w_list:
+        warnings.simplefilter("always")
+        results = run_full_analysis(
+            cohorts=cohorts,
+            n_permutations=n_permutations,
+            n_boot=n_boot,
+            seed=seed,
+            checkpoint_path=rehearsal_checkpoint_path,
+            progress_fn=lambda msg: None,
+        )
+        for w in w_list:
+            captured_warnings.append(f"{w.category.__name__}: {w.message}")
+    timings["run_full_analysis_sec"] = round(time.perf_counter() - t2, 3)
+    stages["run_full_analysis"] = "PASS"
+
+    write_results_once(rehearsal_results_path, results)
+    stages["write_rehearsal_results"] = "PASS"
+
+    _, peak_bytes = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    warning_counts: Dict[str, int] = defaultdict(int)
+    for w_str in captured_warnings:
+        cat = w_str.split(":", 1)[0]
+        warning_counts[cat] += 1
+
+    sections_produced = {
+        "top_level": list(results.keys()),
+        "primary_analysis": list(results["primary_analysis"].keys()),
+        "sensitivity_analyses": list(results["sensitivity_analyses"].keys()),
+        "multirun_family_cfg13_16": list(results["multirun_family_cfg13_16"].keys()),
+    }
+
+    return {
+        "rehearsal_status": "PASS",
+        "stages": stages,
+        "sections_produced": sections_produced,
+        "n_permutations_rehearsal": n_permutations,
+        "warning_counts_by_category": dict(warning_counts),
+        "total_warnings": len(captured_warnings),
+        "peak_memory_mb": round(peak_bytes / (1024 * 1024), 2),
+        "timings_sec": timings,
+        "rehearsal_results_path": str(rehearsal_results_path),
+        "rehearsal_checkpoint_path": str(rehearsal_checkpoint_path),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Exploratory Analysis Runner (Guarded).")
     parser.add_argument(
@@ -2225,6 +2330,11 @@ def main() -> None:
         "--label-free-check",
         action="store_true",
         help="Run the real label-free loader on the archive (no labels, no models, no AUCs) and print counts/pass-fail.",
+    )
+    parser.add_argument(
+        "--rehearsal",
+        action="store_true",
+        help="Run full pipeline rehearsal on real label-free arrays with synthetic 45%-positive stratified labels.",
     )
     parser.add_argument(
         "--execute-real",
@@ -2261,6 +2371,11 @@ def main() -> None:
         print(json.dumps(report, indent=2))
         if report["status"] != "PASS":
             raise SystemExit(1)
+        return
+
+    if args.rehearsal:
+        rehearsal_report = run_rehearsal(n_permutations=2, seed=DEFAULT_RANDOM_STATE)
+        print(json.dumps(rehearsal_report, indent=2))
         return
 
     enforce_exploratory_guards(execute_real=args.execute_real)
