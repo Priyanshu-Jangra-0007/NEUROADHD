@@ -51,6 +51,7 @@ from scripts.run_exploratory import (
     run_full_analysis,
     run_incremental_contrast_permutation_test,
     run_preflight,
+    run_rehearsal,
     run_within_site_label_permutation_test,
     save_permutation_checkpoint,
     timeseries_to_fisher_z,
@@ -1037,6 +1038,56 @@ class TestRunExploratorySynthetic(unittest.TestCase):
                 with self.assertRaises(ValueError) as ctx:
                     run_preflight(data_root=root)
                 self.assertIn("STALE", str(ctx.exception))
+
+    # -----------------------------------------------------------------
+    # Test (o): Rehearsal refuses real labels & writes only to rehearsal_* paths
+    # -----------------------------------------------------------------
+    def test_o_rehearsal_refuses_real_labels_and_writes_only_rehearsal_paths(self) -> None:
+        inputs, _, _ = self._build_synthetic_real_shape_inputs(
+            n_rois=8,
+            site_counts=(
+                ("NYU", 12, 2, 25),
+                ("Peking", 12, 2, 25),
+                ("NeuroIMAGE", 12, 2, 25),
+                ("KKI", 12, 2, 25),
+                ("OHSU", 12, 2, 25),
+            ),
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            res_dir = tmp_path / "results"
+            res_dir.mkdir(parents=True, exist_ok=True)
+            reh_out = res_dir / "rehearsal_results.json"
+            reh_ckpt = res_dir / "rehearsal_perm_checkpoint.json"
+            real_out = res_dir / "exploratory_results.json"
+            real_ckpt = res_dir / "exploratory_perm_checkpoint.json"
+
+            # Refuses real results/checkpoint filenames
+            with self.assertRaises(ValueError):
+                run_rehearsal(rehearsal_results_path=real_out, rehearsal_checkpoint_path=reh_ckpt)
+            with self.assertRaises(ValueError):
+                run_rehearsal(rehearsal_results_path=reh_out, rehearsal_checkpoint_path=real_ckpt)
+
+            with patch("scripts.run_exploratory.load_label_free_inputs", return_value=inputs), \
+                 patch("scripts.run_exploratory.load_labels_last", side_effect=AssertionError("Real labels must NEVER be read in rehearsal!")):
+                report = run_rehearsal(
+                    data_root=tmp_path,
+                    cache_path=tmp_path / "cache.npz",
+                    rehearsal_results_path=reh_out,
+                    rehearsal_checkpoint_path=reh_ckpt,
+                    n_permutations=1,
+                    n_boot=10,
+                    seed=42,
+                )
+
+            self.assertEqual(report["rehearsal_status"], "PASS")
+            self.assertTrue(reh_out.is_file())
+            self.assertTrue(reh_ckpt.is_file())
+            self.assertFalse(real_out.exists())
+            self.assertFalse(real_ckpt.exists())
+            # Report itself must contain no AUC/delta/p-value floats (excluding timings/memory)
+            non_perf_report = {k: v for k, v in report.items() if k not in {"timings_sec", "peak_memory_mb"}}
+            self.assertIsNone(re.search(r"\b0\.\d{2,}\b", json.dumps(non_perf_report)))
 
 
 if __name__ == "__main__":
