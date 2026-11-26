@@ -25,20 +25,29 @@ import json
 import math
 import re
 import subprocess
+import sys
 import tarfile
+import time
+import tracemalloc
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
+
+_REPO_ROOT = str(Path(__file__).resolve().parent.parent)
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 import numpy as np
 from nilearn.connectome import ConnectivityMeasure
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, balanced_accuracy_score
 from sklearn.model_selection import StratifiedKFold
+from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from scripts.compute_athena_fd import (
@@ -132,11 +141,22 @@ def timeseries_to_fisher_z(
 ) -> np.ndarray:
     """
     Compute Fisher-z transformed Pearson correlation upper triangle (excluding diagonal).
+    If any ROI column has zero temporal variance, its correlation edges are imputed with 0.0
+    (matching Study 2 PREREGISTRATION / ATHENA_ACQUISITION_MANIFEST.md rule).
     Input: (T, K)
     Output: 1D array of shape (K*(K-1)//2,)
     """
-    corr = np.corrcoef(ts, rowvar=False)
+    std_cols = np.std(ts, axis=0)
     k = ts.shape[1]
+    if np.any(std_cols <= 0.0):
+        valid = std_cols > 0.0
+        corr = np.eye(k, dtype=np.float64)
+        if np.sum(valid) >= 2:
+            sub_corr = np.corrcoef(ts[:, valid], rowvar=False)
+            idx_valid = np.where(valid)[0]
+            corr[np.ix_(idx_valid, idx_valid)] = sub_corr
+    else:
+        corr = np.corrcoef(ts, rowvar=False)
     triu_i, triu_j = np.triu_indices(k, k=1)
     r_edges = np.clip(corr[triu_i, triu_j], -1.0 + clip_eps, 1.0 - clip_eps)
     z_edges = np.arctanh(r_edges).astype(np.float64)
@@ -481,11 +501,11 @@ def evaluate_non_imaging_baselines(
         train_mask = institutions != test_site
         test_mask = institutions == test_site
 
-        s_m = StandardScaler().fit(motion_covariates[train_mask])
+        s_m = make_pipeline(SimpleImputer(strategy="median"), StandardScaler()).fit(motion_covariates[train_mask])
         m_tr = s_m.transform(motion_covariates[train_mask])
         m_te = s_m.transform(motion_covariates[test_mask])
 
-        s_a = StandardScaler().fit(age_sex_covariates[train_mask])
+        s_a = make_pipeline(SimpleImputer(strategy="median"), StandardScaler()).fit(age_sex_covariates[train_mask])
         a_tr = s_a.transform(age_sex_covariates[train_mask])
         a_te = s_a.transform(age_sex_covariates[test_mask])
 
@@ -613,7 +633,7 @@ def fit_evaluate_late_fusion_outer_fold(
     for inner_tr_mask, inner_val_mask in inner_splits:
         y_in_tr = labels[inner_tr_mask]
 
-        sc_in = StandardScaler().fit(covariates[inner_tr_mask])
+        sc_in = make_pipeline(SimpleImputer(strategy="median"), StandardScaler()).fit(covariates[inner_tr_mask])
         clf_cov_in = LogisticRegression(
             C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
         )
@@ -638,7 +658,7 @@ def fit_evaluate_late_fusion_outer_fold(
 
     # 4. Fit base models on all 4 training institutions and predict on outer test_site
     y_out_tr = labels[outer_train_mask]
-    sc_out = StandardScaler().fit(covariates[outer_train_mask])
+    sc_out = make_pipeline(SimpleImputer(strategy="median"), StandardScaler()).fit(covariates[outer_train_mask])
     clf_cov_out = LogisticRegression(
         C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=random_state
     )
@@ -914,14 +934,14 @@ def run_incremental_contrast_permutation_test(
                 in_splits_cov.append((m_tr, m_val))
 
         for inner_tr_mask, inner_val_mask in in_splits_cov:
-            sc_in = StandardScaler().fit(covariates[inner_tr_mask])
+            sc_in = make_pipeline(SimpleImputer(strategy="median"), StandardScaler()).fit(covariates[inner_tr_mask])
             clf_in = LogisticRegression(
                 C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=seed
             )
             clf_in.fit(sc_in.transform(covariates[inner_tr_mask]), labels[inner_tr_mask])
             s_cov_oof[inner_val_mask] = clf_in.predict_proba(sc_in.transform(covariates[inner_val_mask]))[:, 1]
 
-        sc_out = StandardScaler().fit(covariates[outer_train_mask])
+        sc_out = make_pipeline(SimpleImputer(strategy="median"), StandardScaler()).fit(covariates[outer_train_mask])
         clf_out = LogisticRegression(
             C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=seed
         )
@@ -1153,7 +1173,12 @@ def run_preflight(data_root: Path = Path("NeuroADHD/data/athena")) -> Dict[str, 
     # 2. Check ROI set JSON (190 populated CC200 ROIs)
     with open(required_files["valid_roi_set"], "r", encoding="utf-8") as f:
         roi_meta = json.load(f)
+    if roi_meta.get("k_kept") != 190 or roi_meta.get("p_edges") != 17955:
+        raise ValueError(
+            f"Preflight failed: unexpected ROI set metadata k_kept={roi_meta.get('k_kept')}, p_edges={roi_meta.get('p_edges')}"
+        )
     summary["valid_roi_keys"] = len(roi_meta)
+    summary["valid_roi_k_kept"] = roi_meta["k_kept"]
 
     # 3. Check phenotype TSV non-label columns ONLY (never read DX or ADHD columns)
     with open(required_files["phenotypes_tsv"], "r", encoding="utf-8", errors="replace") as f:
@@ -1162,20 +1187,45 @@ def run_preflight(data_root: Path = Path("NeuroADHD/data/athena")) -> Dict[str, 
         for req_col in ["ScanDir ID", "Site", "Gender", "Age"]:
             if req_col not in cols:
                 raise ValueError(f"Preflight failed: missing column '{req_col}' in phenotypes TSV")
-        n_pheno_rows = sum(1 for _ in reader)
+        n_pheno_rows = 0
+        n_multiclass_rows = 0
+        n_missing_age_sex = 0
+        for row in reader:
+            n_pheno_rows += 1
+            if str(row.get("Site", "")).strip() in SITE_CODE_TO_INSTITUTION:
+                n_multiclass_rows += 1
+                try:
+                    a_val = float(str(row.get("Age", "")).strip())
+                    s_val = float(str(row.get("Gender", "")).strip())
+                    if not (math.isfinite(a_val) and math.isfinite(s_val)):
+                        n_missing_age_sex += 1
+                except ValueError:
+                    n_missing_age_sex += 1
     if n_pheno_rows < 900:
         raise ValueError(f"Preflight failed: unexpected phenotype row count {n_pheno_rows}")
     summary["phenotypes_rows"] = n_pheno_rows
+    summary["phenotypes_multiclass_rows"] = n_multiclass_rows
+    summary["phenotypes_missing_age_sex"] = n_missing_age_sex
 
     # 4. Check motion & matching inputs (dev_niak_fd_metrics.csv and NYU_motion.csv)
     with open(required_files["dev_fd_csv"], "r", encoding="utf-8", errors="replace") as f:
         reader = csv.DictReader(f)
         fd_cols = reader.fieldnames or []
-        for req_col in ["subject_id_norm", "institution", "mean_fd_mm", "max_disp_mm", "frames_cc200"]:
+        for req_col in ["subject_id_norm", "institution", "mean_fd_mm", "max_disp_mm", "frames_cc200", "exclude_primary_050"]:
             if req_col not in fd_cols:
                 raise ValueError(f"Preflight failed: missing column '{req_col}' in dev_niak_fd_metrics.csv")
-        n_fd_rows = sum(1 for _ in reader)
+        n_fd_rows = 0
+        n_dev_retained = 0
+        for row in reader:
+            n_fd_rows += 1
+            if int(row["exclude_primary_050"]) == 0:
+                n_dev_retained += 1
+    if n_fd_rows != 404 or n_dev_retained != 368:
+        raise ValueError(
+            f"Preflight failed: dev FD counts mismatch (total={n_fd_rows} != 404 or retained={n_dev_retained} != 368)"
+        )
     summary["dev_fd_rows"] = n_fd_rows
+    summary["dev_fd_retained"] = n_dev_retained
 
     with open(required_files["nyu_motion_csv"], "r", encoding="utf-8", errors="replace") as f:
         reader = csv.DictReader(f)
@@ -1211,7 +1261,190 @@ def run_preflight(data_root: Path = Path("NeuroADHD/data/athena")) -> Dict[str, 
     summary["nyu_tar_dirs"] = n_nyu_dirs
     summary["cc200_tcs_tar_bytes"] = required_files["cc200_tcs_tar"].stat().st_size
 
+    # 6. Check label-free cache staleness if cache exists
+    cache_path = data_root / "features" / "exploratory_label_free_cache.npz"
+    if cache_path.is_file():
+        cache_mtime = cache_path.stat().st_mtime
+        for src_key in ["cc200_tcs_tar", "nyu_intermediate_tar", "dev_fd_csv", "phenotypes_tsv"]:
+            if required_files[src_key].stat().st_mtime > cache_mtime:
+                raise ValueError(
+                    f"Preflight failed: label-free cache {cache_path} is STALE relative to {src_key}. "
+                    "Rebuild cache with --label-free-check."
+                )
+        with np.load(cache_path, allow_pickle=True) as cd:
+            if "meta_json" not in cd.files or cd["pearson_z_edges"].shape != (620, 17955):
+                raise ValueError(
+                    f"Preflight failed: label-free cache {cache_path} has stale schema/shape."
+                )
+        summary["label_free_cache_status"] = "fresh"
+    else:
+        summary["label_free_cache_status"] = "not_built_yet"
+
     return summary
+
+
+def run_label_free_check(
+    data_root: Path = Path("NeuroADHD/data/athena"),
+    cache_path: Path = Path("NeuroADHD/data/athena/features/exploratory_label_free_cache.npz"),
+) -> Dict[str, object]:
+    """
+    Execute the REAL label-free loader on the real archive (no labels, no models, no AUCs)
+    and verify counts, ROI set, Fisher-z reproduction vs dev_cc200_fisher_z_all404.npz,
+    FD retained counts vs Study 2, NaN/Inf counts, multi-run availability, memory, and git-ignore.
+    """
+    tracemalloc.start()
+    t0 = time.perf_counter()
+    inputs = load_label_free_inputs(data_root=data_root, cache_path=cache_path, force_rebuild=True)
+    build_sec = time.perf_counter() - t0
+    _, peak_bytes = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    n_total = int(len(inputs.subject_ids))
+    n_nyu = int(np.sum(inputs.institutions == "NYU"))
+    n_dev = int(n_total - n_nyu)
+
+    # Scan lengths per site (min / median / max)
+    scan_lengths_per_site: Dict[str, Dict[str, float]] = {}
+    for site in sorted(set(inputs.institutions)):
+        lens = inputs.t_lengths[inputs.institutions == site]
+        scan_lengths_per_site[str(site)] = {
+            "n": int(len(lens)),
+            "min": int(np.min(lens)),
+            "median": float(np.median(lens)),
+            "max": int(np.max(lens)),
+        }
+
+    # ROI set check vs dev_valid_roi_set.json (190 ROIs)
+    roi_json_path = data_root / "features" / "dev_valid_roi_set.json"
+    with open(roi_json_path, "r", encoding="utf-8") as f:
+        roi_meta = json.load(f)
+    expected_roi_names = roi_meta["kept_roi_names"]
+    roi_set_matches = (len(inputs.roi_names) == 190) and (inputs.roi_names == expected_roi_names)
+
+    # Reproduce rest_1 Fisher-z edges for the 404 dev scans vs dev_cc200_fisher_z_all404.npz (NO 'y' read!)
+    dev_mask = inputs.institutions != "NYU"
+    dev_z = inputs.pearson_z_edges[dev_mask]
+    dev_mot = inputs.motion_covariates[dev_mask]
+    dev_as = inputs.age_sex_covariates[dev_mask]
+    dev_t = inputs.t_lengths[dev_mask]
+    dev_inst = inputs.institutions[dev_mask]
+
+    with np.load(data_root / "features" / "dev_cc200_fisher_z_all404.npz", allow_pickle=False) as d404:
+        ref_z = d404["X"]
+        ref_mot = d404["motion_X"]
+        ref_as = d404["age_sex_X"]
+        ref_t = d404["t_lengths"]
+        ref_inst = d404["institutions"]
+
+    # Match rows 1:1 via (institution, motion_X, age_sex_X, t_lengths)
+    used_ref: Set[int] = set()
+    max_abs_diff = 0.0
+    matched_rows = 0
+    for i in range(len(dev_z)):
+        best_j = None
+        for j in range(len(ref_z)):
+            if j in used_ref:
+                continue
+            if (
+                str(dev_inst[i]) == str(ref_inst[j])
+                and int(dev_t[i]) == int(ref_t[j])
+                and np.allclose(dev_mot[i], ref_mot[j], atol=1e-5)
+                and np.allclose(dev_as[i], ref_as[j], atol=1e-4)
+            ):
+                best_j = j
+                break
+        if best_j is not None:
+            used_ref.add(best_j)
+            matched_rows += 1
+            diff = float(np.max(np.abs(dev_z[i] - ref_z[best_j])))
+            if diff > max_abs_diff:
+                max_abs_diff = diff
+
+    # Label-free FD retained counts vs Study 2 recorded values (dev=368, NYU=196)
+    dev_retained = int(np.sum((inputs.institutions != "NYU") & (inputs.exclude_primary_050 == 0)))
+    nyu_retained = int(np.sum((inputs.institutions == "NYU") & (inputs.exclude_primary_050 == 0)))
+    study2_dev_diff = dev_retained - 368
+    study2_nyu_diff = nyu_retained - 196
+
+    # NaN / Inf counts in every array (imaging/motion must be 0; primary_564 age/sex must be 0)
+    primary_mask = inputs.exclude_primary_050 == 0
+    nan_inf_counts = {
+        "pearson_z_edges": int(np.sum(~np.isfinite(inputs.pearson_z_edges))),
+        "motion_covariates": int(np.sum(~np.isfinite(inputs.motion_covariates))),
+        "age_sex_covariates_all620": int(np.sum(~np.isfinite(inputs.age_sex_covariates))),
+        "age_sex_covariates_primary564": int(np.sum(~np.isfinite(inputs.age_sex_covariates[primary_mask]))),
+        "multirun_pearson_z_avg": int(np.sum(~np.isfinite(inputs.multirun_pearson_z_avg))),
+        "timeseries_list": int(sum(int(np.sum(~np.isfinite(ts))) for ts in inputs.timeseries_list)),
+    }
+
+    # Multi-run availability per site and per subject
+    mr_per_site_subjects = {
+        "NYU_subjects": int(np.sum(inputs.multirun_institutions == "NYU")),
+        "OHSU_subjects": int(np.sum(inputs.multirun_institutions == "OHSU")),
+        "NYU_ge2_runs": int(np.sum((inputs.multirun_institutions == "NYU") & (inputs.multirun_run_counts >= 2))),
+        "OHSU_ge2_runs": int(np.sum((inputs.multirun_institutions == "OHSU") & (inputs.multirun_run_counts >= 2))),
+        "OHSU_3_runs": int(np.sum((inputs.multirun_institutions == "OHSU") & (inputs.multirun_run_counts >= 3))),
+    }
+
+    # Git-ignore proof
+    gi_proc = subprocess.run(
+        ["git", "check-ignore", "-v", str(cache_path)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    git_ignore_proof = gi_proc.stdout.strip() if gi_proc.returncode == 0 else "NOT IGNORED"
+
+    checks_pass = (
+        n_total == 620
+        and n_nyu == 216
+        and n_dev == 404
+        and roi_set_matches
+        and matched_rows == 404
+        and max_abs_diff < 1e-6
+        and dev_retained == 368
+        and nyu_retained == 196
+        and nan_inf_counts["pearson_z_edges"] == 0
+        and nan_inf_counts["motion_covariates"] == 0
+        and nan_inf_counts["age_sex_covariates_primary564"] == 0
+        and nan_inf_counts["multirun_pearson_z_avg"] == 0
+        and nan_inf_counts["timeseries_list"] == 0
+        and gi_proc.returncode == 0
+    )
+
+    return {
+        "status": "PASS" if checks_pass else "FAIL",
+        "scans_loaded": {"total": n_total, "nyu": n_nyu, "dev": n_dev},
+        "phenotype_coverage": {
+            "age_sex_present": n_total,
+            "missing_counts": inputs.pheno_missing_age_sex_counts,
+        },
+        "scan_lengths_per_site": scan_lengths_per_site,
+        "roi_set_matches_190": roi_set_matches,
+        "zero_variance_roi_counts_per_site": inputs.zero_var_roi_counts_per_site,
+        "dev_404_fisher_z_reproduction": {
+            "matched_rows": matched_rows,
+            "max_abs_diff": max_abs_diff,
+            "row_order_note": "matched 1:1 via (institution, motion_X, age_sex_X, t_lengths); Study 2 npz ordered by site CSV, cache ordered by sorted ID",
+        },
+        "fd_primary_retained": {
+            "dev_retained": dev_retained,
+            "study2_dev_recorded": 368,
+            "dev_diff": study2_dev_diff,
+            "nyu_retained": nyu_retained,
+            "study2_nyu_recorded": 196,
+            "nyu_diff": study2_nyu_diff,
+        },
+        "nan_inf_counts": nan_inf_counts,
+        "multirun_availability": {
+            "runs_per_site": inputs.multirun_availability,
+            "subjects_summary": mr_per_site_subjects,
+        },
+        "build_time_sec": round(build_sec, 3),
+        "peak_memory_mb": round(peak_bytes / (1024 * 1024), 2),
+        "cache_path": str(cache_path),
+        "git_ignore_proof": git_ignore_proof,
+    }
 
 
 def write_results_once(output_path: Path, payload: Dict[str, object]) -> None:
@@ -1244,6 +1477,10 @@ class LabelFreeInputs:
     multirun_motion_covariates: np.ndarray
     multirun_age_sex_covariates: np.ndarray
     multirun_run_counts: np.ndarray
+    roi_names: List[str] = field(default_factory=list)
+    zero_var_roi_counts_per_site: Dict[str, int] = field(default_factory=dict)
+    pheno_missing_age_sex_counts: Dict[str, int] = field(default_factory=dict)
+    multirun_availability: Dict[str, Dict[str, int]] = field(default_factory=dict)
 
 
 @dataclass
@@ -1258,12 +1495,17 @@ class CohortData:
     labels: np.ndarray
 
 
-def parse_cc200_1d_text(text: str) -> np.ndarray:
-    """Parse a CC200 .1D timecourse file into a (T, 190) float64 array."""
+def parse_cc200_1d_text(text: str, return_roi_names: bool = False) -> Union[np.ndarray, Tuple[np.ndarray, List[str]]]:
+    """Parse a CC200 .1D timecourse file into a (T, 190) float64 array (and optionally ROI names)."""
     rows: List[List[float]] = []
+    roi_names: List[str] = []
     for line in text.splitlines():
         s = line.strip()
-        if not s or s.startswith("#") or s.startswith("File\t"):
+        if not s or s.startswith("#"):
+            continue
+        if s.startswith("File\t") or s.startswith("File "):
+            header = s.split()
+            roi_names = header[2:]
             continue
         parts = s.split()
         if len(parts) < 3:
@@ -1271,7 +1513,10 @@ def parse_cc200_1d_text(text: str) -> np.ndarray:
         rows.append([float(x) for x in parts[2:]])
     if not rows:
         raise ValueError("Empty CC200 .1D timecourse stream")
-    return np.array(rows, dtype=np.float64)
+    arr = np.array(rows, dtype=np.float64)
+    if return_roi_names:
+        return arr, roi_names
+    return arr
 
 
 def _compute_nyu_rest1_motion(nyu_tar_path: Path) -> Dict[str, Tuple[float, float, int]]:
@@ -1336,6 +1581,7 @@ def load_label_free_inputs(
     """
     if cache_path is not None and cache_path.is_file() and not force_rebuild:
         with np.load(cache_path, allow_pickle=True) as d:
+            meta_json = json.loads(str(d["meta_json"])) if "meta_json" in d.files else {}
             return LabelFreeInputs(
                 subject_ids=d["subject_ids"],
                 institutions=d["institutions"],
@@ -1351,6 +1597,10 @@ def load_label_free_inputs(
                 multirun_motion_covariates=np.asarray(d["multirun_motion_covariates"], dtype=np.float64),
                 multirun_age_sex_covariates=np.asarray(d["multirun_age_sex_covariates"], dtype=np.float64),
                 multirun_run_counts=np.asarray(d["multirun_run_counts"], dtype=np.int64),
+                roi_names=meta_json.get("roi_names", []),
+                zero_var_roi_counts_per_site=meta_json.get("zero_var_roi_counts_per_site", {}),
+                pheno_missing_age_sex_counts=meta_json.get("pheno_missing_age_sex_counts", {}),
+                multirun_availability=meta_json.get("multirun_availability", {}),
             )
 
     phenotypes_tsv = data_root / "phenotypes" / "adhd200_preprocessed_phenotypics.tsv"
@@ -1360,20 +1610,31 @@ def load_label_free_inputs(
 
     # 1. Non-label phenotype columns ONLY (never touch DX or ADHD columns)
     pheno_cov: Dict[str, Tuple[str, float, float]] = {}
+    pheno_missing: Dict[str, int] = {"missing_age": 0, "missing_sex": 0, "total_multiclass_rows": 0}
     with open(phenotypes_tsv, "r", encoding="utf-8", errors="replace") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             site_code = str(row.get("Site", "")).strip()
             if site_code not in SITE_CODE_TO_INSTITUTION:
                 continue
+            pheno_missing["total_multiclass_rows"] += 1
             sid = str(row.get("ScanDir ID", "")).strip().lstrip("0") or "0"
             age_str = str(row.get("Age", "")).strip()
             sex_str = str(row.get("Gender", "")).strip()
             try:
                 age_val = float(age_str)
-                sex_val = float(sex_str)
+                if not math.isfinite(age_val):
+                    raise ValueError
             except ValueError:
-                continue
+                pheno_missing["missing_age"] += 1
+                age_val = float("nan")
+            try:
+                sex_val = float(sex_str)
+                if not math.isfinite(sex_val):
+                    raise ValueError
+            except ValueError:
+                pheno_missing["missing_sex"] += 1
+                sex_val = float("nan")
             pheno_cov[sid] = (SITE_CODE_TO_INSTITUTION[site_code], age_val, sex_val)
 
     # 2. Motion metrics: saved dev metrics + NYU from intermediate_nyu.tar
@@ -1389,9 +1650,15 @@ def load_label_free_inputs(
     nyu_motion = _compute_nyu_rest1_motion(nyu_tar)
     motion_map.update(nyu_motion)
 
-    # 3. Stream CC200 archive in memory (rest_1 + rest_2/rest_3 for NYU and OHSU)
+    # 3. Stream CC200 archive in memory (rest_1 ONLY for primary/sensitivity; rest_2/3 tracked for CFG_13-16)
     rest1_data: Dict[str, Tuple[str, np.ndarray, np.ndarray]] = {}
     multirun_runs: Dict[str, List[np.ndarray]] = defaultdict(list)
+    multirun_avail: Dict[str, Dict[str, int]] = {
+        "NYU": {"rest_1": 0, "rest_2": 0, "rest_3": 0},
+        "OHSU": {"rest_1": 0, "rest_2": 0, "rest_3": 0},
+    }
+    zero_var_per_site: Dict[str, int] = defaultdict(int)
+    observed_roi_names: List[str] = []
 
     with tarfile.open(cc200_archive, "r:gz") as tf:
         for member in tf.getmembers():
@@ -1419,12 +1686,19 @@ def load_label_free_inputs(
                 stream = tf.extractfile(member)
                 if stream is None:
                     continue
-                ts = parse_cc200_1d_text(stream.read().decode("utf-8", errors="replace"))
-                z_edges = timeseries_to_fisher_z(ts)
+                ts, r_names = parse_cc200_1d_text(stream.read().decode("utf-8", errors="replace"), return_roi_names=True)
+                if not observed_roi_names and r_names:
+                    observed_roi_names = r_names
+                n_zero_var = int(np.sum(np.std(ts, axis=0) <= 0.0))
                 if run_num == 1:
+                    zero_var_per_site[inst] += n_zero_var
+                    z_edges = timeseries_to_fisher_z(ts)
                     rest1_data[sid] = (inst, ts, z_edges)
+                else:
+                    z_edges = timeseries_to_fisher_z(ts)
                 if inst in {"NYU", "OHSU"} and run_num in {1, 2, 3}:
                     multirun_runs[sid].append(z_edges)
+                    multirun_avail[inst][f"rest_{run_num}"] += 1
 
     sorted_sids = sorted(rest1_data.keys())
     institutions_arr = np.array([rest1_data[s][0] for s in sorted_sids], dtype="<U16")
@@ -1443,6 +1717,9 @@ def load_label_free_inputs(
     mr_as = np.array([[pheno_cov[s][1], pheno_cov[s][2]] for s in mr_sids], dtype=np.float64)
     mr_counts = np.array([len(multirun_runs[s]) for s in mr_sids], dtype=np.int64)
 
+    for inst_name in sorted(set(institutions_arr)):
+        zero_var_per_site.setdefault(str(inst_name), 0)
+
     inputs = LabelFreeInputs(
         subject_ids=np.array(sorted_sids, dtype="<U16"),
         institutions=institutions_arr,
@@ -1458,6 +1735,10 @@ def load_label_free_inputs(
         multirun_motion_covariates=mr_mot,
         multirun_age_sex_covariates=mr_as,
         multirun_run_counts=mr_counts,
+        roi_names=observed_roi_names,
+        zero_var_roi_counts_per_site=dict(zero_var_per_site),
+        pheno_missing_age_sex_counts=pheno_missing,
+        multirun_availability=multirun_avail,
     )
 
     if cache_path is not None:
@@ -1465,6 +1746,14 @@ def load_label_free_inputs(
         ts_obj = np.empty(len(ts_list), dtype=object)
         for i, ts in enumerate(ts_list):
             ts_obj[i] = ts.astype(np.float32)
+        meta_payload = json.dumps(
+            {
+                "roi_names": inputs.roi_names,
+                "zero_var_roi_counts_per_site": inputs.zero_var_roi_counts_per_site,
+                "pheno_missing_age_sex_counts": inputs.pheno_missing_age_sex_counts,
+                "multirun_availability": inputs.multirun_availability,
+            }
+        )
         np.savez(
             cache_path,
             subject_ids=inputs.subject_ids,
@@ -1481,6 +1770,7 @@ def load_label_free_inputs(
             multirun_motion_covariates=inputs.multirun_motion_covariates,
             multirun_age_sex_covariates=inputs.multirun_age_sex_covariates,
             multirun_run_counts=inputs.multirun_run_counts,
+            meta_json=np.array(meta_payload),
         )
     return inputs
 
@@ -1932,6 +2222,11 @@ def main() -> None:
         help="Check that all required inputs exist with expected shapes/counts WITHOUT reading labels.",
     )
     parser.add_argument(
+        "--label-free-check",
+        action="store_true",
+        help="Run the real label-free loader on the archive (no labels, no models, no AUCs) and print counts/pass-fail.",
+    )
+    parser.add_argument(
         "--execute-real",
         action="store_true",
         help="Explicit permission to execute real cohort evaluation. Requires 'exploratory-frozen' tag.",
@@ -1959,6 +2254,13 @@ def main() -> None:
     if args.preflight:
         summary = run_preflight()
         print("Preflight passed (no label columns read):", json.dumps(summary))
+        return
+
+    if args.label_free_check:
+        report = run_label_free_check()
+        print(json.dumps(report, indent=2))
+        if report["status"] != "PASS":
+            raise SystemExit(1)
         return
 
     enforce_exploratory_guards(execute_real=args.execute_real)
