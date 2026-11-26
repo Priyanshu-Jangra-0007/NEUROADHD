@@ -15,8 +15,8 @@ The following SHA-256 hashes uniquely identify the protocol specification, execu
 | Component | Path | SHA-256 Checksum |
 | :--- | :--- | :--- |
 | **Protocol Specification** | [`docs/exploratory/EXPLORATORY_PLAN_DRAFT.md`](EXPLORATORY_PLAN_DRAFT.md) | `eb1e11770010fffb059a9889c9d920db3d2d1ea738153f429e3099ff9077072a` |
-| **Analysis Runner** | [`scripts/run_exploratory.py`](../../scripts/run_exploratory.py) | `29e3bda2a3870d80b26abb2ac5367b5b9a635c8089833d769480da955c8df381` |
-| **Synthetic Test Suite** | [`tests/test_run_exploratory.py`](../../tests/test_run_exploratory.py) | `ff6a80996f46d882316c9c66781cb874ffa10250cd030dce93f9ad1fe2f5b80e` |
+| **Analysis Runner** | [`scripts/run_exploratory.py`](../../scripts/run_exploratory.py) | `174dfc56030f454bd77f3b95db31c6cf29a7799f8fb56293a69887e9647c6764` |
+| **Synthetic Test Suite** | [`tests/test_run_exploratory.py`](../../tests/test_run_exploratory.py) | `7b6b3e69d21af16b8be2860085e695f8f3f609a0b3e231ffca65407ffcc801eb` |
 
 ---
 
@@ -47,13 +47,11 @@ caffeinate -dimsu ./NeuroADHD/.venv/bin/python scripts/run_exploratory.py --exec
 
 ---
 
-## 4. Benchmark & Runtime Profile for Fused Design (Estimated, `C = 1.0`)
-*(All timings labeled as estimates, measured on synthetic cohorts at exact real site sizes: Primary $N = 564$ [NYU 196, Peking 189, NeuroIMAGE 42, KKI 79, OHSU 58] and 215-Pair Matched $N = 430$, CC200 (190 populated ROIs), $T \in [78, 257]$, logistic regression `C = 1.0`, late fusion)*:
+## 4. Benchmark & Runtime Profile for Fused Design (Estimated, `C = 1.0`, `n_workers = 2`)
+*(All timings labeled as **estimates**, fitted from `--rehearsal` runs at `n_permutations = 2` and `4` on the real label-free CC200 arrays with synthetic 45%-positive stratified labels, shared subject covariances, cached tangent spaces, `SharedMemory` workers capped at 2 for `< 6 GB` peak RSS, `peak_rss_mb = 3014.97`, `child_max_rss_mb = 2026.05`)*:
 
-- **Primary Cohort ($N = 564$):**
-  - Test 1 (Label Permutation, Cached Features): Setup $29.5\text{ s}$, $1.53\text{ s}$/perm $\rightarrow$ $5.6\text{ min}$ for 200 permutations.
-  - Test 2 (Late Fusion Incremental Contrast, 15-Split Tangent Setup): Setup $63.6\text{ s}$, $26.19\text{ s}$/perm $\rightarrow$ $88.4\text{ min}$ for 200 permutations.
-  - **Both Tests Together (200 Permutations):** **$\approx 93.9\text{ minutes}$** ($1.57\text{ hours}$).
-- **215-Pair Matched Subset ($N = 430$):**
-  - Test 1 (200 Perms): $8.6\text{ min}$; Test 2 (Late Fusion, 200 Perms): $60.0\text{ min}$; **Both Tests Together:** **$\approx 68.6\text{ minutes}$** ($1.14\text{ hours}$).
-Both cohorts complete comfortably below the 3-hour budget threshold.
+- **Observed Grids + Covariances (`primary_564`, `all_620`, `matched_215`, `matched_226`, `CFG_13–16`):** ~718–727 s at `n_boot = 50`; **~880 s (~14.7 min)** extrapolated to `--execute-real` (`n_boot = 2000`).
+- **Primary Test 1 (`12` configs, 5 outer LOIO folds):** fixed `3.34 s` + **`4.91 s/perm`** → **~985 s (~16.4 min)** estimated for 200 permutations.
+- **Primary Test 2 (`12` configs, 15 unique LOIO splits + late fusion + per-perm OLS motion residualization):** fixed `3.87 s` + **`13.99 s/perm`** → **~2,801 s (~46.7 min)** estimated for 200 permutations.
+- **Separate Multi-Run Family (`CFG_13–16`, 4 configs on NYU + OHSU):** fixed `5.09 s` + **`1.19 s/perm`** combined → **~242 s (~4.0 min)** estimated for 200 permutations.
+- **Estimated Total Runtime (`B = 200`, `n_boot = 2000`):** **~82 min (~1.36 h)** point estimate, **~70–105 min (~1.2–1.75 h)** range — comfortably below the 8-hour ceiling.
