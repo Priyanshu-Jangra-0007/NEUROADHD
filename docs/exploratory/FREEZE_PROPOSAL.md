@@ -14,9 +14,9 @@ The following SHA-256 hashes uniquely identify the protocol specification, execu
 
 | Component | Path | SHA-256 Checksum |
 | :--- | :--- | :--- |
-| **Protocol Specification** | [`docs/exploratory/EXPLORATORY_PLAN_DRAFT.md`](EXPLORATORY_PLAN_DRAFT.md) | `b3c07ab1667c1ea9b1e20d28daca6512b969c933ab64488c8dd1f6c55cc678ad` |
-| **Analysis Runner** | [`scripts/run_exploratory.py`](../../scripts/run_exploratory.py) | `416e49899ec5e5ad72188fc04d3364f7b779d5ac6cc891c82bc53af9480b21b0` |
-| **Synthetic Test Suite** | [`tests/test_run_exploratory.py`](../../tests/test_run_exploratory.py) | `c16706fa2e4e4371f436eeb5104a31b802731505f0b58e5af02cbf9b39446735` |
+| **Protocol Specification** | [`docs/exploratory/EXPLORATORY_PLAN_DRAFT.md`](EXPLORATORY_PLAN_DRAFT.md) | `287f286aefc0448786cb4b4a1fd2a543fabcacc4c60250b9c28e3e9ce8252441` |
+| **Analysis Runner** | [`scripts/run_exploratory.py`](../../scripts/run_exploratory.py) | `251ccfdc1d81d5e38b38535f24ca869a4f29c6f0307fea6855f8f38808fa38c9` |
+| **Synthetic Test Suite** | [`tests/test_run_exploratory.py`](../../tests/test_run_exploratory.py) | `6ebd2ce256d3759a377ef8f1a7bf478f150e86a3200ed997db3bdefe427ede4f` |
 
 ---
 
