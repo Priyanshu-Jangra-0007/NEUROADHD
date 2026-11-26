@@ -23,14 +23,19 @@ import argparse
 import csv
 import json
 import math
+import multiprocessing
+import os
 import re
+import resource
 import subprocess
 import sys
 import tarfile
 import time
-import tracemalloc
+import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field
+import gc
+from multiprocessing.shared_memory import SharedMemory
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
 
@@ -39,8 +44,12 @@ if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 import numpy as np
-from nilearn.connectome import ConnectivityMeasure
+from nilearn.connectome import ConnectivityMeasure, sym_matrix_to_vec
+from nilearn.connectome.connectivity_matrices import _form_symmetric, _geometric_mean, _map_eigenvalues
+from scipy import linalg as sp_linalg
+from scipy.stats import rankdata
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.covariance import LedoitWolf
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
@@ -65,6 +74,17 @@ DEFAULT_RANDOM_STATE = 42
 DEFAULT_BOOTSTRAP_B = 2000
 DEFAULT_PERMUTATION_B = 200
 FISHER_CLIP_EPS = 1e-7
+PEAK_MEMORY_LIMIT_MB = 6000.0
+DEFAULT_MAX_WORKERS = 2
+
+
+def resolve_n_workers(n_workers: Optional[int] = None, max_cap: int = DEFAULT_MAX_WORKERS) -> int:
+    """Resolve worker count capped to keep total memory comfortably below 6 GB."""
+    cpu_cnt = os.cpu_count() or 1
+    safe_default = max(1, min(max_cap, cpu_cnt // 2 if cpu_cnt >= 2 else 1))
+    if n_workers is None or n_workers <= 0:
+        return safe_default
+    return max(1, min(int(n_workers), max_cap))
 
 PRIMARY_CONFIGS: List[Tuple[str, str, str, str]] = [
     ("CFG_01", "pearson_fisher_z", "k100", "rf"),
@@ -165,6 +185,107 @@ def timeseries_to_fisher_z(
     return z_edges
 
 
+def precompute_subject_covariances(
+    timeseries_list: Sequence[np.ndarray],
+) -> np.ndarray:
+    """Compute Ledoit-Wolf shrinkage covariances once per subject (exact match to ConnectivityMeasure)."""
+    if not timeseries_list:
+        return np.empty((0, 0, 0), dtype=np.float64)
+    covs = [LedoitWolf(store_precision=False).fit(ts).covariance_ for ts in timeseries_list]
+    return np.asarray(covs, dtype=np.float64)
+
+
+def _fast_geometric_mean(
+    matrices: np.ndarray,
+    max_iter: int = 30,
+    tol: float = 1e-7,
+) -> np.ndarray:
+    """Batched Riemannian Fréchet mean matching nilearn's _geometric_mean within <1e-12."""
+    gmean = np.mean(matrices, axis=0)
+    norm_old = np.inf
+    step = 1.0
+    for _ in range(max_iter):
+        vals_gmean, vecs_gmean = sp_linalg.eigh(gmean)
+        gmean_inv_sqrt = _form_symmetric(np.sqrt, 1.0 / vals_gmean, vecs_gmean)
+        whitened = gmean_inv_sqrt @ matrices @ gmean_inv_sqrt
+        whitened = 0.5 * (whitened + np.swapaxes(whitened, -1, -2))
+        ev, evec = np.linalg.eigh(whitened)
+        logs = np.einsum("nik,nk,njk->nij", evec, np.log(ev), evec, optimize=True)
+        logs_mean = np.mean(logs, axis=0)
+        norm = float(np.linalg.norm(logs_mean))
+        vals_log, vecs_log = sp_linalg.eigh(logs_mean)
+        gmean_sqrt = _form_symmetric(np.sqrt, vals_gmean, vecs_gmean)
+        gmean = gmean_sqrt.dot(_form_symmetric(np.exp, vals_log * step, vecs_log)).dot(gmean_sqrt)
+        if norm < norm_old:
+            norm_old = norm
+        elif norm > norm_old:
+            step = step / 2.0
+            norm = norm_old
+        if tol is not None and norm / gmean.size < tol:
+            break
+    return gmean
+
+
+def _tangent_whitening_worker(args: Tuple[int, np.ndarray]) -> Tuple[int, np.ndarray]:
+    """Compute Riemannian Fréchet whitening matrix for a subset of subject covariances."""
+    idx, tr_covs = args
+    gmean = _fast_geometric_mean(tr_covs, max_iter=30, tol=1e-7)
+    whitening = _map_eigenvalues(lambda x: 1.0 / np.sqrt(x), gmean)
+    return idx, whitening
+
+
+def _project_covariances_to_tangent(
+    covs_all: np.ndarray,
+    whitening: np.ndarray,
+) -> np.ndarray:
+    """Project subject covariance matrices onto a fitted Riemannian tangent space."""
+    w_all = whitening @ covs_all @ whitening
+    w_all = 0.5 * (w_all + np.swapaxes(w_all, -1, -2))
+    ev, evec = np.linalg.eigh(w_all)
+    logged = np.einsum("nik,nk,njk->nij", evec, np.log(ev), evec, optimize=True)
+    return sym_matrix_to_vec(logged, discard_diagonal=False)
+
+
+def precompute_tangent_cache(
+    timeseries_list: Sequence[np.ndarray],
+    institutions: np.ndarray,
+    subsets: Sequence[frozenset],
+    subject_covs: Optional[np.ndarray] = None,
+    n_workers: int = 1,
+) -> Dict[frozenset, np.ndarray]:
+    """
+    Precompute tangent space projections across multiple training-site subsets,
+    reusing per-subject Ledoit-Wolf covariances and parallelizing Fréchet means cleanly.
+    """
+    subset_list = [s for s in subsets if s]
+    if not subset_list:
+        return {}
+
+    covs_all = subject_covs if subject_covs is not None else precompute_subject_covariances(timeseries_list)
+    use_workers = resolve_n_workers(n_workers)
+    tasks = [
+        (i, covs_all[np.isin(institutions, list(tr_sites))])
+        for i, tr_sites in enumerate(subset_list)
+    ]
+
+    whitenings: Dict[int, np.ndarray] = {}
+    # Spawn worker pool only when cohort matrices are substantial enough to outweigh spawn cost
+    if use_workers > 1 and len(subset_list) >= 4 and covs_all.shape[0] >= 120 and covs_all.shape[1] >= 40:
+        ctx = multiprocessing.get_context("spawn")
+        with ctx.Pool(processes=min(use_workers, len(tasks))) as pool:
+            for idx, wh in pool.map(_tangent_whitening_worker, tasks):
+                whitenings[idx] = wh
+    else:
+        for task in tasks:
+            idx, wh = _tangent_whitening_worker(task)
+            whitenings[idx] = wh
+
+    cache: Dict[frozenset, np.ndarray] = {}
+    for i, tr_sites in enumerate(subset_list):
+        cache[tr_sites] = _project_covariances_to_tangent(covs_all, whitenings[i])
+    return cache
+
+
 def fit_transform_tangent_space(
     train_timeseries: Sequence[np.ndarray],
     test_timeseries: Sequence[np.ndarray],
@@ -181,6 +302,27 @@ def fit_transform_tangent_space(
     return X_train_tang, X_test_tang, cm
 
 
+def _fit_ols_motion_residualization(
+    X_train: np.ndarray,
+    motion_train: np.ndarray,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Fit OLS weights on training connectivity vs motion covariates; return (X_tr_resid, coeffs)."""
+    M_tr_ext = np.column_stack([np.ones(X_train.shape[0], dtype=np.float64), motion_train])
+    coeffs, _, _, _ = np.linalg.lstsq(M_tr_ext, X_train, rcond=None)
+    X_tr_resid = X_train - M_tr_ext @ coeffs
+    return X_tr_resid, coeffs
+
+
+def _apply_ols_motion_residualization(
+    X_test: np.ndarray,
+    motion_test: np.ndarray,
+    coeffs: np.ndarray,
+) -> np.ndarray:
+    """Apply previously fitted OLS motion weights to a held-out connectivity block."""
+    M_te_ext = np.column_stack([np.ones(X_test.shape[0], dtype=np.float64), motion_test])
+    return X_test - M_te_ext @ coeffs
+
+
 def fit_transform_motion_residualization(
     X_train: np.ndarray,
     motion_train: np.ndarray,
@@ -193,24 +335,10 @@ def fit_transform_motion_residualization(
     and apply fitted weights to residualize both train and test.
     Returns: (X_train_resid, X_test_resid, W, B)
     """
-    n_train = X_train.shape[0]
-    n_test = X_test.shape[0]
-
-    # Add bias column
-    M_tr_ext = np.column_stack([np.ones(n_train, dtype=np.float64), motion_train])
-    M_te_ext = np.column_stack([np.ones(n_test, dtype=np.float64), motion_test])
-
-    # Solve least squares for each edge: (K_motion+1, P_edges)
-    coeffs, _, _, _ = np.linalg.lstsq(M_tr_ext, X_train, rcond=None)
+    X_tr_resid, coeffs = _fit_ols_motion_residualization(X_train, motion_train)
+    X_te_resid = _apply_ols_motion_residualization(X_test, motion_test, coeffs)
     b = coeffs[0, :]
     w = coeffs[1:, :]
-
-    X_tr_pred = M_tr_ext @ coeffs
-    X_te_pred = M_te_ext @ coeffs
-
-    X_tr_resid = X_train - X_tr_pred
-    X_te_resid = X_test - X_te_pred
-
     return X_tr_resid, X_te_resid, w, b
 
 
@@ -221,6 +349,7 @@ def fit_transform_motion_residualization(
 def build_classifier(
     classifier_name: str,
     random_state: int = DEFAULT_RANDOM_STATE,
+    n_jobs: int = 1,
 ) -> ClassifierMixin:
     """Instantiate pre-declared classifier architecture."""
     if classifier_name == "rf":
@@ -229,7 +358,7 @@ def build_classifier(
             max_depth=3,
             class_weight="balanced",
             random_state=random_state,
-            n_jobs=-1,
+            n_jobs=n_jobs,
         )
     elif classifier_name == "l2_lr":
         return LogisticRegression(
@@ -241,6 +370,14 @@ def build_classifier(
         )
     else:
         raise ValueError(f"Unknown classifier name: {classifier_name}")
+
+
+def _select_k100_indices(X_train: np.ndarray, y_train: np.ndarray) -> np.ndarray:
+    """Select top-k100 ANOVA F-score feature indices strictly on training labels."""
+    k_val = min(100, X_train.shape[1])
+    selector = SelectKBest(f_classif, k=k_val)
+    selector.fit(X_train, y_train)
+    return selector.get_support(indices=True)
 
 
 def apply_feature_selection(
@@ -255,12 +392,8 @@ def apply_feature_selection(
     Returns: (X_train_selected, X_test_selected, selected_indices)
     """
     if selection_mode == "k100":
-        k_val = min(100, X_train.shape[1])
-        selector = SelectKBest(f_classif, k=k_val)
-        X_tr_sel = selector.fit_transform(X_train, y_train)
-        X_te_sel = selector.transform(X_test)
-        indices = selector.get_support(indices=True)
-        return X_tr_sel, X_te_sel, indices
+        indices = _select_k100_indices(X_train, y_train)
+        return X_train[:, indices], X_test[:, indices], indices
     elif selection_mode == "all":
         return X_train, X_test, None
     else:
@@ -290,6 +423,17 @@ class ConfigurationResult:
     institutions: np.ndarray
 
 
+def _fast_binary_roc_auc(y_true: np.ndarray, y_scores: np.ndarray) -> float:
+    """Fast rank-based Mann-Whitney U binary ROC AUC (1e-16 identical to sklearn with average-rank ties)."""
+    ranks = rankdata(y_scores, method="average")
+    pos = y_true == 1
+    n_pos = int(np.sum(pos))
+    n_neg = len(y_true) - n_pos
+    if n_pos == 0 or n_neg == 0:
+        return float("nan")
+    return float((np.sum(ranks[pos]) - 0.5 * n_pos * (n_pos + 1)) / (n_pos * n_neg))
+
+
 def stratified_bootstrap_ci(
     y_true: np.ndarray,
     y_scores: np.ndarray,
@@ -298,7 +442,8 @@ def stratified_bootstrap_ci(
     seed: int = DEFAULT_RANDOM_STATE,
 ) -> Tuple[float, float, float]:
     """Compute point estimate and 95% bootstrap confidence interval."""
-    point = float(metric_fn(y_true, y_scores))
+    eval_fn = _fast_binary_roc_auc if metric_fn is roc_auc_score else metric_fn
+    point = float(eval_fn(y_true, y_scores))
     rng = np.random.default_rng(seed)
     pos_idx = np.where(y_true == 1)[0]
     neg_idx = np.where(y_true == 0)[0]
@@ -306,11 +451,13 @@ def stratified_bootstrap_ci(
         return point, point, point
 
     boots = np.empty(n_boot, dtype=np.float64)
+    n_pos = len(pos_idx)
+    n_neg = len(neg_idx)
     for b in range(n_boot):
-        sample_pos = rng.choice(pos_idx, size=len(pos_idx), replace=True)
-        sample_neg = rng.choice(neg_idx, size=len(neg_idx), replace=True)
+        sample_pos = rng.choice(pos_idx, size=n_pos, replace=True)
+        sample_neg = rng.choice(neg_idx, size=n_neg, replace=True)
         sample_idx = np.concatenate([sample_pos, sample_neg])
-        boots[b] = metric_fn(y_true[sample_idx], y_scores[sample_idx])
+        boots[b] = eval_fn(y_true[sample_idx], y_scores[sample_idx])
 
     ci_lo = float(np.percentile(boots, 2.5))
     ci_hi = float(np.percentile(boots, 97.5))
@@ -327,17 +474,19 @@ def paired_bootstrap_auc_diff(
     """
     Compute paired delta AUC (A - B) with 95% bootstrap CI on identical samples.
     """
-    diff_point = float(roc_auc_score(y_true, y_scores_a) - roc_auc_score(y_true, y_scores_b))
+    diff_point = float(_fast_binary_roc_auc(y_true, y_scores_a) - _fast_binary_roc_auc(y_true, y_scores_b))
     rng = np.random.default_rng(seed)
     pos_idx = np.where(y_true == 1)[0]
     neg_idx = np.where(y_true == 0)[0]
 
     diffs = np.empty(n_boot, dtype=np.float64)
+    n_pos = len(pos_idx)
+    n_neg = len(neg_idx)
     for b in range(n_boot):
-        sample_pos = rng.choice(pos_idx, size=len(pos_idx), replace=True)
-        sample_neg = rng.choice(neg_idx, size=len(neg_idx), replace=True)
+        sample_pos = rng.choice(pos_idx, size=n_pos, replace=True)
+        sample_neg = rng.choice(neg_idx, size=n_neg, replace=True)
         sample_idx = np.concatenate([sample_pos, sample_neg])
-        diffs[b] = roc_auc_score(y_true[sample_idx], y_scores_a[sample_idx]) - roc_auc_score(
+        diffs[b] = _fast_binary_roc_auc(y_true[sample_idx], y_scores_a[sample_idx]) - _fast_binary_roc_auc(
             y_true[sample_idx], y_scores_b[sample_idx]
         )
 
@@ -432,6 +581,7 @@ def evaluate_loio_pipeline(
     institutions: np.ndarray,
     unique_institutions: Optional[Sequence[str]] = None,
     random_state: int = DEFAULT_RANDOM_STATE,
+    tangent_cache: Optional[Dict[frozenset, np.ndarray]] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Execute 5-fold Leave-One-Institution-Out evaluation for a single configuration.
@@ -448,15 +598,20 @@ def evaluate_loio_pipeline(
         test_mask = institutions == test_site
 
         y_train = labels[train_mask]
-        y_test = labels[test_mask]
 
         if feature_kind == "pearson_fisher_z":
             X_train = pearson_z_edges[train_mask]
             X_test = pearson_z_edges[test_mask]
         elif feature_kind == "tangent_space":
-            ts_train = [timeseries_list[i] for i in np.where(train_mask)[0]]
-            ts_test = [timeseries_list[i] for i in np.where(test_mask)[0]]
-            X_train, X_test, _ = fit_transform_tangent_space(ts_train, ts_test, vectorize=True)
+            tr_sites_set = frozenset(str(s) for s in institutions[train_mask])
+            if tangent_cache is not None and tr_sites_set in tangent_cache:
+                tang_all = tangent_cache[tr_sites_set]
+                X_train = tang_all[train_mask]
+                X_test = tang_all[test_mask]
+            else:
+                ts_train = [timeseries_list[i] for i in np.where(train_mask)[0]]
+                ts_test = [timeseries_list[i] for i in np.where(test_mask)[0]]
+                X_train, X_test, _ = fit_transform_tangent_space(ts_train, ts_test, vectorize=True)
         elif feature_kind == "motion_residualized":
             X_tr_raw = pearson_z_edges[train_mask]
             X_te_raw = pearson_z_edges[test_mask]
@@ -471,7 +626,7 @@ def evaluate_loio_pipeline(
 
         X_tr_sel, X_te_sel, _ = apply_feature_selection(X_train, y_train, X_test, selection_mode)
 
-        clf = build_classifier(classifier_name, random_state=random_state)
+        clf = build_classifier(classifier_name, random_state=random_state, n_jobs=1)
         clf.fit(X_tr_sel, y_train)
 
         test_indices = np.where(test_mask)[0]
@@ -542,10 +697,11 @@ def _fit_predict_connectivity_fold(
     X_te_conn: np.ndarray,
     y_tr: np.ndarray,
     random_state: int = DEFAULT_RANDOM_STATE,
+    n_jobs: int = 1,
 ) -> np.ndarray:
     """Apply feature selection and fit classifier on a connectivity fold, returning test probabilities."""
     X_tr_sel, X_te_sel, _ = apply_feature_selection(X_tr_conn, y_tr, X_te_conn, selection_mode)
-    clf = build_classifier(classifier_name, random_state=random_state)
+    clf = build_classifier(classifier_name, random_state=random_state, n_jobs=n_jobs)
     clf.fit(X_tr_sel, y_tr)
     return clf.predict_proba(X_te_sel)[:, 1]
 
@@ -775,6 +931,101 @@ def load_permutation_checkpoint(
     return [float(v) for v in data.get(test_key, [])]
 
 
+def _SharedArraySpec_create(arr: np.ndarray, shm_list: List[SharedMemory]) -> Tuple[str, Tuple[int, ...], str]:
+    """Allocate a POSIX SharedMemory segment for a contiguous float/int ndarray."""
+    contig = np.ascontiguousarray(arr)
+    nbytes = max(1, contig.nbytes)
+    name = f"exp_{os.getpid()}_{uuid.uuid4().hex[:12]}"
+    shm = SharedMemory(create=True, size=nbytes, name=name)
+    shm_list.append(shm)
+    if contig.nbytes > 0:
+        view = np.ndarray(contig.shape, dtype=contig.dtype, buffer=shm.buf)
+        view[:] = contig
+    return name, contig.shape, contig.dtype.str
+
+
+def _open_shared_array(spec: Tuple[str, Tuple[int, ...], str], opened: List[SharedMemory]) -> np.ndarray:
+    """Attach read-only view onto an existing SharedMemory segment."""
+    name, shape, dtype_str = spec
+    shm = SharedMemory(create=False, name=name)
+    opened.append(shm)
+    return np.ndarray(shape, dtype=np.dtype(dtype_str), buffer=shm.buf)
+
+
+def _current_process_rss_mb() -> float:
+    """Return peak RSS of the current process in megabytes."""
+    ru = resource.getrusage(resource.RUSAGE_SELF)
+    return ru.ru_maxrss / (1024.0 * 1024.0) if sys.platform == "darwin" else ru.ru_maxrss / 1024.0
+
+
+_WORKER_STATE: Dict[str, object] = {}
+
+
+def _eval_single_test1_perm(args: Tuple[int, np.ndarray]) -> Tuple[int, float, float]:
+    """Evaluate one Test 1 within-site label permutation deterministically."""
+    b, y_perm = args
+    st = _WORKER_STATE
+    configs: Sequence[Tuple[str, str, str]] = st["configs"]  # type: ignore[assignment]
+    unique_sites: Sequence[str] = st["unique_sites"]  # type: ignore[assignment]
+    institutions: np.ndarray = st["institutions"]  # type: ignore[assignment]
+    pearson_z_edges: np.ndarray = st["pearson_z_edges"]  # type: ignore[assignment]
+    tangent_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = st["tangent_by_fold"]  # type: ignore[assignment]
+    resid_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = st["resid_by_fold"]  # type: ignore[assignment]
+    seed: int = int(st["seed"])  # type: ignore[arg-type]
+
+    # Pre-slice fold masks once
+    fold_masks = {
+        site: (institutions != site, institutions == site) for site in unique_sites
+    }
+    # Cache k100 selected indices per (feat_kind, test_site) so rf & l2_lr share f_classif
+    k100_cache: Dict[Tuple[str, str], np.ndarray] = {}
+
+    perm_aucs: List[float] = []
+    for feat_kind, sel_mode, clf_name in configs:
+        try:
+            probs = np.zeros(len(y_perm), dtype=np.float64)
+            for test_site in unique_sites:
+                train_mask, test_mask = fold_masks[test_site]
+                y_tr = y_perm[train_mask]
+
+                if feat_kind == "pearson_fisher_z" or feat_kind == "multi_run_avg":
+                    X_tr = pearson_z_edges[train_mask]
+                    X_te = pearson_z_edges[test_mask]
+                elif feat_kind == "tangent_space":
+                    X_tr, X_te = tangent_by_fold[test_site]
+                elif feat_kind == "motion_residualized":
+                    X_tr, X_te = resid_by_fold[test_site]
+                else:
+                    raise ValueError(f"Unknown feature kind: {feat_kind}")
+
+                if sel_mode == "k100":
+                    ckey = (feat_kind, test_site)
+                    if ckey not in k100_cache:
+                        k100_cache[ckey] = _select_k100_indices(X_tr, y_tr)
+                    idx = k100_cache[ckey]
+                    X_tr_sel, X_te_sel = X_tr[:, idx], X_te[:, idx]
+                elif sel_mode == "all":
+                    X_tr_sel, X_te_sel = X_tr, X_te
+                else:
+                    raise ValueError(f"Unknown selection mode: {sel_mode}")
+
+                clf = build_classifier(clf_name, random_state=seed + b, n_jobs=1)
+                clf.fit(X_tr_sel, y_tr)
+                probs[test_mask] = clf.predict_proba(X_te_sel)[:, 1]
+
+            perm_aucs.append(float(roc_auc_score(y_perm, probs)))
+        except Exception:
+            continue
+
+    if not perm_aucs:
+        raise RuntimeError("All configurations failed during Test 1 permutation.")
+    return b, float(max(perm_aucs)), _current_process_rss_mb()
+
+
+def _test1_worker_entrypoint(args: Tuple[int, np.ndarray]) -> Tuple[int, float, float]:
+    return _eval_single_test1_perm(args)
+
+
 def run_within_site_label_permutation_test(
     configs: Sequence[Tuple[str, str, str]],
     timeseries_list: Sequence[np.ndarray],
@@ -787,6 +1038,8 @@ def run_within_site_label_permutation_test(
     seed: int = DEFAULT_RANDOM_STATE,
     checkpoint_path: Optional[Path] = None,
     progress_fn: Optional[Callable[[str], None]] = None,
+    tangent_cache: Optional[Dict[frozenset, np.ndarray]] = None,
+    n_workers: int = 1,
 ) -> Tuple[float, np.ndarray]:
     """
     Test 1 (AUC > 0.5): Label-permutation max-AUC test.
@@ -801,7 +1054,22 @@ def run_within_site_label_permutation_test(
     for idx, val in enumerate(completed[:n_permutations]):
         null_max_aucs[idx] = val
 
-    # Pre-extract tangent space and residualized features once per fold
+    # Pre-generate deterministic per-permutation label arrays so 1 worker == N workers == resumed
+    perm_labels_schedule: List[np.ndarray] = []
+    site_idx_map = {site: np.where(institutions == site)[0] for site in unique_sites}
+    for _ in range(n_permutations):
+        y_perm = labels.copy()
+        for site in unique_sites:
+            s_idx = site_idx_map[site]
+            y_perm[s_idx] = rng.permutation(y_perm[s_idx])
+        perm_labels_schedule.append(y_perm)
+
+    pending_indices = [b for b in range(n_permutations) if b >= len(completed)]
+    if not pending_indices:
+        p_val = float((1.0 + np.sum(null_max_aucs >= observed_max_auc)) / (1.0 + n_permutations))
+        return p_val, null_max_aucs
+
+    # Pre-extract tangent space (reusing primary tangent_cache when provided) and residualized features once per fold
     uses_tangent = any(fk == "tangent_space" for fk, _, _ in configs)
     uses_resid = any(fk == "motion_residualized" for fk, _, _ in configs)
     tangent_by_fold: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
@@ -809,67 +1077,313 @@ def run_within_site_label_permutation_test(
     for test_site in unique_sites:
         train_mask = institutions != test_site
         test_mask = institutions == test_site
+        tr_sites = frozenset(str(s) for s in institutions[train_mask])
         if uses_tangent:
-            ts_train = [timeseries_list[i] for i in np.where(train_mask)[0]]
-            ts_test = [timeseries_list[i] for i in np.where(test_mask)[0]]
-            X_tr_tang, X_te_tang, _ = fit_transform_tangent_space(ts_train, ts_test, vectorize=True)
-            tangent_by_fold[test_site] = (X_tr_tang, X_te_tang)
+            if tangent_cache is not None and tr_sites in tangent_cache:
+                tang_all = tangent_cache[tr_sites]
+                tangent_by_fold[test_site] = (tang_all[train_mask], tang_all[test_mask])
+            else:
+                ts_train = [timeseries_list[i] for i in np.where(train_mask)[0]]
+                ts_test = [timeseries_list[i] for i in np.where(test_mask)[0]]
+                X_tr_tang, X_te_tang, _ = fit_transform_tangent_space(ts_train, ts_test, vectorize=True)
+                tangent_by_fold[test_site] = (X_tr_tang, X_te_tang)
         if uses_resid:
-            X_tr_raw = pearson_z_edges[train_mask]
-            X_te_raw = pearson_z_edges[test_mask]
-            M_tr = motion_covariates[train_mask]
-            M_te = motion_covariates[test_mask]
-            X_tr_res, X_te_res, _, _ = fit_transform_motion_residualization(X_tr_raw, M_tr, X_te_raw, M_te)
+            X_tr_res, X_te_res, _, _ = fit_transform_motion_residualization(
+                pearson_z_edges[train_mask],
+                motion_covariates[train_mask],
+                pearson_z_edges[test_mask],
+                motion_covariates[test_mask],
+            )
             resid_by_fold[test_site] = (X_tr_res, X_te_res)
 
-    for b in range(n_permutations):
-        y_perm = labels.copy()
-        for site in unique_sites:
-            s_idx = np.where(institutions == site)[0]
-            y_perm[s_idx] = rng.permutation(y_perm[s_idx])
+    use_workers = resolve_n_workers(n_workers)
+    tasks = [(b, perm_labels_schedule[b]) for b in pending_indices]
 
-        if b < len(completed):
-            continue
-
-        if progress_fn is not None:
-            progress_fn(f"Test 1 permutation {b + 1}/{n_permutations}")
-
-        perm_aucs: List[float] = []
-        for feat_kind, sel_mode, clf_name in configs:
-            try:
-                probs = np.zeros(len(labels), dtype=np.float64)
-                for test_site in unique_sites:
-                    train_mask = institutions != test_site
-                    test_mask = institutions == test_site
-                    y_tr = y_perm[train_mask]
-
-                    if feat_kind == "pearson_fisher_z" or feat_kind == "multi_run_avg":
-                        X_tr = pearson_z_edges[train_mask]
-                        X_te = pearson_z_edges[test_mask]
-                    elif feat_kind == "tangent_space":
-                        X_tr, X_te = tangent_by_fold[test_site]
-                    elif feat_kind == "motion_residualized":
-                        X_tr, X_te = resid_by_fold[test_site]
-                    else:
-                        raise ValueError(f"Unknown feature kind: {feat_kind}")
-
-                    X_tr_sel, X_te_sel, _ = apply_feature_selection(X_tr, y_tr, X_te, sel_mode)
-                    clf = build_classifier(clf_name, random_state=seed + b)
-                    clf.fit(X_tr_sel, y_tr)
-                    probs[test_mask] = clf.predict_proba(X_te_sel)[:, 1]
-
-                perm_aucs.append(roc_auc_score(y_perm, probs))
-            except Exception:
-                # Failed configuration excluded from max statistic
-                continue
-
-        if not perm_aucs:
-            raise RuntimeError("All configurations failed during Test 1 permutation.")
-        null_max_aucs[b] = max(perm_aucs)
-        save_permutation_checkpoint(checkpoint_path, "test1_null_max_aucs", null_max_aucs[: b + 1])
+    if use_workers > 1 and len(tasks) >= 2:
+        created_shm: List[SharedMemory] = []
+        try:
+            # Share sliced tangent_by_fold and resid_by_fold + pearson_z_edges without duplicating across workers
+            pearson_spec = _SharedArraySpec_create(pearson_z_edges, created_shm)
+            tang_fold_specs = {
+                site: (_SharedArraySpec_create(xtr, created_shm), _SharedArraySpec_create(xte, created_shm))
+                for site, (xtr, xte) in tangent_by_fold.items()
+            }
+            resid_specs = {
+                site: (_SharedArraySpec_create(xtr, created_shm), _SharedArraySpec_create(xte, created_shm))
+                for site, (xtr, xte) in resid_by_fold.items()
+            }
+            payload = {
+                "configs": list(configs),
+                "unique_sites": list(unique_sites),
+                "institutions": institutions,
+                "pearson_spec": pearson_spec,
+                "tangent_by_fold": {},
+                "resid_specs": resid_specs,
+                "tang_fold_specs": tang_fold_specs,
+                "seed": seed,
+            }
+            ctx = multiprocessing.get_context("spawn")
+            # Initialize worker state cleanly (open both pearson, resid_specs and tang_fold_specs)
+            with ctx.Pool(
+                processes=min(use_workers, len(tasks)),
+                initializer=_init_test1_worker,
+                initargs=(payload,),
+            ) as pool:
+                for b, stat_val, _ in pool.imap(_test1_worker_entrypoint, tasks):
+                    if progress_fn is not None:
+                        progress_fn(f"Test 1 permutation {b + 1}/{n_permutations}")
+                    null_max_aucs[b] = stat_val
+                    save_permutation_checkpoint(checkpoint_path, "test1_null_max_aucs", null_max_aucs[: b + 1])
+        finally:
+            for shm in created_shm:
+                try:
+                    shm.close()
+                except Exception:
+                    pass
+                try:
+                    shm.unlink()
+                except Exception:
+                    pass
+    else:
+        _WORKER_STATE.clear()
+        _WORKER_STATE.update({
+            "configs": list(configs),
+            "unique_sites": list(unique_sites),
+            "institutions": institutions,
+            "pearson_z_edges": pearson_z_edges,
+            "tangent_by_fold": tangent_by_fold,
+            "resid_by_fold": resid_by_fold,
+            "seed": seed,
+        })
+        try:
+            for b, y_perm in tasks:
+                if progress_fn is not None:
+                    progress_fn(f"Test 1 permutation {b + 1}/{n_permutations}")
+                _, stat_val, _ = _eval_single_test1_perm((b, y_perm))
+                null_max_aucs[b] = stat_val
+                save_permutation_checkpoint(checkpoint_path, "test1_null_max_aucs", null_max_aucs[: b + 1])
+        finally:
+            _WORKER_STATE.clear()
 
     p_val = float((1.0 + np.sum(null_max_aucs >= observed_max_auc)) / (1.0 + n_permutations))
     return p_val, null_max_aucs
+
+
+def _init_test1_worker(payload: Dict[str, object]) -> None:
+    """Initializer for Test 1 workers opening shared fold arrays."""
+    opened: List[SharedMemory] = []
+    state = dict(payload)
+    state["_opened_shm"] = opened
+    state["pearson_z_edges"] = _open_shared_array(payload["pearson_spec"], opened)  # type: ignore[arg-type]
+    state["tangent_by_fold"] = {
+        site: (_open_shared_array(tr_sp, opened), _open_shared_array(te_sp, opened))
+        for site, (tr_sp, te_sp) in payload["tang_fold_specs"].items()  # type: ignore[union-attr]
+    }
+    state["resid_by_fold"] = {
+        site: (_open_shared_array(tr_sp, opened), _open_shared_array(te_sp, opened))
+        for site, (tr_sp, te_sp) in payload["resid_specs"].items()  # type: ignore[union-attr]
+    }
+    global _WORKER_STATE
+    _WORKER_STATE = state
+
+
+def _init_test2_worker(payload: Dict[str, object]) -> None:
+    """Initializer for Test 2 workers opening shared read-only arrays."""
+    opened: List[SharedMemory] = []
+    state = dict(payload)
+    state["_opened_shm"] = opened
+    state["pearson_z_edges"] = _open_shared_array(payload["pearson_spec"], opened)  # type: ignore[arg-type]
+    tang_specs = payload.get("tangent_specs")
+    if tang_specs is not None:
+        state["tangent_all_by_subset"] = {
+            k: _open_shared_array(spec, opened) for k, spec in tang_specs.items()  # type: ignore[union-attr]
+        }
+    global _WORKER_STATE
+    _WORKER_STATE = state
+
+
+def _eval_single_test2_perm(args: Tuple[int, np.ndarray]) -> Tuple[int, float, float]:
+    """
+    Evaluate one Test 2 permutation (connectivity rows permuted within site; labels & covariates intact).
+    Eliminates redundant fits across identical training splits while strictly recomputing
+    OLS motion residualization inside each permutation.
+    """
+    b, conn_perm_indices = args
+    st = _WORKER_STATE
+    configs: Sequence[Tuple[str, str, str]] = st["configs"]  # type: ignore[assignment]
+    unique_sites: Sequence[str] = st["unique_sites"]  # type: ignore[assignment]
+    institutions: np.ndarray = st["institutions"]  # type: ignore[assignment]
+    labels: np.ndarray = st["labels"]  # type: ignore[assignment]
+    motion_covariates: np.ndarray = st["motion_covariates"]  # type: ignore[assignment]
+    pearson_z_edges: np.ndarray = st["pearson_z_edges"]  # type: ignore[assignment]
+    timeseries_list: Optional[Sequence[np.ndarray]] = st.get("timeseries_list")  # type: ignore[assignment]
+    tangent_all_by_subset: Dict[frozenset, np.ndarray] = st["tangent_all_by_subset"]  # type: ignore[assignment]
+    use_cached_tangent: bool = bool(st["use_cached_tangent"])
+    cov_oof_by_outer: Dict[str, np.ndarray] = st["cov_oof_by_outer"]  # type: ignore[assignment]
+    cov_test_by_outer: Dict[str, np.ndarray] = st["cov_test_by_outer"]  # type: ignore[assignment]
+    baseline_auc: float = float(st["baseline_auc"])  # type: ignore[arg-type]
+    seed: int = int(st["seed"])  # type: ignore[arg-type]
+
+    n = len(labels)
+    pearson_perm = pearson_z_edges[conn_perm_indices]
+
+    # Build outer/inner split definitions once
+    outer_defs: List[Tuple[str, np.ndarray, np.ndarray, frozenset, List[Tuple[np.ndarray, np.ndarray, Tuple[frozenset, str]]]]] = []
+    unique_tr_masks: Dict[Tuple[frozenset, str], np.ndarray] = {}
+    for test_site in unique_sites:
+        outer_train_mask = institutions != test_site
+        outer_test_mask = institutions == test_site
+        outer_tr_sites = frozenset(s for s in unique_sites if s != test_site)
+        inner_sites = [s for s in unique_sites if s != test_site]
+
+        if len(inner_sites) >= 2:
+            in_splits: List[Tuple[np.ndarray, np.ndarray, Tuple[frozenset, str]]] = []
+            for iv in inner_sites:
+                m_tr = outer_train_mask & (institutions != iv)
+                m_val = institutions == iv
+                inner_tr_sites = frozenset(s for s in outer_tr_sites if s != iv)
+                sp_key = (inner_tr_sites, "loio")
+                unique_tr_masks[sp_key] = m_tr
+                in_splits.append((m_tr, m_val, sp_key))
+            out_key = (outer_tr_sites, "loio")
+        else:
+            tr_idx = np.where(outer_train_mask)[0]
+            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+            in_splits = []
+            for f_i, (tr_rel, val_rel) in enumerate(skf.split(tr_idx, labels[tr_idx])):
+                m_tr = np.zeros(n, dtype=bool)
+                m_val = np.zeros(n, dtype=bool)
+                m_tr[tr_idx[tr_rel]] = True
+                m_val[tr_idx[val_rel]] = True
+                sp_key = (outer_tr_sites, f"cv{f_i}")
+                unique_tr_masks[sp_key] = m_tr
+                in_splits.append((m_tr, m_val, sp_key))
+            out_key = (outer_tr_sites, "outer")
+
+        unique_tr_masks[out_key] = outer_train_mask
+        outer_defs.append((test_site, outer_train_mask, outer_test_mask, out_key[0], out_key[1], in_splits))  # type: ignore[misc]
+
+    # When use_cached_tangent=False (verification test mode), recompute tangent projections per perm
+    local_tangent_cache: Dict[Tuple[frozenset, str], np.ndarray] = {}
+    if not use_cached_tangent and any(fk == "tangent_space" for fk, _, _ in configs):
+        if timeseries_list is None:
+            raise ValueError("timeseries_list is required when use_cached_tangent=False")
+        perm_ts = [timeseries_list[int(i)] for i in conn_perm_indices]
+        perm_covs = precompute_subject_covariances(perm_ts)
+        for sp_key, tr_m in unique_tr_masks.items():
+            wh = _tangent_whitening_worker((0, perm_covs[tr_m]))[1]
+            local_tangent_cache[sp_key] = _project_covariances_to_tangent(perm_covs, wh)
+
+    # Per-permutation caches (NEVER shared across permutations!).
+    # Store only compact (3, P) OLS coefficients (~0.4 MB/split instead of ~75 MB X_tr_res/split)
+    # to keep parallel worker private RSS low while keeping motion residualization strictly per-permutation.
+    resid_coeff_cache: Dict[Tuple[frozenset, str], np.ndarray] = {}
+    k100_cache: Dict[Tuple[str, Tuple[frozenset, str]], np.ndarray] = {}
+    model_cache: Dict[Tuple[str, str, str, Tuple[frozenset, str]], Tuple[ClassifierMixin, Optional[np.ndarray]]] = {}
+
+    def _get_tr_matrix(fk: str, sp_key: Tuple[frozenset, str], tr_mask: np.ndarray) -> np.ndarray:
+        if fk == "pearson_fisher_z" or fk == "multi_run_avg":
+            return pearson_perm[tr_mask]
+        elif fk == "tangent_space":
+            if use_cached_tangent:
+                return tangent_all_by_subset[sp_key[0]][conn_perm_indices[tr_mask]]
+            return local_tangent_cache[sp_key][tr_mask]
+        elif fk == "motion_residualized":
+            if sp_key not in resid_coeff_cache:
+                # Strictly recompute OLS motion residualization on permuted connectivity inside perm b
+                x_tr_res, coeffs = _fit_ols_motion_residualization(
+                    pearson_perm[tr_mask], motion_covariates[tr_mask]
+                )
+                resid_coeff_cache[sp_key] = coeffs
+                return x_tr_res
+            return _apply_ols_motion_residualization(
+                pearson_perm[tr_mask], motion_covariates[tr_mask], resid_coeff_cache[sp_key]
+            )
+        else:
+            raise ValueError(f"Unknown feature kind: {fk}")
+
+    def _get_te_matrix(fk: str, sp_key: Tuple[frozenset, str], tr_mask: np.ndarray, te_mask: np.ndarray, te_tag: str) -> np.ndarray:
+        if fk == "pearson_fisher_z" or fk == "multi_run_avg":
+            return pearson_perm[te_mask]
+        elif fk == "tangent_space":
+            if use_cached_tangent:
+                return tangent_all_by_subset[sp_key[0]][conn_perm_indices[te_mask]]
+            return local_tangent_cache[sp_key][te_mask]
+        elif fk == "motion_residualized":
+            if sp_key not in resid_coeff_cache:
+                _, coeffs = _fit_ols_motion_residualization(
+                    pearson_perm[tr_mask], motion_covariates[tr_mask]
+                )
+                resid_coeff_cache[sp_key] = coeffs
+            return _apply_ols_motion_residualization(
+                pearson_perm[te_mask], motion_covariates[te_mask], resid_coeff_cache[sp_key]
+            )
+        else:
+            raise ValueError(f"Unknown feature kind: {fk}")
+
+    def _fit_cached_clf(
+        fk: str, sel_mode: str, clf_name: str, sp_key: Tuple[frozenset, str], tr_mask: np.ndarray
+    ) -> Tuple[ClassifierMixin, Optional[np.ndarray]]:
+        mkey = (fk, sel_mode, clf_name, sp_key)
+        if mkey not in model_cache:
+            X_tr = _get_tr_matrix(fk, sp_key, tr_mask)
+            y_tr = labels[tr_mask]
+            if sel_mode == "k100":
+                kkey = (fk, sp_key)
+                if kkey not in k100_cache:
+                    k100_cache[kkey] = _select_k100_indices(X_tr, y_tr)
+                sel_idx: Optional[np.ndarray] = k100_cache[kkey]
+                X_tr_sel = X_tr[:, sel_idx]
+            elif sel_mode == "all":
+                sel_idx = None
+                X_tr_sel = X_tr
+            else:
+                raise ValueError(f"Unknown selection mode: {sel_mode}")
+            clf = build_classifier(clf_name, random_state=seed + b, n_jobs=1)
+            clf.fit(X_tr_sel, y_tr)
+            model_cache[mkey] = (clf, sel_idx)
+        return model_cache[mkey]
+
+    deltas: List[float] = []
+    for feat_kind, sel_mode, clf_name in configs:
+        try:
+            fused_probs = np.zeros(n, dtype=np.float64)
+            for test_site, outer_train_mask, outer_test_mask, out_sites, out_tag, in_splits in outer_defs:
+                s_conn_oof = np.zeros(n, dtype=np.float64)
+                for inner_tr_mask, inner_val_mask, sp_key in in_splits:
+                    clf_in, sel_idx = _fit_cached_clf(feat_kind, sel_mode, clf_name, sp_key, inner_tr_mask)
+                    val_tag = f"val_{sp_key[1]}_{np.flatnonzero(inner_val_mask)[0]}_{np.flatnonzero(inner_val_mask)[-1]}"
+                    X_in_val = _get_te_matrix(feat_kind, sp_key, inner_tr_mask, inner_val_mask, val_tag)
+                    X_val_sel = X_in_val[:, sel_idx] if sel_idx is not None else X_in_val
+                    s_conn_oof[inner_val_mask] = clf_in.predict_proba(X_val_sel)[:, 1]
+
+                s_cov_oof = cov_oof_by_outer[test_site]
+                meta_X_tr = np.column_stack([s_cov_oof[outer_train_mask], s_conn_oof[outer_train_mask]])
+                meta_clf = LogisticRegression(
+                    C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=seed + b
+                )
+                meta_clf.fit(meta_X_tr, labels[outer_train_mask])
+
+                out_key = (out_sites, out_tag)
+                clf_out, out_sel_idx = _fit_cached_clf(feat_kind, sel_mode, clf_name, out_key, outer_train_mask)
+                X_out_te = _get_te_matrix(feat_kind, out_key, outer_train_mask, outer_test_mask, f"out_{test_site}")
+                X_out_sel = X_out_te[:, out_sel_idx] if out_sel_idx is not None else X_out_te
+                s_conn_test = clf_out.predict_proba(X_out_sel)[:, 1]
+                meta_X_te = np.column_stack([cov_test_by_outer[test_site], s_conn_test])
+                fused_probs[outer_test_mask] = meta_clf.predict_proba(meta_X_te)[:, 1]
+
+            comb_auc = roc_auc_score(labels, fused_probs)
+            deltas.append(float(comb_auc - baseline_auc))
+        except Exception:
+            continue
+
+    if not deltas:
+        raise RuntimeError("All configurations failed during Test 2 permutation.")
+    return b, float(max(deltas)), _current_process_rss_mb()
+
+
+def _test2_worker_entrypoint(args: Tuple[int, np.ndarray]) -> Tuple[int, float, float]:
+    return _eval_single_test2_perm(args)
 
 
 def run_incremental_contrast_permutation_test(
@@ -886,6 +1400,9 @@ def run_incremental_contrast_permutation_test(
     seed: int = DEFAULT_RANDOM_STATE,
     checkpoint_path: Optional[Path] = None,
     progress_fn: Optional[Callable[[str], None]] = None,
+    tangent_cache: Optional[Dict[frozenset, np.ndarray]] = None,
+    use_cached_tangent: bool = True,
+    n_workers: int = 1,
 ) -> Tuple[float, np.ndarray]:
     """
     Test 2: Max-statistic permutation test for the Incremental Contrast (Late Fusion):
@@ -896,16 +1413,34 @@ def run_incremental_contrast_permutation_test(
     - Only the connectivity feature rows (X) are permuted among subjects WITHIN each institution.
     - Outer & inner covariate-only scores (s_cov_oof, s_cov_test) depend only on intact covariates/labels
       and are precomputed once before the permutation loop.
-    - Supports null-only checkpointing for crash recovery without exposing partial results.
+    - When `use_cached_tangent=True`, per-fold tangent reference means and projected vectors are
+      reused (either from `tangent_cache` or computed once), while motion residualization is always
+      recomputed per permutation.
+    - Supports deterministic parallel execution across worker processes and null-only checkpointing.
     """
     rng = np.random.default_rng(seed)
     unique_sites = sorted(set(institutions))
     n = len(labels)
-    baseline_auc = roc_auc_score(labels, baseline_probs)
+    baseline_auc = float(roc_auc_score(labels, baseline_probs))
     completed = load_permutation_checkpoint(checkpoint_path, "test2_null_max_deltas")
     null_max_deltas = np.empty(n_permutations, dtype=np.float64)
     for idx, val in enumerate(completed[:n_permutations]):
         null_max_deltas[idx] = val
+
+    # Pre-generate deterministic permutation schedule so 1 worker == N workers == resumed
+    perm_schedule: List[np.ndarray] = []
+    site_idx_map = {site: np.where(institutions == site)[0] for site in unique_sites}
+    for _ in range(n_permutations):
+        conn_perm_indices = np.arange(n)
+        for site in unique_sites:
+            s_idx = site_idx_map[site]
+            conn_perm_indices[s_idx] = rng.permutation(s_idx)
+        perm_schedule.append(conn_perm_indices)
+
+    pending_indices = [b for b in range(n_permutations) if b >= len(completed)]
+    if not pending_indices:
+        p_val = float((1.0 + np.sum(null_max_deltas >= observed_max_delta_auc)) / (1.0 + n_permutations))
+        return p_val, null_max_deltas
 
     # Precompute outer & inner covariate-only OOF scores once (unpermuted covariates & labels)
     covariates = np.column_stack([motion_covariates, age_sex_covariates])
@@ -950,121 +1485,103 @@ def run_incremental_contrast_permutation_test(
         cov_test_by_outer[test_site] = clf_out.predict_proba(sc_out.transform(covariates[outer_test_mask]))[:, 1]
 
     uses_tangent = any(fk == "tangent_space" for fk, _, _ in configs)
-
-    # Precompute tangent space features ONCE per unique training site subset (5 4-site + 10 3-site = 15 splits).
-    # Mathematically invariant to within-site connectivity row permutations because the training multiset is identical.
     tangent_all_by_subset: Dict[frozenset, np.ndarray] = {}
-    if uses_tangent:
-        subsets_to_precompute: set = set()
+    if uses_tangent and use_cached_tangent:
+        subsets_needed: Set[frozenset] = set()
         for test_site in unique_sites:
             outer_sites = frozenset(s for s in unique_sites if s != test_site)
-            subsets_to_precompute.add(outer_sites)
+            if outer_sites:
+                subsets_needed.add(outer_sites)
             for inner_val_site in outer_sites:
                 inner_sites = frozenset(s for s in outer_sites if s != inner_val_site)
-                subsets_to_precompute.add(inner_sites)
-        for tr_sites in subsets_to_precompute:
-            tr_mask = np.isin(institutions, list(tr_sites))
-            ts_tr = [timeseries_list[i] for i in np.where(tr_mask)[0]]
-            cm = ConnectivityMeasure(kind="tangent", vectorize=True)
-            cm.fit(ts_tr)
-            # Project all N subjects onto this split's tangent space once
-            tangent_all_by_subset[tr_sites] = cm.transform(timeseries_list)
+                if inner_sites:
+                    subsets_needed.add(inner_sites)
 
-    for b in range(n_permutations):
-        conn_perm_indices = np.arange(n)
-        for site in unique_sites:
-            s_idx = np.where(institutions == site)[0]
-            conn_perm_indices[s_idx] = rng.permutation(s_idx)
+        if tangent_cache is not None and subsets_needed.issubset(tangent_cache.keys()):
+            tangent_all_by_subset = {k: tangent_cache[k] for k in subsets_needed}
+        else:
+            tangent_all_by_subset = precompute_tangent_cache(
+                timeseries_list=timeseries_list,
+                institutions=institutions,
+                subsets=sorted(subsets_needed, key=lambda s: tuple(sorted(s))),
+                n_workers=n_workers,
+            )
 
-        if b < len(completed):
-            continue
+    use_workers = resolve_n_workers(n_workers)
+    tasks = [(b, perm_schedule[b]) for b in pending_indices]
 
-        if progress_fn is not None:
-            progress_fn(f"Test 2 permutation {b + 1}/{n_permutations}")
-
-        pearson_perm = pearson_z_edges[conn_perm_indices]
-        resid_split_cache: Dict[Tuple[frozenset, str], Tuple[np.ndarray, np.ndarray]] = {}
-
-        def _get_split_feats(
-            fk: str, tr_sites: frozenset, tr_mask: np.ndarray, te_mask: np.ndarray, te_key: str
-        ) -> Tuple[np.ndarray, np.ndarray]:
-            if fk == "pearson_fisher_z" or fk == "multi_run_avg":
-                return pearson_perm[tr_mask], pearson_perm[te_mask]
-            elif fk == "tangent_space":
-                tang_perm = tangent_all_by_subset[tr_sites][conn_perm_indices]
-                return tang_perm[tr_mask], tang_perm[te_mask]
-            elif fk == "motion_residualized":
-                cache_key = (tr_sites, te_key)
-                if cache_key not in resid_split_cache:
-                    resid_split_cache[cache_key] = fit_transform_motion_residualization(
-                        pearson_perm[tr_mask], motion_covariates[tr_mask], pearson_perm[te_mask], motion_covariates[te_mask]
-                    )[:2]
-                return resid_split_cache[cache_key]
-            else:
-                raise ValueError(f"Unknown feature kind: {fk}")
-
-        deltas: List[float] = []
-        for feat_kind, sel_mode, clf_name in configs:
-            try:
-                fused_probs = np.zeros(n, dtype=np.float64)
-                for test_site in unique_sites:
-                    outer_train_mask = institutions != test_site
-                    outer_test_mask = institutions == test_site
-                    outer_tr_sites = frozenset(s for s in unique_sites if s != test_site)
-                    inner_sites = [s for s in unique_sites if s != test_site]
-
-                    s_conn_oof = np.zeros(n, dtype=np.float64)
-                    if len(inner_sites) >= 2:
-                        in_splits_conn = [
-                            (outer_train_mask & (institutions != iv), institutions == iv, iv)
-                            for iv in inner_sites
-                        ]
-                    else:
-                        tr_idx = np.where(outer_train_mask)[0]
-                        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
-                        in_splits_conn = []
-                        for f_i, (tr_rel, val_rel) in enumerate(skf.split(tr_idx, labels[tr_idx])):
-                            m_tr = np.zeros(n, dtype=bool)
-                            m_val = np.zeros(n, dtype=bool)
-                            m_tr[tr_idx[tr_rel]] = True
-                            m_val[tr_idx[val_rel]] = True
-                            in_splits_conn.append((m_tr, m_val, f"cv{f_i}"))
-
-                    for inner_tr_mask, inner_val_mask, iv_key in in_splits_conn:
-                        inner_tr_sites = frozenset(s for s in outer_tr_sites if s != iv_key)
-                        X_in_tr, X_in_val = _get_split_feats(
-                            feat_kind, inner_tr_sites, inner_tr_mask, inner_val_mask, iv_key
-                        )
-                        s_conn_oof[inner_val_mask] = _fit_predict_connectivity_fold(
-                            feat_kind, sel_mode, clf_name, X_in_tr, X_in_val, labels[inner_tr_mask], random_state=seed + b
-                        )
-
-                    s_cov_oof = cov_oof_by_outer[test_site]
-                    meta_X_tr = np.column_stack([s_cov_oof[outer_train_mask], s_conn_oof[outer_train_mask]])
-                    meta_clf = LogisticRegression(
-                        C=1.0, class_weight="balanced", solver="lbfgs", max_iter=1000, random_state=seed + b
-                    )
-                    meta_clf.fit(meta_X_tr, labels[outer_train_mask])
-
-                    X_out_tr, X_out_te = _get_split_feats(
-                        feat_kind, outer_tr_sites, outer_train_mask, outer_test_mask, test_site
-                    )
-                    s_conn_test = _fit_predict_connectivity_fold(
-                        feat_kind, sel_mode, clf_name, X_out_tr, X_out_te, labels[outer_train_mask], random_state=seed + b
-                    )
-                    meta_X_te = np.column_stack([cov_test_by_outer[test_site], s_conn_test])
-                    fused_probs[outer_test_mask] = meta_clf.predict_proba(meta_X_te)[:, 1]
-
-                comb_auc = roc_auc_score(labels, fused_probs)
-                deltas.append(comb_auc - baseline_auc)
-            except Exception:
-                # Failed configuration excluded from max statistic
-                continue
-
-        if not deltas:
-            raise RuntimeError("All configurations failed during Test 2 permutation.")
-        null_max_deltas[b] = max(deltas)
-        save_permutation_checkpoint(checkpoint_path, "test2_null_max_deltas", null_max_deltas[: b + 1])
+    if use_workers > 1 and len(tasks) >= 2:
+        created_shm: List[SharedMemory] = []
+        try:
+            pearson_spec = _SharedArraySpec_create(pearson_z_edges, created_shm)
+            tangent_specs = (
+                {k: _SharedArraySpec_create(v, created_shm) for k, v in tangent_all_by_subset.items()}
+                if use_cached_tangent
+                else None
+            )
+            payload: Dict[str, object] = {
+                "configs": list(configs),
+                "unique_sites": list(unique_sites),
+                "institutions": institutions,
+                "labels": labels,
+                "motion_covariates": motion_covariates,
+                "pearson_spec": pearson_spec,
+                "tangent_specs": tangent_specs,
+                "tangent_all_by_subset": {},
+                "use_cached_tangent": use_cached_tangent,
+                "timeseries_list": timeseries_list if not use_cached_tangent else None,
+                "cov_oof_by_outer": cov_oof_by_outer,
+                "cov_test_by_outer": cov_test_by_outer,
+                "baseline_auc": baseline_auc,
+                "seed": seed,
+            }
+            ctx = multiprocessing.get_context("spawn")
+            with ctx.Pool(
+                processes=min(use_workers, len(tasks)),
+                initializer=_init_test2_worker,
+                initargs=(payload,),
+            ) as pool:
+                for b, stat_val, _ in pool.imap(_test2_worker_entrypoint, tasks):
+                    if progress_fn is not None:
+                        progress_fn(f"Test 2 permutation {b + 1}/{n_permutations}")
+                    null_max_deltas[b] = stat_val
+                    save_permutation_checkpoint(checkpoint_path, "test2_null_max_deltas", null_max_deltas[: b + 1])
+        finally:
+            for shm in created_shm:
+                try:
+                    shm.close()
+                except Exception:
+                    pass
+                try:
+                    shm.unlink()
+                except Exception:
+                    pass
+    else:
+        _WORKER_STATE.clear()
+        _WORKER_STATE.update({
+            "configs": list(configs),
+            "unique_sites": list(unique_sites),
+            "institutions": institutions,
+            "labels": labels,
+            "motion_covariates": motion_covariates,
+            "pearson_z_edges": pearson_z_edges,
+            "tangent_all_by_subset": tangent_all_by_subset,
+            "use_cached_tangent": use_cached_tangent,
+            "timeseries_list": timeseries_list if not use_cached_tangent else None,
+            "cov_oof_by_outer": cov_oof_by_outer,
+            "cov_test_by_outer": cov_test_by_outer,
+            "baseline_auc": baseline_auc,
+            "seed": seed,
+        })
+        try:
+            for b, conn_perm in tasks:
+                if progress_fn is not None:
+                    progress_fn(f"Test 2 permutation {b + 1}/{n_permutations}")
+                _, stat_val, _ = _eval_single_test2_perm((b, conn_perm))
+                null_max_deltas[b] = stat_val
+                save_permutation_checkpoint(checkpoint_path, "test2_null_max_deltas", null_max_deltas[: b + 1])
+        finally:
+            _WORKER_STATE.clear()
 
     p_val = float((1.0 + np.sum(null_max_deltas >= observed_max_delta_auc)) / (1.0 + n_permutations))
     return p_val, null_max_deltas
@@ -1873,8 +2390,12 @@ def _evaluate_cohort_grid(
     failing_config_ids: Optional[Set[str]] = None,
     progress_fn: Optional[Callable[[str], None]] = None,
     progress_prefix: str = "Cohort",
+    subject_covs: Optional[np.ndarray] = None,
+    n_workers: int = 1,
 ) -> Dict[str, object]:
     """Evaluate baselines and all candidate configurations (late fusion + connectivity-only) on a cohort."""
+    phase_timings: Dict[str, float] = {}
+    t_base0 = time.perf_counter()
     baselines_probs = evaluate_non_imaging_baselines(
         motion_covariates=cohort.motion_covariates,
         age_sex_covariates=cohort.age_sex_covariates,
@@ -1883,33 +2404,37 @@ def _evaluate_cohort_grid(
         random_state=seed,
     )
     baselines_summary: Dict[str, object] = {}
+    t_boot_acc = 0.0
     for b_name, b_probs in baselines_probs.items():
+        tb0 = time.perf_counter()
         auc_pt, auc_lo, auc_hi = stratified_bootstrap_ci(
             cohort.labels, b_probs, roc_auc_score, n_boot=n_boot, seed=seed
         )
+        t_boot_acc += time.perf_counter() - tb0
         baselines_summary[b_name] = {"auc": auc_pt, "ci_lo": auc_lo, "ci_hi": auc_hi}
+    phase_timings["baselines_sec"] = round(time.perf_counter() - t_base0, 3)
 
     base_cov_probs = baselines_probs["motion_age_sex"]
     unique_sites = sorted(set(cohort.institutions))
 
     # Precompute 15-split tangent space cache once per cohort if any config uses tangent_space
+    t_tang0 = time.perf_counter()
     tangent_cache: Optional[Dict[frozenset, np.ndarray]] = None
     if any(fk == "tangent_space" for _, fk, _, _ in configs) and len(unique_sites) >= 2:
-        tangent_cache = {}
         subsets: Set[frozenset] = set()
         for ts_site in unique_sites:
             outer_s = frozenset(s for s in unique_sites if s != ts_site)
             subsets.add(outer_s)
             for iv_site in outer_s:
                 subsets.add(frozenset(s for s in outer_s if s != iv_site))
-        for tr_sites in subsets:
-            if not tr_sites:
-                continue
-            tr_m = np.isin(cohort.institutions, list(tr_sites))
-            ts_tr = [cohort.timeseries_list[i] for i in np.where(tr_m)[0]]
-            cm = ConnectivityMeasure(kind="tangent", vectorize=True)
-            cm.fit(ts_tr)
-            tangent_cache[tr_sites] = cm.transform(cohort.timeseries_list)
+        tangent_cache = precompute_tangent_cache(
+            timeseries_list=cohort.timeseries_list,
+            institutions=cohort.institutions,
+            subsets=sorted(subsets, key=lambda s: tuple(sorted(s))),
+            subject_covs=subject_covs,
+            n_workers=n_workers,
+        )
+    phase_timings["tangent_precompute_sec"] = round(time.perf_counter() - t_tang0, 3)
 
     config_results: Dict[str, Dict[str, object]] = {}
     fused_probs_by_cfg: Dict[str, np.ndarray] = {}
@@ -1923,27 +2448,18 @@ def _evaluate_cohort_grid(
             if failing_config_ids and cfg_id in failing_config_ids:
                 raise RuntimeError(f"Injected configuration failure for {cfg_id}")
 
-            if fk == "tangent_space" and tangent_cache is not None:
-                conn_probs = np.zeros(len(cohort.labels), dtype=np.float64)
-                for ts_site in unique_sites:
-                    tr_m = cohort.institutions != ts_site
-                    te_m = cohort.institutions == ts_site
-                    tang_all = tangent_cache[frozenset(s for s in unique_sites if s != ts_site)]
-                    conn_probs[te_m] = _fit_predict_connectivity_fold(
-                        fk, sel, clf_name, tang_all[tr_m], tang_all[te_m], cohort.labels[tr_m], random_state=seed
-                    )
-            else:
-                conn_probs, _ = evaluate_loio_pipeline(
-                    feature_kind=fk,
-                    selection_mode=sel,
-                    classifier_name=clf_name,
-                    timeseries_list=cohort.timeseries_list,
-                    pearson_z_edges=cohort.pearson_z_edges,
-                    motion_covariates=cohort.motion_covariates,
-                    labels=cohort.labels,
-                    institutions=cohort.institutions,
-                    random_state=seed,
-                )
+            conn_probs, _ = evaluate_loio_pipeline(
+                feature_kind=fk,
+                selection_mode=sel,
+                classifier_name=clf_name,
+                timeseries_list=cohort.timeseries_list,
+                pearson_z_edges=cohort.pearson_z_edges,
+                motion_covariates=cohort.motion_covariates,
+                labels=cohort.labels,
+                institutions=cohort.institutions,
+                random_state=seed,
+                tangent_cache=tangent_cache,
+            )
             fused_probs = evaluate_combined_covariates_and_connectivity(
                 feature_kind=fk,
                 selection_mode=sel,
@@ -1958,6 +2474,7 @@ def _evaluate_cohort_grid(
                 tangent_cache=tangent_cache,
             )
 
+            tb0 = time.perf_counter()
             c_auc, c_lo, c_hi = stratified_bootstrap_ci(cohort.labels, conn_probs, roc_auc_score, n_boot=n_boot, seed=seed)
             f_auc, f_lo, f_hi = stratified_bootstrap_ci(cohort.labels, fused_probs, roc_auc_score, n_boot=n_boot, seed=seed)
             d_cov, d_cov_lo, d_cov_hi = paired_bootstrap_auc_diff(
@@ -1970,12 +2487,25 @@ def _evaluate_cohort_grid(
                 cohort.labels, fused_probs, baselines_probs["age_sex"], n_boot=n_boot, seed=seed
             )
 
-            per_site: Dict[str, Dict[str, float]] = {}
+            per_site: Dict[str, Dict[str, object]] = {}
             for site in unique_sites:
                 m = cohort.institutions == site
-                s_fused = float(roc_auc_score(cohort.labels[m], fused_probs[m]))
-                s_base = float(roc_auc_score(cohort.labels[m], base_cov_probs[m]))
-                per_site[str(site)] = {"fused_auc": s_fused, "cov_auc": s_base, "delta_auc": s_fused - s_base}
+                y_s = cohort.labels[m]
+                sc_auc, sc_lo, sc_hi = stratified_bootstrap_ci(y_s, conn_probs[m], roc_auc_score, n_boot=n_boot, seed=seed)
+                sf_auc, sf_lo, sf_hi = stratified_bootstrap_ci(y_s, fused_probs[m], roc_auc_score, n_boot=n_boot, seed=seed)
+                sb_auc, sb_lo, sb_hi = stratified_bootstrap_ci(y_s, base_cov_probs[m], roc_auc_score, n_boot=n_boot, seed=seed)
+                sd_pt, sd_lo, sd_hi = paired_bootstrap_auc_diff(y_s, fused_probs[m], base_cov_probs[m], n_boot=n_boot, seed=seed)
+                per_site[str(site)] = {
+                    "conn_only_auc": sc_auc,
+                    "conn_only_ci": [sc_lo, sc_hi],
+                    "fused_auc": sf_auc,
+                    "fused_auc_ci": [sf_lo, sf_hi],
+                    "cov_auc": sb_auc,
+                    "cov_auc_ci": [sb_lo, sb_hi],
+                    "delta_auc": sd_pt,
+                    "delta_auc_ci": [sd_lo, sd_hi],
+                }
+            t_boot_acc += time.perf_counter() - tb0
 
             fused_probs_by_cfg[cfg_id] = fused_probs
             conn_probs_by_cfg[cfg_id] = conn_probs
@@ -2015,6 +2545,9 @@ def _evaluate_cohort_grid(
     max_conn_auc = max(float(config_results[cid]["conn_only_auc"]) for cid in valid_ids)
     max_delta_auc = float(config_results[chosen_id]["delta_auc_vs_cov"])
 
+    phase_timings["bootstrap_cis_sec"] = round(t_boot_acc, 3)
+    phase_timings["total_grid_sec"] = round(time.perf_counter() - t_base0, 3)
+
     return {
         "n_subjects": int(len(cohort.labels)),
         "baselines": baselines_summary,
@@ -2027,6 +2560,8 @@ def _evaluate_cohort_grid(
             "baselines_probs": baselines_probs,
             "fused_probs_by_cfg": fused_probs_by_cfg,
             "valid_configs": [(cid, fk, sel, clf) for cid, fk, sel, clf in configs if cid in valid_ids],
+            "tangent_cache": tangent_cache,
+            "phase_timings": phase_timings,
         },
     }
 
@@ -2039,6 +2574,7 @@ def run_full_analysis(
     checkpoint_path: Optional[Path] = None,
     failing_config_ids: Optional[Set[str]] = None,
     progress_fn: Optional[Callable[[str], None]] = print,
+    n_workers: Optional[int] = None,
 ) -> Dict[str, object]:
     """
     Execute the complete pre-specified exploratory analysis:
@@ -2048,6 +2584,26 @@ def run_full_analysis(
       3. Separate CFG_13-16 family (NYU + OHSU, 2-fold subject-grouped, Bonferroni 4 tests).
     Prints ONLY progress counters via progress_fn; never prints AUCs, p-values, or subject IDs.
     """
+    use_workers = resolve_n_workers(n_workers)
+    analysis_timings: Dict[str, object] = {"n_workers": use_workers}
+
+    # Precompute Ledoit-Wolf shrinkage covariances ONCE across the superset of single-run cohorts
+    superset_key = "all_620" if "all_620" in cohorts and cohorts["all_620"].timeseries_list else "primary_564"
+    covs_by_sid: Dict[str, np.ndarray] = {}
+    if cohorts[superset_key].timeseries_list:
+        t_cov0 = time.perf_counter()
+        sup_covs = precompute_subject_covariances(cohorts[superset_key].timeseries_list)
+        for idx_s, sid in enumerate(cohorts[superset_key].subject_ids):
+            covs_by_sid[str(sid)] = sup_covs[idx_s]
+        analysis_timings["cov_precompute_sec"] = round(time.perf_counter() - t_cov0, 3)
+
+    def _cohort_covs(cohort_obj: CohortData) -> Optional[np.ndarray]:
+        if not cohort_obj.timeseries_list or not covs_by_sid:
+            return None
+        if all(str(sid) in covs_by_sid for sid in cohort_obj.subject_ids):
+            return np.asarray([covs_by_sid[str(sid)] for sid in cohort_obj.subject_ids], dtype=np.float64)
+        return None
+
     primary_cohort = cohorts["primary_564"]
     prim_eval = _evaluate_cohort_grid(
         primary_cohort,
@@ -2057,12 +2613,17 @@ def run_full_analysis(
         failing_config_ids=failing_config_ids,
         progress_fn=progress_fn,
         progress_prefix="Primary N=564",
+        subject_covs=_cohort_covs(primary_cohort),
+        n_workers=use_workers,
     )
+    analysis_timings["primary_observed"] = prim_eval["_internal"]["phase_timings"]
     valid_tuples = [(fk, sel, clf) for _, fk, sel, clf in prim_eval["_internal"]["valid_configs"]]
     base_probs = prim_eval["_internal"]["baselines_probs"]
+    primary_tangent_cache = prim_eval["_internal"]["tangent_cache"]
     chosen_id = str(prim_eval["chosen_config_id"])
     chosen_fused_probs = prim_eval["_internal"]["fused_probs_by_cfg"][chosen_id]
 
+    t_t1 = time.perf_counter()
     p_test1, _ = run_within_site_label_permutation_test(
         configs=valid_tuples,
         timeseries_list=primary_cohort.timeseries_list,
@@ -2075,7 +2636,12 @@ def run_full_analysis(
         seed=seed,
         checkpoint_path=checkpoint_path,
         progress_fn=progress_fn,
+        tangent_cache=primary_tangent_cache,
+        n_workers=use_workers,
     )
+    analysis_timings["test1_sec"] = round(time.perf_counter() - t_t1, 3)
+
+    t_t2 = time.perf_counter()
     p_test2, _ = run_incremental_contrast_permutation_test(
         configs=valid_tuples,
         timeseries_list=primary_cohort.timeseries_list,
@@ -2090,8 +2656,13 @@ def run_full_analysis(
         seed=seed,
         checkpoint_path=checkpoint_path,
         progress_fn=progress_fn,
+        tangent_cache=primary_tangent_cache,
+        use_cached_tangent=True,
+        n_workers=use_workers,
     )
+    analysis_timings["test2_sec"] = round(time.perf_counter() - t_t2, 3)
 
+    t_cj = time.perf_counter()
     conjunction = evaluate_interesting_criteria(
         y_true=primary_cohort.labels,
         institutions=primary_cohort.institutions,
@@ -2103,13 +2674,17 @@ def run_full_analysis(
         n_boot=n_boot,
         seed=seed,
     )
+    analysis_timings["conjunction_boot_sec"] = round(time.perf_counter() - t_cj, 3)
     outcome_wording = (
         "a hypothesis for a new cohort; NYU is not sealed, so this is not confirmation"
         if conjunction["is_interesting"]
         else "no evidence of incremental connectivity signal in this design"
     )
 
+    # Free primary tangent cache before running sensitivity grids to bound peak memory
+    del primary_tangent_cache
     del prim_eval["_internal"]
+    gc.collect()
     prim_eval["permutation_tests"] = {
         "n_permutations": int(n_permutations),
         "test1_label_perm_p": p_test1,
@@ -2122,16 +2697,21 @@ def run_full_analysis(
     sensitivity: Dict[str, object] = {}
     for sens_key in ["all_620", "matched_215", "matched_226"]:
         if sens_key in cohorts:
+            s_cohort = cohorts[sens_key]
             s_eval = _evaluate_cohort_grid(
-                cohorts[sens_key],
+                s_cohort,
                 PRIMARY_CONFIGS,
                 n_boot=n_boot,
                 seed=seed,
                 failing_config_ids=failing_config_ids,
                 progress_fn=progress_fn,
                 progress_prefix=f"Sensitivity {sens_key}",
+                subject_covs=_cohort_covs(s_cohort),
+                n_workers=use_workers,
             )
+            analysis_timings[f"sensitivity_{sens_key}"] = s_eval["_internal"]["phase_timings"]
             del s_eval["_internal"]
+            gc.collect()
             s_eval["used_for_interesting_rule"] = False
             sensitivity[sens_key] = s_eval
 
@@ -2145,10 +2725,13 @@ def run_full_analysis(
         failing_config_ids=failing_config_ids,
         progress_fn=progress_fn,
         progress_prefix="MultiRun CFG_13-16",
+        n_workers=use_workers,
     )
+    analysis_timings["cfg13_16_observed"] = mr_eval["_internal"]["phase_timings"]
     mr_base_probs = mr_eval["_internal"]["baselines_probs"]
     mr_bonf_alpha = 0.05 / 4.0
     mr_perm_p: Dict[str, float] = {}
+    t_mr_perm = time.perf_counter()
     for cid, fk, sel, clf in mr_eval["_internal"]["valid_configs"]:
         p_cfg, _ = run_incremental_contrast_permutation_test(
             configs=[(fk, sel, clf)],
@@ -2163,8 +2746,10 @@ def run_full_analysis(
             n_permutations=n_permutations,
             seed=seed,
             progress_fn=progress_fn,
+            n_workers=use_workers,
         )
         mr_perm_p[cid] = p_cfg
+    analysis_timings["cfg13_16_perm_sec"] = round(time.perf_counter() - t_mr_perm, 3)
     del mr_eval["_internal"]
     mr_eval["bonferroni_alpha"] = mr_bonf_alpha
     mr_eval["per_config_perm_p"] = mr_perm_p
@@ -2175,6 +2760,7 @@ def run_full_analysis(
         "primary_analysis": prim_eval,
         "sensitivity_analyses": sensitivity,
         "multirun_family_cfg13_16": mr_eval,
+        "_phase_timings": analysis_timings,
     }
 
 
@@ -2187,6 +2773,7 @@ def run_exploratory_synthetic_e2e(
     seed: int = DEFAULT_RANDOM_STATE,
     failing_config_ids: Optional[Set[str]] = None,
     progress_fn: Optional[Callable[[str], None]] = print,
+    n_workers: int = 1,
 ) -> Dict[str, object]:
     """
     Test-only entry point for synthetic end-to-end verification.
@@ -2209,7 +2796,9 @@ def run_exploratory_synthetic_e2e(
         checkpoint_path=checkpoint_path,
         failing_config_ids=failing_config_ids,
         progress_fn=progress_fn,
+        n_workers=n_workers,
     )
+    results.pop("_phase_timings", None)
     write_results_once(output_path, results)
     return results
 
@@ -2222,6 +2811,7 @@ def run_rehearsal(
     n_permutations: int = 2,
     n_boot: int = 50,
     seed: int = DEFAULT_RANDOM_STATE,
+    n_workers: Optional[int] = None,
 ) -> Dict[str, object]:
     """
     Full-pipeline crash/runtime rehearsal on REAL label-free arrays with SYNTHETIC labels
@@ -2243,7 +2833,6 @@ def run_rehearsal(
     if rehearsal_checkpoint_path.exists():
         rehearsal_checkpoint_path.unlink()
 
-    tracemalloc.start()
     timings: Dict[str, float] = {}
     stages: Dict[str, str] = {}
 
@@ -2270,6 +2859,7 @@ def run_rehearsal(
     timings["build_cohorts_sec"] = round(time.perf_counter() - t1, 3)
     stages["build_cohorts"] = "PASS"
 
+    use_workers = resolve_n_workers(n_workers)
     t2 = time.perf_counter()
     captured_warnings: List[str] = []
     with warnings.catch_warnings(record=True) as w_list:
@@ -2280,18 +2870,23 @@ def run_rehearsal(
             n_boot=n_boot,
             seed=seed,
             checkpoint_path=rehearsal_checkpoint_path,
-            progress_fn=lambda msg: None,
+            progress_fn=lambda msg: print(f"[rehearsal p={n_permutations}] {msg}", file=sys.stderr, flush=True),
+            n_workers=use_workers,
         )
         for w in w_list:
             captured_warnings.append(f"{w.category.__name__}: {w.message}")
+    phase_timings = results.pop("_phase_timings", {})
     timings["run_full_analysis_sec"] = round(time.perf_counter() - t2, 3)
     stages["run_full_analysis"] = "PASS"
 
     write_results_once(rehearsal_results_path, results)
     stages["write_rehearsal_results"] = "PASS"
 
-    _, peak_bytes = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
+    # macOS ru_maxrss is in bytes; Linux is in KiB (darwin check)
+    ru_self = resource.getrusage(resource.RUSAGE_SELF)
+    ru_child = resource.getrusage(resource.RUSAGE_CHILDREN)
+    parent_mb = ru_self.ru_maxrss / (1024.0 * 1024.0) if sys.platform == "darwin" else ru_self.ru_maxrss / 1024.0
+    child_max_mb = ru_child.ru_maxrss / (1024.0 * 1024.0) if sys.platform == "darwin" else ru_child.ru_maxrss / 1024.0
 
     warning_counts: Dict[str, int] = defaultdict(int)
     for w_str in captured_warnings:
@@ -2310,10 +2905,13 @@ def run_rehearsal(
         "stages": stages,
         "sections_produced": sections_produced,
         "n_permutations_rehearsal": n_permutations,
+        "n_workers": use_workers,
         "warning_counts_by_category": dict(warning_counts),
         "total_warnings": len(captured_warnings),
-        "peak_memory_mb": round(peak_bytes / (1024 * 1024), 2),
+        "peak_rss_mb": round(parent_mb, 2),
+        "child_max_rss_mb": round(child_max_mb, 2),
         "timings_sec": timings,
+        "phase_timings": phase_timings,
         "rehearsal_results_path": str(rehearsal_results_path),
         "rehearsal_checkpoint_path": str(rehearsal_checkpoint_path),
     }
@@ -2348,6 +2946,12 @@ def main() -> None:
         help=f"Number of within-site permutation iterations (default: {DEFAULT_PERMUTATION_B}).",
     )
     parser.add_argument(
+        "--n-workers",
+        type=int,
+        default=0,
+        help=f"Parallel worker processes for permutations/tangent means (0=auto capped <= {DEFAULT_MAX_WORKERS}).",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=Path("NeuroADHD/data/athena/results/exploratory_results.json"),
@@ -2374,7 +2978,11 @@ def main() -> None:
         return
 
     if args.rehearsal:
-        rehearsal_report = run_rehearsal(n_permutations=2, seed=DEFAULT_RANDOM_STATE)
+        rehearsal_report = run_rehearsal(
+            n_permutations=args.n_permutations,
+            seed=DEFAULT_RANDOM_STATE,
+            n_workers=args.n_workers,
+        )
         print(json.dumps(rehearsal_report, indent=2))
         return
 
@@ -2396,7 +3004,9 @@ def main() -> None:
         seed=DEFAULT_RANDOM_STATE,
         checkpoint_path=args.checkpoint,
         progress_fn=print,
+        n_workers=args.n_workers,
     )
+    results.pop("_phase_timings", None)
     write_results_once(args.output, results)
     print("Exploratory analysis complete. Results written.")
 
