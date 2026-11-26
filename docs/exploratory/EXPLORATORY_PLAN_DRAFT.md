@@ -153,12 +153,15 @@ Evaluated across all 5 institutions ($3 \text{ Feature Kinds} \times 2 \text{ Fe
 
 ---
 
-### 4.2 Limitation: Scan Length Heterogeneity & Rank Deficiency at OHSU ($T = 78 < K = 190$)
-A critical neuroimaging limitation must be formally recognized:
-- At OHSU, resting-state fMRI runs have only $T = 78$ retained volumes after dropping dummy frames, whereas the CC200 (190 populated ROIs) brain atlas contains $K = 190$ ROIs.
-- Because $T = 78 < K = 190$, the empirical sample covariance matrix $S_i$ is **mathematically singular** ($\text{rank}(S_i) \le 77$).
-- Ledoit-Wolf shrinkage regularization is strictly mandatory to pull the singular covariance toward a well-conditioned spherical target, ensuring full rank and invertibility prior to the matrix logarithm.
-- However, the geometric covariance estimation on $T = 78$ is substantially noisier and less constrained than at sites with $T > 190$ (e.g. Peking $T = 233$, NeuroIMAGE $T = 257$).
+### 4.2 Limitation: Scan Length Heterogeneity & Rank Deficiency ($T < K = 190$ at KKI, NYU, and OHSU)
+A critical neuroimaging limitation must be formally recognized across the measured `rest_1` scan lengths (`min / median / max` retained volumes):
+- **KKI ($N = 83$):** `120 / 120 / 148` ($T < 190$ ROIs)
+- **NYU ($N = 216$):** `172 / 172 / 172` ($T < 190$ ROIs)
+- **OHSU ($N = 79$):** `72 / 74 / 74` ($T < 190$ ROIs)
+- **Peking ($N = 194$):** `232 / 232 / 232` ($T > 190$ ROIs)
+- **NeuroIMAGE ($N = 48$):** `257 / 257 / 257` ($T > 190$ ROIs)
+
+Because $T < K = 190$ ROIs at **KKI, NYU, and OHSU**, empirical sample covariance matrices $S_i$ at these three institutions are **mathematically singular** ($\text{rank}(S_i) \le T - 1 < 190$). Tangent features at KKI, NYU, and OHSU therefore depend heavily on Ledoit-Wolf shrinkage regularization, whereas Peking and NeuroIMAGE ($T > 190$) do not. This creates a **site-dependent artifact** in covariance conditioning across LOIO folds; all tangent-space configurations (`CFG_05`–`CFG_08`) must be interpreted with this caveat.
 
 ---
 
