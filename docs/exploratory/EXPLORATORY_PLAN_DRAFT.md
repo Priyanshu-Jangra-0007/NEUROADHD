@@ -49,6 +49,7 @@ The objective of this exploratory protocol is to investigate whether methodologi
 6. **Zero Individual Data Leakage:** Reports, tables, logs, and artifacts must never print individual subject IDs, raw timeseries, or per-subject prediction rows.
 7. **Data Flow (Label-Free First, Labels Last), Pre-Flight Check, Null-Only Checkpointing, Write-Once Output, and Crash/Deviation Policy:**
    - **Strict Label-Free-First Data Flow:** `load_label_free_inputs()` first computes and caches all imaging features (CC200 Fisher-$z$ edges, timeseries for tangent space), motion covariates (saved dev FD + NYU FD from `intermediate_nyu.tar` via `compute_athena_fd.py`), age, and sex **without reading any label column**. `load_labels_last()` reads diagnosis (`DX`) **only** after all label-free inputs are built and only inside `--execute-real` after the `exploratory-frozen` guard passes.
+   - **`rest_1`-Only Invariant for Primary & Sensitivity Cohorts:** `CFG_01`–`CFG_12` and the primary $N=564$ (plus sensitivity $N=620$, 215-pair, 226-pair) analyses use **`rest_1` ONLY** at every site. Multi-run averaging (`rest_1`/`rest_2`/`rest_3`) is confined strictly to the separate `CFG_13`–`CFG_16` family.
    - Before any real execution, `--preflight` verifies that all required inputs (features, covariates including `NYU_motion.csv` with 396 rows = 216 `rest_1` + 180 `rest_2` covering all 216 NYU `rest_1` scans, `intermediate_nyu.tar` with 2,665 entries = 1,368 regular files + 1,297 directories, scan lengths, and matching inputs) exist with expected shapes and counts **without reading any label column**.
    - **Null-Only Checkpointing:** During permutation testing, `--checkpoint` stores **only** the completed permutation null statistics (`test1_null_max_aucs`, `test2_null_max_deltas`)—never any observed AUCs, deltas, or partial results—allowing crash recovery under `caffeinate -dimsu` without exposing partial findings.
    - The results JSON file is strictly **write-once** (refuses to overwrite an existing file).
@@ -216,18 +217,24 @@ Two distinct non-parametric permutation tests are conducted to evaluate performa
 
 ---
 
-## 6. Real-Shape Benchmark & Execution Budget for Fused Design (Estimated)
+## 6. Pre-Declared Permutation Scope, Total Runtime & >4-Hour Policy (Estimated)
 
-*(All timings below are labeled as **estimates**, measured on synthetic data at the exact real site sizes and scan lengths with logistic regression `C = 1.0` and late fusion)*:
+- **Pre-Declared Permutation Scope:**
+  - **Primary $N = 564$:** Test 1 (within-site label permutation) and Test 2 (within-site connectivity-row permutation, late fusion) run **200 permutations each**.
+  - **Sensitivity Analyses ($N = 620$, 215-pair matched, 226-pair matched):** Report observed AUCs, $\Delta\text{AUC}$s, and 95% paired/stratified bootstrap CIs **with NO permutation $p$-values**.
+  - **`CFG_13`–`CFG_16` Separate Family (NYU + OHSU):** Reports **200-permutation** Bonferroni-corrected $p$-values across its 4 tests ($\alpha_{\text{adj}} = 0.0125$).
 
-- **Note on Prior `3.58 s` Figure:** The earlier `3.58 s` per-permutation estimate covered **only Test 1** (label permutation with cached features). In Test 2 (late-fusion incremental contrast), inner 4-fold LOIO + outer 5-fold LOIO connectivity models are re-fit per permutation, while the 15 unique training-split tangent spaces (5 4-site + 10 3-site) and covariate-only OOF scores are precomputed once before the permutation loop.
+*(All timings below are labeled as **estimates**, measured on synthetic data at exact real site sizes with `C = 1.0` and late fusion)*:
 
-| Cohort | Site Sizes ($N$) | Test 1 (Setup + 1 Perm) | Test 1 (200 Perms) | Test 2 Fused (15-Split Setup + 1 Perm) | Test 2 Fused (200 Perms) | 200 Perms (Both Tests Together) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Primary Clean ($N = 564$)** | NYU 196, Peking 189, NeuroIMAGE 42, KKI 79, OHSU 58 | $29.5\text{ s} + 1.53\text{ s}$ | $5.6\text{ min}$ | $63.6\text{ s} + 26.19\text{ s}$ | $88.4\text{ min}$ | **$\approx 93.9\text{ min}$** ($1.57\text{ hr}$) |
-| **215-Pair Matched ($N = 430$)** | NYU 172, Peking 146, NeuroIMAGE 32, KKI 38, OHSU 42 | $19.0\text{ s} + 2.49\text{ s}$ | $8.6\text{ min}$ | $50.6\text{ s} + 17.74\text{ s}$ | $60.0\text{ min}$ | **$\approx 68.6\text{ min}$** ($1.14\text{ hr}$) |
+| Component of Full `--execute-real` Invocation | Scope | Estimated Time |
+| :--- | :--- | :--- |
+| **Label-Free Archive Build (`load_label_free_inputs`)** | 620 `rest_1` + 336 `rest_2/3` + NYU FD | $\approx 26.5\text{ s}$ (`0.5 s` if cached) |
+| **Primary $N = 564$ Observed + Sensitivity Observed (`N=620`, `215p`, `226p`)** | 4 cohorts $\times$ 12 configs (15-split tangent cache) | $\approx 3.0\text{ min}$ |
+| **Primary $N = 564$ Test 1 + Test 2 (200 Perms Each)** | T1: $5.6\text{ min}$; T2: $88.4\text{ min}$ | $\approx 93.9\text{ min}$ |
+| **`CFG_13`–`CFG_16` Family (NYU+OHSU, 4 Configs $\times$ 200 Perms)** | 2-fold LOIO + 5-fold inner CV | $\approx 15.0\text{ min}$ |
+| **Total Entire `--execute-real` Invocation** | **All analyses combined** | **$\approx 112\text{ min}$ ($\approx 1.9\text{ hr}$)** |
 
-Both 200-permutation runs (combining Test 1 + Test 2 under late fusion) complete comfortably below the 3-hour budget threshold.
+- **Policy if Total Runtime Exceeds 4 Hours:** Execution runs under `caffeinate -dimsu` with null-only checkpointing (`--checkpoint`). If total runtime exceeds 4 hours, execution is halted safely without viewing partial AUCs, the exact cause/stage is recorded in a dated deviation file (`docs/exploratory/DEVIATION_YYYY-MM-DD.md`), and remaining permutations are resumed strictly from the null-only checkpoint (never re-run after viewing partial output).
 
 ---
 
