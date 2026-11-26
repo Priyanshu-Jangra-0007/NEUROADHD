@@ -16,12 +16,16 @@ Covers all pre-specified properties:
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 import re
+import tarfile
 import tempfile
 import unittest
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
+from unittest.mock import patch
 
 import numpy as np
 from sklearn.metrics import roc_auc_score
@@ -40,6 +44,7 @@ from scripts.run_exploratory import (
     fit_evaluate_late_fusion_outer_fold,
     fit_transform_motion_residualization,
     fit_transform_tangent_space,
+    load_label_free_inputs,
     load_permutation_checkpoint,
     match_subjects_on_motion_within_site,
     run_exploratory_synthetic_e2e,
@@ -777,13 +782,22 @@ class TestRunExploratorySynthetic(unittest.TestCase):
         return inputs, np.array(y_list, dtype=np.int64), np.array(mr_y, dtype=np.int64)
 
     # -----------------------------------------------------------------
-    # Test (l): Synthetic E2E at real shapes, stdout guard, write-once, path refusal
+    # Test (l): Fast synthetic E2E (<3 min), all sections, stdout guard, write-once, path refusal
     # -----------------------------------------------------------------
-    def test_l_synthetic_e2e_real_shapes_sections_stdout_and_guards(self) -> None:
-        inputs, y_r1, y_mr = self._build_synthetic_real_shape_inputs(n_rois=190)
+    def test_l_synthetic_e2e_sections_stdout_and_guards(self) -> None:
+        inputs, y_r1, y_mr = self._build_synthetic_real_shape_inputs(
+            n_rois=12,
+            site_counts=(
+                ("NYU", 24, 4, 40),
+                ("Peking", 24, 2, 40),
+                ("NeuroIMAGE", 20, 2, 40),
+                ("KKI", 20, 2, 40),
+                ("OHSU", 20, 4, 40),
+            ),
+        )
         cohorts = build_cohorts(inputs, y_r1, y_mr)
-        self.assertEqual(len(cohorts["primary_564"].labels), 564)
-        self.assertEqual(len(cohorts["all_620"].labels), 620)
+        self.assertEqual(len(cohorts["primary_564"].labels), 108)
+        self.assertEqual(len(cohorts["all_620"].labels), 122)
         self.assertGreater(len(cohorts["matched_215"].labels), 0)
         self.assertGreater(len(cohorts["matched_226"].labels), 0)
 
@@ -905,6 +919,124 @@ class TestRunExploratorySynthetic(unittest.TestCase):
         _ = tracked_label_free()
         _ = tracked_labels_last()
         self.assertEqual(call_order, ["load_label_free_inputs", "load_labels_last"])
+
+    # -----------------------------------------------------------------
+    # Test (n): Label-free paths NEVER request DX; rest_1-only for primary; stale cache refused
+    # -----------------------------------------------------------------
+    def test_n_label_column_never_requested_rest1_only_and_stale_cache(self) -> None:
+        class GuardedPhenoRow(dict):
+            FORBIDDEN = {"DX", "Secondary Dx", "ADHD Measure", "ADHD Index", "Inattentive", "Hyper/Impulsive", "Med Status"}
+
+            def __getitem__(self, key):
+                if key in self.FORBIDDEN:
+                    raise AssertionError(f"Label column '{key}' requested in label-free path!")
+                return super().__getitem__(key)
+
+            def get(self, key, default=None):
+                if key in self.FORBIDDEN:
+                    raise AssertionError(f"Label column '{key}' requested via .get() in label-free path!")
+                return super().get(key, default)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            for sub in ["features", "motion", "phenotypes", "staging"]:
+                (root / sub).mkdir(parents=True, exist_ok=True)
+
+            # Minimal synthetic archive with rest_1 and radically shifted rest_2 for NYU
+            rng = np.random.default_rng(11)
+            ts_r1 = rng.normal(size=(30, 190))
+            ts_r2 = rng.normal(size=(30, 190)) + 50.0
+            ts_r2[:, 0] += ts_r2[:, 1] * 10.0  # radically different correlation
+
+            def _to_1d_bytes(arr):
+                hdr = "File\tSub-brick\t" + "\t".join(f"Mean_{i}" for i in range(190))
+                lines = [hdr] + ["f\t0\t" + "\t".join(f"{v:.12f}" for v in row) for row in arr]
+                return ("\n".join(lines) + "\n").encode("utf-8")
+
+            tar_cc = root / "staging" / "ADHD200_CC200_TCs_filtfix.tar.gz"
+            with tarfile.open(tar_cc, "w:gz") as tf:
+                for name, arr in [
+                    ("NYU/0010001/sfnwmrda0010001_session_1_rest_1.1D", ts_r1),
+                    ("NYU/0010001/sfnwmrda0010001_session_1_rest_2.1D", ts_r2),
+                ]:
+                    b = _to_1d_bytes(arr)
+                    ti = tarfile.TarInfo(name)
+                    ti.size = len(b)
+                    tf.addfile(ti, io.BytesIO(b))
+
+            with open(root / "phenotypes" / "adhd200_preprocessed_phenotypics.tsv", "w") as f:
+                f.write("ScanDir ID\tSite\tGender\tAge\tDX\n10001\t5\t1\t11.5\t1\n")
+            with open(root / "motion" / "dev_niak_fd_metrics.csv", "w") as f:
+                f.write("subject_id_norm,institution,mean_fd_mm,max_disp_mm,frames_cc200,exclude_primary_050\n")
+
+            orig_dict_reader = csv.DictReader
+
+            def guarded_dict_reader(*args, **kwargs):
+                dr = orig_dict_reader(*args, **kwargs)
+                class _Wrapper:
+                    fieldnames = dr.fieldnames
+                    def __iter__(self):
+                        for r in dr:
+                            yield GuardedPhenoRow(r)
+                return _Wrapper()
+
+            with patch("scripts.run_exploratory.csv.DictReader", side_effect=guarded_dict_reader), \
+                 patch("scripts.run_exploratory._compute_nyu_rest1_motion", return_value={"10001": (0.12, 0.25, 0)}):
+                inputs = load_label_free_inputs(
+                    data_root=root,
+                    cache_path=root / "features" / "cache.npz",
+                    force_rebuild=True,
+                )
+
+            # Confirm rest_1 ONLY used for primary/all arrays, while rest_1+rest_2 averaged in multirun
+            expected_r1_z = timeseries_to_fisher_z(ts_r1)
+            expected_r2_z = timeseries_to_fisher_z(ts_r2)
+            np.testing.assert_allclose(inputs.pearson_z_edges[0], expected_r1_z, atol=1e-10)
+            np.testing.assert_allclose(
+                inputs.multirun_pearson_z_avg[0], 0.5 * (expected_r1_z + expected_r2_z), atol=1e-10
+            )
+
+            # Stale cache refusal test in run_preflight
+            import os
+            for fn, exp_n in [("dev_cc200_fisher_z_primary368.npz", 368), ("dev_cc200_fisher_z_all404.npz", 404)]:
+                np.savez(
+                    root / "features" / fn,
+                    X=np.zeros((exp_n, 17955), dtype=np.float32),
+                    motion_X=np.zeros((exp_n, 2), dtype=np.float64),
+                    age_sex_X=np.zeros((exp_n, 2), dtype=np.float64),
+                    t_lengths=np.full(exp_n, 120, dtype=np.int64),
+                    institutions=np.full(exp_n, "KKI", dtype="<U8"),
+                )
+            with open(root / "features" / "dev_valid_roi_set.json", "w") as f:
+                json.dump({"k_kept": 190, "p_edges": 17955}, f)
+            with open(root / "motion" / "dev_niak_fd_metrics.csv", "w") as f:
+                f.write("subject_id_norm,institution,mean_fd_mm,max_disp_mm,frames_cc200,exclude_primary_050\n")
+                for i in range(404):
+                    ex = 0 if i < 368 else 1
+                    f.write(f"{i+1},KKI,0.15,0.3,120,{ex}\n")
+            with open(root / "staging" / "NYU_motion.csv", "w") as f:
+                f.write("File,Max Motion (mm)\n")
+                for i in range(216):
+                    f.write(f"rest_1_{i},0.2\n")
+            with tarfile.open(root / "staging" / "intermediate_nyu.tar", "w") as tf:
+                ti = tarfile.TarInfo("dummy.mat")
+                ti.size = 2
+                tf.addfile(ti, io.BytesIO(b"ok"))
+            with open(root / "phenotypes" / "adhd200_preprocessed_phenotypics.tsv", "w") as f:
+                f.write("ScanDir ID\tSite\tGender\tAge\tDX\n")
+                for i in range(905):
+                    f.write(f"{i+1}\t5\t1\t11.5\t1\n")
+
+            # Make exploratory_label_free_cache.npz older than phenotypes_tsv
+            stale_cache = root / "features" / "exploratory_label_free_cache.npz"
+            (root / "features" / "cache.npz").replace(stale_cache)
+            old_time = (root / "phenotypes" / "adhd200_preprocessed_phenotypics.tsv").stat().st_mtime - 100.0
+            os.utime(stale_cache, (old_time, old_time))
+
+            with patch("scripts.run_exploratory.csv.DictReader", side_effect=guarded_dict_reader):
+                with self.assertRaises(ValueError) as ctx:
+                    run_preflight(data_root=root)
+                self.assertIn("STALE", str(ctx.exception))
 
 
 if __name__ == "__main__":
