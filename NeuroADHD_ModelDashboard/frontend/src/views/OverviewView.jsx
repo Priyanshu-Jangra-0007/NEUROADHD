@@ -284,7 +284,7 @@ export function OverviewView({ data }) {
         </div>
       </div>
 
-      {/* Study 2b: Exploratory Follow-Up (Visually Distinct, Static Aggregates from RESULTS_SUMMARY.md Only) */}
+      {/* Study 2b: Exploratory Follow-Up (Visually Distinct, Read from study2bData.json Compiled from RESULTS_SUMMARY.md) */}
       <Study2bExploratorySection />
 
       {/* Primary KPI Grid (Balanced 4-Column) */}
