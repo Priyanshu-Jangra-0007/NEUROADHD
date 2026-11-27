@@ -39,10 +39,10 @@ git tag -a exploratory-frozen -m "freeze: lock exploratory analysis runner, plan
 ```
 
 ### Step B: Execute the Exploratory Analysis Run
-Once the tag exists and approval is granted, execute with `caffeinate -dimsu` and null-only checkpointing using the dedicated project virtual environment:
+Once the tag exists and approval is granted, execute with `caffeinate -dimsu` and null-only checkpointing using the dedicated project virtual environment (`--n-workers 1` enforced for `<= 8 GiB` host RAM; flag `--n-workers` defaults to `0`, auto-selecting up to `2`):
 
 ```bash
-caffeinate -dimsu ./NeuroADHD/.venv/bin/python scripts/run_exploratory.py --execute-real --n-permutations 200 --checkpoint NeuroADHD/data/athena/results/exploratory_perm_checkpoint.json
+caffeinate -dimsu ./NeuroADHD/.venv/bin/python scripts/run_exploratory.py --execute-real --n-permutations 200 --n-workers 1 --checkpoint NeuroADHD/data/athena/results/exploratory_perm_checkpoint.json
 ```
 
 ---
