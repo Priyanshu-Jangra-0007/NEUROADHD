@@ -1,35 +1,26 @@
 import React from "react";
 import { FlaskConical, Info, ExternalLink } from "lucide-react";
+import study2bData from "../data/study2bData.json";
 
-const EXPLORATORY_STUDY2B = {
-  banner: "Exploratory, unblinded NYU, not confirmatory.",
-  outcomeSentence: "no evidence of incremental connectivity signal in this design.",
-  primaryN: 564,
-  bestConnAuc: "0.551",
-  bestConnPermP: "0.44",
-  chosenConfig: "CFG_09",
-  deltaAuc: "-0.0024",
-  deltaCi: "[-0.0144, +0.0096]",
-  deltaPermP: "0.93",
-  baselines: {
-    motion: "0.611",
-    ageSex: "0.570",
-    combined: "0.649",
-  },
-  sitesPositive: "1 of 5",
-  powerAt055: "8%",
-  powerAt060: "22%",
-  realizedMatchedPairs: "207 and 219",
-  quotedMatchedPairs: "215 and 226",
-  links: {
-    osfDoi: "https://doi.org/10.17605/OSF.IO/EQCSB",
-    frozenTag: "https://github.com/Priyanshu-Jangra-0007/NEUROADHD/releases/tag/exploratory-frozen",
-    resultsTag: "https://github.com/Priyanshu-Jangra-0007/NEUROADHD/releases/tag/exploratory-results",
-    resultsSummary: "https://github.com/Priyanshu-Jangra-0007/NEUROADHD/blob/exploratory-results/docs/exploratory/RESULTS_SUMMARY.md",
-  },
-};
+function displayField(value) {
+  return value !== undefined && value !== null && value !== "" ? value : "N/A";
+}
 
 export function Study2bExploratorySection() {
+  const osf = study2bData?.osf ?? {};
+  const primary = study2bData?.primary ?? {};
+  const baselines = primary.baselines ?? {};
+  const motion = baselines.motion ?? {};
+  const ageSex = baselines.age_sex ?? {};
+  const combined = baselines.combined ?? {};
+  const power = study2bData?.power ?? {};
+  const matched = study2bData?.matched_cohorts ?? {};
+  const links = study2bData?.links ?? {};
+
+  const bannerText = study2bData?.banner_from_summary
+    ? `${study2bData.banner_from_summary}.`
+    : "N/A";
+
   return (
     <section
       data-testid="study2b-exploratory-section"
@@ -62,7 +53,7 @@ export function Study2bExploratorySection() {
           gap: "8px",
         }}
       >
-        <span>{EXPLORATORY_STUDY2B.banner}</span>
+        <span>{bannerText}</span>
         <span style={{ fontSize: "0.72rem", fontWeight: "600" }}>
           Separate from Study 2 confirmatory evaluation
         </span>
@@ -77,7 +68,7 @@ export function Study2bExploratorySection() {
           </h3>
         </div>
         <span style={{ fontSize: "0.74rem", color: "var(--text-muted)", fontWeight: "600" }}>
-          Primary N = {EXPLORATORY_STUDY2B.primaryN}
+          Primary N = {displayField(primary.n_subjects)}
         </span>
       </div>
 
@@ -94,10 +85,10 @@ export function Study2bExploratorySection() {
         }}
       >
         <strong>Pre-declared outcome:</strong>{" "}
-        <span>&ldquo;{EXPLORATORY_STUDY2B.outcomeSentence}&rdquo;</span>
+        <span>&ldquo;{displayField(primary.pre_declared_outcome)}.&rdquo;</span>
       </div>
 
-      {/* Key Aggregate Summary (No leaderboard or per-configuration table) */}
+      {/* Key Aggregate Summary (Read strictly from study2bData.json; no per-configuration table) */}
       <div
         style={{
           background: "var(--bg-surface)",
@@ -111,24 +102,24 @@ export function Study2bExploratorySection() {
         }}
       >
         <div>
-          <strong>Key aggregates (primary N={EXPLORATORY_STUDY2B.primaryN}):</strong>{" "}
+          <strong>Key aggregates (primary N={displayField(primary.n_subjects)}):</strong>{" "}
           best connectivity-only AUC{" "}
-          <span className="tabular-nums">{EXPLORATORY_STUDY2B.bestConnAuc}</span> (permutation{" "}
-          <span className="tabular-nums">p = {EXPLORATORY_STUDY2B.bestConnPermP}</span>);{" "}
+          <span className="tabular-nums">{displayField(primary.best_conn_auc_display)}</span> (permutation{" "}
+          <span className="tabular-nums">p = {displayField(primary.best_conn_perm_p_display)}</span>);{" "}
           chosen configuration{" "}
-          <code style={{ fontFamily: "var(--font-mono)" }}>{EXPLORATORY_STUDY2B.chosenConfig}</code>{" "}
+          <code style={{ fontFamily: "var(--font-mono)" }}>{displayField(primary.chosen_config)}</code>{" "}
           delta-AUC vs motion+age+sex ={" "}
           <span className="tabular-nums">
-            {EXPLORATORY_STUDY2B.deltaAuc} {EXPLORATORY_STUDY2B.deltaCi}
+            {displayField(primary.delta_auc_display)} {displayField(primary.delta_ci_display)}
           </span>
-          , permutation <span className="tabular-nums">p = {EXPLORATORY_STUDY2B.deltaPermP}</span>.
+          , permutation <span className="tabular-nums">p = {displayField(primary.delta_perm_p_display)}</span>.
         </div>
         <div>
           <strong>Baselines:</strong> motion-only{" "}
-          <span className="tabular-nums">{EXPLORATORY_STUDY2B.baselines.motion}</span>, age/sex{" "}
-          <span className="tabular-nums">{EXPLORATORY_STUDY2B.baselines.ageSex}</span>, motion+age+sex{" "}
-          <span className="tabular-nums">{EXPLORATORY_STUDY2B.baselines.combined}</span>.{" "}
-          None of the three &ldquo;interesting&rdquo; conditions met ({EXPLORATORY_STUDY2B.sitesPositive} sites with positive delta-AUC).
+          <span className="tabular-nums">{displayField(motion.auc_display)}</span>, age/sex{" "}
+          <span className="tabular-nums">{displayField(ageSex.auc_display)}</span>, motion+age+sex{" "}
+          <span className="tabular-nums">{displayField(combined.auc_display)}</span>.{" "}
+          None of the three &ldquo;interesting&rdquo; conditions met ({displayField(primary.sites_positive_display)} sites with positive delta-AUC).
         </div>
       </div>
 
@@ -152,13 +143,15 @@ export function Study2bExploratorySection() {
         <div>
           <div>
             <strong>Power caveat:</strong> simulated power of the full decision rule about{" "}
-            {EXPLORATORY_STUDY2B.powerAt055} at connectivity-only AUC 0.55 and about{" "}
-            {EXPLORATORY_STUDY2B.powerAt060} at 0.60, so a negative result cannot rule out small
+            {displayField(power.weak1_rule_power_display)} at connectivity-only AUC{" "}
+            {displayField(power.weak1_conn_auc_display)} and about{" "}
+            {displayField(power.weak2_rule_power_display)} at{" "}
+            {displayField(power.weak2_conn_auc_display)}, so a negative result cannot rule out small
             effects. Any positive result would have been a hypothesis for a new cohort.
           </div>
           <div style={{ marginTop: "4px" }}>
-            <strong>Note:</strong> realized matched cohorts had {EXPLORATORY_STUDY2B.realizedMatchedPairs} pairs
-            (plan quoted {EXPLORATORY_STUDY2B.quotedMatchedPairs}).
+            <strong>Note:</strong> realized matched cohorts had {displayField(matched.realized_pairs_display)} pairs
+            (plan quoted {displayField(matched.pre_declared_pairs_display)}).
           </div>
         </div>
       </div>
@@ -175,31 +168,31 @@ export function Study2bExploratorySection() {
         }}
       >
         <a
-          href={EXPLORATORY_STUDY2B.links.osfDoi}
+          href={links.osf_doi || "#"}
           target="_blank"
           rel="noreferrer"
           style={{ color: "var(--brand-blue)", display: "inline-flex", alignItems: "center", gap: "4px", fontWeight: "600" }}
         >
-          OSF plan registration (10.17605/OSF.IO/EQCSB) <ExternalLink size={12} />
+          OSF plan registration ({displayField(osf.doi)}) <ExternalLink size={12} />
         </a>
         <a
-          href={EXPLORATORY_STUDY2B.links.frozenTag}
+          href={links.frozen_tag || "#"}
           target="_blank"
           rel="noreferrer"
           style={{ color: "var(--brand-blue)", display: "inline-flex", alignItems: "center", gap: "4px", fontWeight: "600" }}
         >
-          GitHub tag: exploratory-frozen <ExternalLink size={12} />
+          GitHub tag: {displayField(osf.frozen_tag)} <ExternalLink size={12} />
         </a>
         <a
-          href={EXPLORATORY_STUDY2B.links.resultsTag}
+          href={links.results_tag || "#"}
           target="_blank"
           rel="noreferrer"
           style={{ color: "var(--brand-blue)", display: "inline-flex", alignItems: "center", gap: "4px", fontWeight: "600" }}
         >
-          GitHub tag: exploratory-results <ExternalLink size={12} />
+          GitHub tag: {displayField(osf.results_tag)} <ExternalLink size={12} />
         </a>
         <a
-          href={EXPLORATORY_STUDY2B.links.resultsSummary}
+          href={links.results_summary || "#"}
           target="_blank"
           rel="noreferrer"
           style={{ color: "var(--brand-blue)", display: "inline-flex", alignItems: "center", gap: "4px", fontWeight: "600" }}

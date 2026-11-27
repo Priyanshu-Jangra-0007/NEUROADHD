@@ -1,0 +1,113 @@
+{
+  "source_files": [
+    "docs/exploratory/RESULTS_SUMMARY.md",
+    "docs/exploratory/NOTE_matched_pairs_2026-11-27.md",
+    "docs/exploratory/OSF_RECORD.md"
+  ],
+  "protocol_version": "exploratory_12_plus_4_late_fusion",
+  "banner_from_summary": "Exploratory, unblinded NYU, not confirmatory",
+  "resampling": {
+    "n_permutations": 200,
+    "n_boot": 2000,
+    "seed": 42,
+    "n_workers": 1
+  },
+  "osf": {
+    "url": "https://osf.io/eqcsb",
+    "doi": "10.17605/OSF.IO/EQCSB",
+    "doi_url": "https://doi.org/10.17605/OSF.IO/EQCSB",
+    "frozen_tag": "exploratory-frozen",
+    "frozen_commit": "393ed6d5ddd8a69f57468e4eb35fc3498aed9530",
+    "results_tag": "exploratory-results",
+    "results_commit": "2d5adf57ea5ac8c447700b9e941cf85b32d96732"
+  },
+  "primary": {
+    "n_subjects": 564,
+    "pre_declared_outcome": "no evidence of incremental connectivity signal in this design",
+    "chosen_config": "CFG_09",
+    "best_conn_config": "CFG_01",
+    "best_conn_auc": 0.5511,
+    "best_conn_auc_display": "0.5511",
+    "best_conn_perm_p": 0.4378,
+    "best_conn_perm_p_display": "0.4378",
+    "best_conn_perm_p_exact": 0.437811,
+    "delta_auc": -0.0024,
+    "delta_auc_display": "-0.0024",
+    "delta_ci_95": [
+      -0.0144,
+      0.0096
+    ],
+    "delta_ci_display": "[-0.0144, +0.0096]",
+    "delta_perm_p": 0.9303,
+    "delta_perm_p_display": "0.9303",
+    "delta_perm_p_exact": 0.930348,
+    "verdict": "not interesting",
+    "is_interesting": false,
+    "n_sites_positive": 1,
+    "n_sites_total": 5,
+    "sites_positive_display": "1 of 5",
+    "motion_beats_best_conn": true,
+    "motion_beats_best_conn_sentence": "The motion-only baseline AUC (0.6110) is higher than the best connectivity-only AUC (0.5511).",
+    "baselines": {
+      "motion": {
+        "auc": 0.611,
+        "auc_display": "0.6110",
+        "ci_95": [
+          0.5639,
+          0.6585
+        ],
+        "ci_display": "[0.5639, 0.6585]"
+      },
+      "age_sex": {
+        "auc": 0.5697,
+        "auc_display": "0.5697",
+        "ci_95": [
+          0.5233,
+          0.6154
+        ],
+        "ci_display": "[0.5233, 0.6154]"
+      },
+      "combined": {
+        "auc": 0.6487,
+        "auc_display": "0.6487",
+        "ci_95": [
+          0.6047,
+          0.6917
+        ],
+        "ci_display": "[0.6047, 0.6917]"
+      }
+    }
+  },
+  "power": {
+    "weak1_conn_auc_display": "0.55",
+    "weak1_rule_power_display": "8.0%",
+    "weak2_conn_auc_display": "0.60",
+    "weak2_rule_power_display": "22.0%"
+  },
+  "matched_cohorts": {
+    "realized_clean_pairs": 207,
+    "realized_clean_n": 414,
+    "realized_all_pairs": 219,
+    "realized_all_n": 438,
+    "realized_pairs_display": "207 and 219",
+    "pre_declared_clean_pairs": 215,
+    "pre_declared_clean_n": 430,
+    "pre_declared_all_pairs": 226,
+    "pre_declared_all_n": 452,
+    "pre_declared_pairs_display": "215 and 226",
+    "note_filename": "NOTE_matched_pairs_2026-11-27.md",
+    "note_path": "docs/exploratory/NOTE_matched_pairs_2026-11-27.md"
+  },
+  "sensitivity": {
+    "all_620_n": 620,
+    "multirun_n": 295
+  },
+  "links": {
+    "osf_doi": "https://doi.org/10.17605/OSF.IO/EQCSB",
+    "osf_url": "https://osf.io/eqcsb",
+    "frozen_tag": "https://github.com/Priyanshu-Jangra-0007/NEUROADHD/releases/tag/exploratory-frozen",
+    "results_tag": "https://github.com/Priyanshu-Jangra-0007/NEUROADHD/releases/tag/exploratory-results",
+    "results_summary": "https://github.com/Priyanshu-Jangra-0007/NEUROADHD/blob/exploratory-results/docs/exploratory/RESULTS_SUMMARY.md",
+    "matched_pairs_note": "https://github.com/Priyanshu-Jangra-0007/NEUROADHD/blob/note/matched-pairs/docs/exploratory/NOTE_matched_pairs_2026-11-27.md"
+  }
+}
