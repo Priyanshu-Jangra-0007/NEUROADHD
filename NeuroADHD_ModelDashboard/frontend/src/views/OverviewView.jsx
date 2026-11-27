@@ -4,6 +4,7 @@ import siteConfoundData from "../data/siteConfoundData.json";
 import finalCandidateData from "../data/finalCandidateData.json";
 import modelComparisonData from "../data/modelComparisonData.json";
 import study2Data from "../data/study2Data.json";
+import { Study2bExploratorySection } from "../components/Study2bExploratorySection";
 
 export function OverviewView({ data }) {
   const cohort = data?.cohort_breakdown;
@@ -282,6 +283,9 @@ export function OverviewView({ data }) {
           </span>
         </div>
       </div>
+
+      {/* Study 2b: Exploratory Follow-Up (Visually Distinct, Static Aggregates from RESULTS_SUMMARY.md Only) */}
+      <Study2bExploratorySection />
 
       {/* Primary KPI Grid (Balanced 4-Column) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", marginBottom: "24px" }}>
