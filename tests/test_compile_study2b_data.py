@@ -88,6 +88,10 @@ class TestCompileStudy2bData(unittest.TestCase):
     def test_jsx_reads_json_has_na_fallback_and_no_metric_numeric_literals(self) -> None:
         jsx = STUDY2B_JSX_PATH.read_text(encoding="utf-8")
         self.assertNotIn("EXPLORATORY_STUDY2B", jsx)
+        self.assertNotIn("unblinded NYU", jsx)
+        self.assertIn("NYU was scored in Study 2 and is no longer sealed", jsx)
+        self.assertIn("motion_beats_best_conn_sentence", jsx)
+        self.assertIn("note_filename", jsx)
         self.assertIn('from "../data/study2bData.json"', jsx)
         self.assertIn('"N/A"', jsx)
 

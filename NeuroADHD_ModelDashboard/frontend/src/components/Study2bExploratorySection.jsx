@@ -17,9 +17,7 @@ export function Study2bExploratorySection() {
   const matched = study2bData?.matched_cohorts ?? {};
   const links = study2bData?.links ?? {};
 
-  const bannerText = study2bData?.banner_from_summary
-    ? `${study2bData.banner_from_summary}.`
-    : "N/A";
+  const bannerText = "Exploratory — NYU was scored in Study 2 and is no longer sealed; not confirmatory.";
 
   return (
     <section
@@ -119,6 +117,7 @@ export function Study2bExploratorySection() {
           <span className="tabular-nums">{displayField(motion.auc_display)}</span>, age/sex{" "}
           <span className="tabular-nums">{displayField(ageSex.auc_display)}</span>, motion+age+sex{" "}
           <span className="tabular-nums">{displayField(combined.auc_display)}</span>.{" "}
+          {displayField(primary.motion_beats_best_conn_sentence)}{" "}
           None of the three &ldquo;interesting&rdquo; conditions met ({displayField(primary.sites_positive_display)} sites with positive delta-AUC).
         </div>
       </div>
@@ -151,7 +150,16 @@ export function Study2bExploratorySection() {
           </div>
           <div style={{ marginTop: "4px" }}>
             <strong>Note:</strong> realized matched cohorts had {displayField(matched.realized_pairs_display)} pairs
-            (plan quoted {displayField(matched.pre_declared_pairs_display)}).
+            (plan quoted {displayField(matched.pre_declared_pairs_display)}). See{" "}
+            <a
+              href={links.matched_pairs_note || "#"}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: "var(--brand-blue)", fontWeight: "600" }}
+            >
+              {displayField(matched.note_filename)}
+            </a>{" "}
+            for why the realized pair counts differ (sensitivity cohorts only; primary analysis unaffected).
           </div>
         </div>
       </div>
